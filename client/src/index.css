@@ -1,0 +1,19 @@
+* {
+  margin: 0;
+  padding: 0%;
+  box-sizing: border-box;
+}
+
+/* DARK MODE */
+#Dark {
+  background-color: #5f264a;
+  color: #f4eee0;
+}
+
+/* MEDIA QUERY */
+@media (max-width: 600px) {
+  .footer {
+    margin: 0;
+    padding: 0;
+  }
+}

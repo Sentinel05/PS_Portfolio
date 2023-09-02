@@ -1,0 +1,46 @@
+.skills {
+  padding-left: 130px;
+  margin-top: 60px;
+}
+
+.skills hr {
+  color: #138781;
+  width: 600px;
+  margin: 10px auto;
+}
+
+.skills h2 {
+  font-weight: bold;
+  color: #138781;
+}
+
+.skills .card {
+  cursor: pointer;
+}
+
+.skills .tech-icon {
+  font-size: 2rem;
+  margin-right: 10px;
+}
+
+.skills .card:hover {
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  background-color: #138781;
+  color: white;
+  transition: 0.5s;
+}
+
+/* MEDIA QUERY */
+@media (max-width: 600px) {
+  .skills {
+    padding: 0;
+    margin: 0;
+    margin-top: 30px;
+  }
+
+  .skills hr {
+    width: 300px;
+  }
+}

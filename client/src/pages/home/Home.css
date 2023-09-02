@@ -1,0 +1,82 @@
+.home-container {
+  height: 300px;
+  color: white;
+  padding-left: 200px;
+}
+
+.home-content h2 {
+  padding: 5px;
+  padding-top: 75px;
+}
+
+.home-content h1 {
+  padding: 5px;
+  color: #e0b50f;
+}
+
+.home-buttons {
+  margin-top: 20px;
+}
+
+.home-buttons .btn-hire {
+  background-color: #3b8ff3;
+  color: white;
+  width: 150px;
+}
+
+.home-buttons .btn-hire:hover {
+  background-color: white;
+  color: #3b8ff3;
+  width: 175px;
+  transition: 0.3s;
+}
+
+.home-buttons .btn-cv {
+  background-color: #3b8ff3;
+  color: white;
+  width: 150px;
+  margin-left: 15px;
+}
+
+.home-buttons .btn-cv:hover {
+  background-color: white;
+  color: #3b8ff3;
+  width: 175px;
+  margin-left: 15px;
+  transition: 0.3s;
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  width: 50px;
+  background-color: #1e1e2c;
+  margin-top: 20px;
+  text-align: center;
+  position: fixed;
+  right: 0;
+  cursor: pointer;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  z-index: 1;
+}
+
+/* MEDIA QUER */
+
+@media (max-width: 600px) {
+  .home-container {
+    margin: 0;
+    padding: 0;
+    margin-top: 50px;
+  }
+
+  .home-container h2 {
+    font-size: 24px;
+  }
+
+  .home-container h1 {
+    font-size: 24px;
+  }
+}
