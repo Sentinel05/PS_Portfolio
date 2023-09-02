@@ -4,5 +4,5 @@ node_modules/
 # Environment variables
 .env
 
-# Frontend dependencies (if your client has its own node_modules)
+# Frontend dependencies
 /client/node_modules/
