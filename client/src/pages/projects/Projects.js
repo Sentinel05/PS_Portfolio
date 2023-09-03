@@ -17,7 +17,7 @@ const Projects = () => {
             <div className="col-md-4">
               <div className="card rounded">
                 <div className="card-image">
-                  <span className="card-notify-badge">Full Stack</span>
+                  <span className="card-notify-badge">Full-Stack</span>
                   <img
                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPteZx6UiNpq6k9ekcAczrug1QxbP-642Ccg&usqp=CAU"
                     alt="project1"
@@ -30,12 +30,12 @@ const Projects = () => {
                   <span className="card-detail-badge">Mongodb</span>
                 </div>
                 <div className="card-body text-center">
-                  <div className="ad-title m-auto">
-                    <h5>Priyanshu Sarkar Portfolio</h5>
+                  <div className="m-auto">
+                    <h5>Portfolio Website</h5>
                   </div>
                   <a
                     className="ad-btn"
-                    href="https://github.com/Sentinel05/Tic-Tac-Toe"
+                    href="https://github.com/Sentinel05/PS_Portfolio"
                   >
                     Checkout
                   </a>
@@ -45,7 +45,7 @@ const Projects = () => {
             <div className="col-md-4">
               <div className="card rounded">
                 <div className="card-image">
-                  <span className="card-notify-badge">Backend</span>
+                  <span className="card-notify-badge">Back-End</span>
                   <img
                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPteZx6UiNpq6k9ekcAczrug1QxbP-642Ccg&usqp=CAU"
                     alt="project1"
@@ -56,7 +56,7 @@ const Projects = () => {
                   <span className="card-detail-badge">Backtracking</span>
                 </div>
                 <div className="card-body text-center">
-                  <div className="ad-title m-auto">
+                  <div className="m-auto">
                     <h5>Tic Tac Toe</h5>
                   </div>
                   <a
@@ -71,25 +71,23 @@ const Projects = () => {
             <div className="col-md-4">
               <div className="card rounded">
                 <div className="card-image">
-                  <span className="card-notify-badge">Networking</span>
+                  <span className="card-notify-badge">Back-End</span>
                   <img
                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPteZx6UiNpq6k9ekcAczrug1QxbP-642Ccg&usqp=CAU"
                     alt="project1"
                   ></img>
                 </div>
                 <div className="card-image-overlay m-auto mt-3">
-                  <span className="card-detail-badge">Mininet</span>
-                  <span className="card-detail-badge">Miniedit</span>
-                  <span className="card-detail-badge">Wireshark</span>
-                  <span className="card-detail-badge">Ubuntu</span>
+                  <span className="card-detail-badge">C++</span>
+                  <span className="card-detail-badge">File Management</span>
                 </div>
                 <div className="card-body text-center">
-                  <div className="ad-title m-auto">
-                    <h5>Creating and Testing SDN Scenarios</h5>
+                  <div className="m-auto">
+                    <h5>Supermarket Portal</h5>
                   </div>
                   <a
                     className="ad-btn"
-                    href="https://github.com/Sentinel05/Tic-Tac-Toe"
+                    href="https://github.com/Sentinel05/Supermarket-Portal"
                   >
                     Checkout
                   </a>
