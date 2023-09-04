@@ -1,6 +1,9 @@
 import React from "react";
 import "./Projects.css";
 import Flip from "react-reveal/Flip";
+import Portfolio from "../../assets/images/Portfolio.png";
+import TicTacToe from "../../assets/images/TicTacToe.png";
+import Supermarket from "../../assets/images/Supermarket.png";
 
 const Projects = () => {
   return (
@@ -19,7 +22,7 @@ const Projects = () => {
                 <div className="card-image">
                   <span className="card-notify-badge">Full-Stack</span>
                   <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPteZx6UiNpq6k9ekcAczrug1QxbP-642Ccg&usqp=CAU"
+                    src={Portfolio}
                     alt="project1"
                   ></img>
                 </div>
@@ -47,8 +50,8 @@ const Projects = () => {
                 <div className="card-image">
                   <span className="card-notify-badge">Back-End</span>
                   <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPteZx6UiNpq6k9ekcAczrug1QxbP-642Ccg&usqp=CAU"
-                    alt="project1"
+                    src={TicTacToe}
+                    alt="project2"
                   ></img>
                 </div>
                 <div className="card-image-overlay m-auto mt-3">
@@ -73,8 +76,8 @@ const Projects = () => {
                 <div className="card-image">
                   <span className="card-notify-badge">Back-End</span>
                   <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPteZx6UiNpq6k9ekcAczrug1QxbP-642Ccg&usqp=CAU"
-                    alt="project1"
+                    src={Supermarket}
+                    alt="project3"
                   ></img>
                 </div>
                 <div className="card-image-overlay m-auto mt-3">

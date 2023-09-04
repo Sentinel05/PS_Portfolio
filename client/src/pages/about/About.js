@@ -3,6 +3,7 @@ import "./About.css";
 import RubberBand from "react-reveal/RubberBand";
 import Jello from "react-reveal/Jello";
 import Bounce from "react-reveal/Bounce";
+import Pic from "../../assets/images/Priyanshu.jpg";
 
 const About = () => {
   return (
@@ -10,14 +11,11 @@ const About = () => {
       <div className="about" id="about">
         <div className="row">
           <Jello>
-            <div className="col-md-6 col-xl-6 col-lg-6 col-xs-12 about-image">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0whpKMsSSdlJ3nK6himYaX967iYEepBgeQA&usqp=CAU"
-                alt="profile_pic"
-              ></img>
+            <div className="col-md-4 col-xl-4 col-lg-4 col-xs-12 about-image">
+              <img src={Pic} alt="profile_pic"></img>
             </div>
           </Jello>
-          <div className="col-md-6 col-xl-6 col-lg-6 col-xs-12 about-content">
+          <div className="col-md-8 col-xl-8 col-lg-8 col-xs-12 about-content">
             <RubberBand>
               <h1>About me</h1>
             </RubberBand>

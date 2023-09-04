@@ -7,6 +7,7 @@ import { IoConstruct } from "react-icons/io5";
 import { Link } from "react-scroll";
 import Zoom from "react-reveal/Zoom";
 import Fade from "react-reveal/Fade";
+import Pic from "../../assets/images/cool-dp.jpg";
 
 const Menus = ({ toggle }) => {
   return (
@@ -15,10 +16,7 @@ const Menus = ({ toggle }) => {
         <>
           <Zoom>
             <div className="navbar-profile-pic">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0whpKMsSSdlJ3nK6himYaX967iYEepBgeQA&usqp=CAU"
-                alt="dp"
-              ></img>
+              <img src={Pic} alt="dp"></img>
             </div>
           </Zoom>
           <Fade left cascade>

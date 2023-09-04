@@ -29,7 +29,7 @@ function App() {
         <Bounce bottom>
           <div className="footer pb-3 ms-3">
             <h4 className="text-center">
-              Made with 💕 by Priyanshu Sarkar &copy; 2023
+              Made by Priyanshu Sarkar &copy; 2023
             </h4>
           </div>
         </Bounce>
