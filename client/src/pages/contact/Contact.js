@@ -1,8 +1,10 @@
 import React from "react";
+import { useState, useRef } from "react";
 import "./Contact.css";
 import { FaLinkedin, FaGithubSquare } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
 import Shake from "react-reveal/Shake";
+// import emailjs from "@emailjs/browser";
 
 const Contact = () => {
   return (
