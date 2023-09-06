@@ -21,6 +21,7 @@ import {
   FaAngular,
   FaNetworkWired,
   FaWifi,
+  FaReact,
 } from "react-icons/fa";
 import { GrDos } from "react-icons/gr";
 import { BsHddNetwork } from "react-icons/bs";
@@ -73,8 +74,8 @@ export const SkillsList = [
   },
   {
     _id: 10,
-    name: "Angular CLI",
-    icon: FaAngular,
+    name: "React",
+    icon: FaReact,
   },
   {
     _id: 11,
