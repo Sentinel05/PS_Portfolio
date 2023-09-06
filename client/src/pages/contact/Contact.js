@@ -1,10 +1,63 @@
-import React from "react";
+import { React, useState, useRef } from "react";
 import "./Contact.css";
 import { FaLinkedin, FaGithubSquare } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
 import Shake from "react-reveal/Shake";
+import emailjs from "@emailjs/browser";
 
 const Contact = () => {
+  //template_c64o3se
+  //service_6evilyb
+  //XPlopKMKr2oWOtoHd
+  const formRef = useRef();
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    emailjs
+      .send(
+        "service_6evilyb",
+        "template_c64o3se",
+        {
+          from_name: form.name,
+          to_name: "Priyanshu Sarkar",
+          from_email: form.email,
+          to_email: "p30sarkar@gmail.com",
+          message: form.message,
+        },
+        "XPlopKMKr2oWOtoHd"
+      )
+      .then(
+        () => {
+          setLoading(false);
+          alert("Message sent... will get back soon!");
+          setForm({
+            name: "",
+            email: "",
+            message: "",
+          });
+        },
+        (error) => {
+          setLoading(false);
+          alert("Error while sending the message. Please try again.");
+          console.log(error);
+        }
+      );
+  };
+
   return (
     <>
       <Shake>
@@ -47,41 +100,48 @@ const Contact = () => {
                         </a>
                       </h6>
                     </div>
-
                     <div className="row px-3 mb-4">
                       <div className="line"></div>
                       <small className="or text-center">OR</small>
                       <div className="line"></div>
                     </div>
-                    <div className="row px-3">
-                      <input
-                        type="text"
-                        name="name"
-                        placeholder="Enter your name"
-                        className="mb-3"
-                      ></input>
-                    </div>
-                    <div className="row px-3">
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="Enter your e-mail"
-                        className="mb-3"
-                      ></input>
-                    </div>
-                    <div className="row px-3">
-                      <textarea
-                        type="text"
-                        name="msg"
-                        placeholder="Type your message"
-                        className="mb-3"
-                      ></textarea>
-                    </div>
-                    <div className="row px-3">
-                      <button className="button" type="submit">
-                        Send Message
-                      </button>
-                    </div>
+                    <form ref={formRef} onSubmit={handleSubmit}>
+                      <div className="row px-3">
+                        <input
+                          type="text"
+                          name="name"
+                          placeholder="Enter your name"
+                          className="mb-3"
+                          value={form.name}
+                          onChange={handleChange}
+                        ></input>
+                      </div>
+                      <div className="row px-3">
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="Enter your e-mail"
+                          className="mb-3"
+                          value={form.email}
+                          onChange={handleChange}
+                        ></input>
+                      </div>
+                      <div className="row px-3">
+                        <textarea
+                          type="text"
+                          name="message"
+                          placeholder="Type your message"
+                          className="mb-3"
+                          value={form.message}
+                          onChange={handleChange}
+                        ></textarea>
+                      </div>
+                      <div className="row px-3">
+                        <button className="button" type="submit">
+                          {loading ? "Sending..." : "Send Message"}
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>

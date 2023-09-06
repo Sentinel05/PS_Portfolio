@@ -9,9 +9,11 @@ E - Express.js: A back-end web application framework for Node.js.
 R - React.js: A JavaScript library for building user interfaces.
 N - Node.js: A JavaScript runtime environment that allows for server-side scripting.
 
+E-mail services enabled with the help of EmailJS.
+
 MongoDB isn't implemented yet but there are plans for implementing it in near future.
 
 Its deployed using Render.
 
-Link for deplyed project- 
+Link for deplyed project-
 https://p-sarkar-portfolio.onrender.com
