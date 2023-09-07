@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/static/css/main.f4303e4b.css",
-    "main.js": "/static/js/main.cfc3d3a1.js",
+    "main.css": "/static/css/main.b576628e.css",
+    "main.js": "/static/js/main.6e113982.js",
     "static/js/787.c4e7f8f9.chunk.js": "/static/js/787.c4e7f8f9.chunk.js",
     "static/media/Portfolio.png": "/static/media/Portfolio.4b655cf9d0c495ffbca1.png",
     "static/media/cool-dp.jpg": "/static/media/cool-dp.e9971259e7bfde39fb18.jpg",
+    "static/media/Priyanshu_Sarkar_Resume.pdf": "/static/media/Priyanshu_Sarkar_Resume.04db266a95c22c154270.pdf",
     "static/media/Supermarket.png": "/static/media/Supermarket.5bc5f51ed169485afd2c.png",
     "static/media/TicTacToe.png": "/static/media/TicTacToe.4d45673cfc5934ca296a.png",
     "static/media/Priyanshu.jpg": "/static/media/Priyanshu.51ea1f5d0e69521fb9fb.jpg",
-    "static/media/Priyanshu Resume 2.pdf": "/static/media/Priyanshu Resume 2.a5dcdf0702bc527adfd3.pdf",
     "index.html": "/index.html",
-    "main.f4303e4b.css.map": "/static/css/main.f4303e4b.css.map",
-    "main.cfc3d3a1.js.map": "/static/js/main.cfc3d3a1.js.map",
+    "main.b576628e.css.map": "/static/css/main.b576628e.css.map",
+    "main.6e113982.js.map": "/static/js/main.6e113982.js.map",
     "787.c4e7f8f9.chunk.js.map": "/static/js/787.c4e7f8f9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f4303e4b.css",
-    "static/js/main.cfc3d3a1.js"
+    "static/css/main.b576628e.css",
+    "static/js/main.6e113982.js"
   ]
 }

@@ -17,3 +17,5 @@ Its deployed using Render.
 
 Link for deplyed project-
 https://p-sarkar-portfolio.onrender.com
+
+Note: Link may load up very slow since its hosted freely.

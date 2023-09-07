@@ -1,14 +1,11 @@
 import { React, useState, useRef } from "react";
 import "./Contact.css";
-import { FaLinkedin, FaGithubSquare } from "react-icons/fa";
+import { FaLinkedin, FaWhatsappSquare } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
 import Shake from "react-reveal/Shake";
 import emailjs from "@emailjs/browser";
 
 const Contact = () => {
-  //template_c64o3se
-  //service_6evilyb
-  //XPlopKMKr2oWOtoHd
   const formRef = useRef();
 
   const [form, setForm] = useState({
@@ -68,7 +65,7 @@ const Contact = () => {
                 <div className="card1">
                   <div className="row border-line">
                     <img
-                      src="https://media.istockphoto.com/id/1049658692/photo/contact-us.jpg?s=612x612&w=0&k=20&c=hFoLqy8mHjvdPh2HFZQ9pRcO-zzEB9HIENJ7ub2sj80="
+                      src="https://c0.wallpaperflare.com/preview/16/443/809/business-office-flatlay-contact-us.jpg"
                       alt="contact"
                       className="image"
                     ></img>
@@ -88,12 +85,16 @@ const Contact = () => {
                             className="ms-2"
                           ></FaLinkedin>
                         </a>
-                        <a href="https://github.com/Sentinel05">
-                          <FaGithubSquare
-                            color="black"
+                        <a
+                          href="https://api.whatsapp.com/send?phone=7904953079"
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          <FaWhatsappSquare
+                            color={"#25D366"}
                             size={36}
                             className="ms-2"
-                          ></FaGithubSquare>
+                          ></FaWhatsappSquare>
                         </a>
                         <a href="mailto:ps30.official@gmail.com">
                           <SiGmail color="red" size={36} className="ms-2" />
