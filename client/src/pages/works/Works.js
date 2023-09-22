@@ -40,7 +40,7 @@ const Works = () => {
             <h3 className="vertical-timeline-element-title">
               Associate Software Engineer
             </h3>
-            <h4 className="vertical-timeline-element-subtitle">Opentext</h4>
+            <h4 className="vertical-timeline-element-subtitle">OpenText</h4>
             <div className="work-location">(Bengaluru, India)</div>
           </VerticalTimelineElement>
         </VerticalTimeline>
