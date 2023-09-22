@@ -21,18 +21,16 @@ const Educations = () => {
             className="vertical-timeline-element--work"
             contentStyle={{ background: "white", color: "black" }}
             contentArrowStyle={{ borderRight: "7px solid  white" }}
-            date="2019 - 2023"
+            date="2016 - 2017"
             iconStyle={{ background: "#138781", color: "#fff" }}
             icon={<MdSchool />}
           >
-            <h3 className="vertical-timeline-element-title">
-              Bachelor of Engineering (ECE)
-            </h3>
+            <h3 className="vertical-timeline-element-title">Secondary</h3>
             <h4 className="vertical-timeline-element-subtitle">
-              Nitte Meenakshi Institute of Technology
+              Kendriya Vidyalaya AFS Sulur
             </h4>
-            <div>(Bengaluru, India)</div>
-            <p>Grade - 7.75 CGPA</p>
+            <div>(Sulur, India)</div>
+            <p>Grade - 10.00 CGPA</p>
           </VerticalTimelineElement>
           <VerticalTimelineElement
             className="vertical-timeline-element--work"
@@ -55,16 +53,18 @@ const Educations = () => {
             className="vertical-timeline-element--work"
             contentStyle={{ background: "white", color: "black" }}
             contentArrowStyle={{ borderRight: "7px solid  white" }}
-            date="2016 - 2017"
+            date="2019 - 2023"
             iconStyle={{ background: "#138781", color: "#fff" }}
             icon={<MdSchool />}
           >
-            <h3 className="vertical-timeline-element-title">Secondary</h3>
+            <h3 className="vertical-timeline-element-title">
+              Bachelor of Engineering (ECE)
+            </h3>
             <h4 className="vertical-timeline-element-subtitle">
-              Kendriya Vidyalaya AFS Sulur
+              Nitte Meenakshi Institute of Technology
             </h4>
-            <div>(Sulur, India)</div>
-            <p>Grade - 10.00 CGPA</p>
+            <div>(Bengaluru, India)</div>
+            <p>Grade - 7.75 CGPA</p>
           </VerticalTimelineElement>
         </VerticalTimeline>
       </div>

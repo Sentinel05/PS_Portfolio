@@ -29,6 +29,20 @@ const Works = () => {
             <h4 className="vertical-timeline-element-subtitle">Micro Focus</h4>
             <div className="work-location">(Bengaluru, India)</div>
           </VerticalTimelineElement>
+          <VerticalTimelineElement
+            className="vertical-timeline-element--work"
+            contentStyle={{ background: "#138781", color: "black" }}
+            contentArrowStyle={{ borderRight: "7px solid  #138781" }}
+            date="Sept 2023 - Present"
+            iconStyle={{ background: "#138781", color: "#fff" }}
+            icon={<MdWork />}
+          >
+            <h3 className="vertical-timeline-element-title">
+              Associate Software Engineer
+            </h3>
+            <h4 className="vertical-timeline-element-subtitle">Opentext</h4>
+            <div className="work-location">(Bengaluru, India)</div>
+          </VerticalTimelineElement>
         </VerticalTimeline>
       </div>
     </>
