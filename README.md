@@ -27,6 +27,19 @@ A full-stack personal portfolio website built with the MERN stack (MongoDB, Expr
 
 ---
 
+## Quick Start (Windows)
+
+If `npm` is not recognised in your terminal, just double-click one of these batch files in the project root — no PATH setup needed:
+
+| File        | What it does                                        |
+|-------------|-----------------------------------------------------|
+| `dev.bat`   | Starts both servers for development (recommended)   |
+| `start.bat` | Builds the React app then starts the production server |
+
+> **Prerequisite:** [Node.js](https://nodejs.org/) must be installed on the machine.
+
+---
+
 ## Getting Started
 
 ### 1. Clone the repository
@@ -158,6 +171,10 @@ Run from the **`client/` directory**:
 `npm start` at the root runs `node server.js` — the Express server — which serves the **pre-built** React app from `client/build/`. If `client/build/` doesn't exist yet (i.e., you haven't run `npm run build`), the app will show a blank page or 404.
 
 For **development**, always use `npm run dev` from the root so both the backend and the React hot-reload server run together.
+
+If `npm` is not found in your terminal (common on Windows when Node.js was installed manually), either:
+- **Open a fresh terminal** after installing Node.js — the installer adds `npm` to PATH automatically.
+- **Use the batch files** — double-click `dev.bat` or `start.bat` in the project root; they handle the PATH internally.
 
 ---
 
