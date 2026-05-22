@@ -21,16 +21,16 @@ const About = () => {
             </RubberBand>
             <Bounce>
               <p>
-                I am a fresher with a 6 months decent experience working with
-                TypeScript, Angular and REST APIs to develop the web UI for a
-                hypervisor integration related feature of the product. I quickly
-                learned Angular and other required skills to develop a working
-                web UI for the POC of the same in a two-man team and also,
-                worked for the rapid production level development for the same.
-                Apart from this, I am also very confident with C++ since I have
-                studied C++ quite a lot and made some projects using it along
-                with which I have some decent knowledge about other languages as
-                well like Java, Python, SQL, C.
+                I am a Software Engineer at OpenText, I develop and enhance
+                integrational features for Data Protector, enabling enterprises
+                to protect critical environments like SAP HANA, VMware,
+                Documentum and Windows Defender. My role combines
+                innovation—building integrations that expand product
+                capabilities—with customer focus, ensuring complex incidents are
+                resolved with efficiency and precision. I thrive on solving
+                technical challenges, optimizing system performance, and
+                creating solutions that directly impact enterprise reliability
+                and customer trust.
               </p>
             </Bounce>
           </div>

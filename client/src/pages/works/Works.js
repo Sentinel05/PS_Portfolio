@@ -33,12 +33,26 @@ const Works = () => {
             className="vertical-timeline-element--work"
             contentStyle={{ background: "#138781", color: "black" }}
             contentArrowStyle={{ borderRight: "7px solid  #138781" }}
-            date="Sept 2023 - Present"
+            date="Sept 2023 - Dec 2025"
             iconStyle={{ background: "#138781", color: "#fff" }}
             icon={<MdWork />}
           >
             <h3 className="vertical-timeline-element-title">
               Associate Software Engineer
+            </h3>
+            <h4 className="vertical-timeline-element-subtitle">OpenText</h4>
+            <div className="work-location">(Bengaluru, India)</div>
+          </VerticalTimelineElement>
+          <VerticalTimelineElement
+            className="vertical-timeline-element--work"
+            contentStyle={{ background: "#138781", color: "black" }}
+            contentArrowStyle={{ borderRight: "7px solid  #138781" }}
+            date="Jan 2026 - Present"
+            iconStyle={{ background: "#138781", color: "#fff" }}
+            icon={<MdWork />}
+          >
+            <h3 className="vertical-timeline-element-title">
+              Software Engineer
             </h3>
             <h4 className="vertical-timeline-element-subtitle">OpenText</h4>
             <div className="work-location">(Bengaluru, India)</div>
