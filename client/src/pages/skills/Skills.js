@@ -1,42 +1,41 @@
 import React from "react";
 import "./Skills.css";
 import { SkillsList } from "../../utils/SkillsList.js";
-import Bounce from "react-reveal/Bounce";
+import { motion } from "framer-motion";
 
 const Skills = () => {
   return (
-    <>
-      <div className="container skills" id="skill">
-        <h2 className="col-12 mt-3 text-center">Skills</h2>
-        <hr></hr>
-        <p className="pb-3 text-center">
-          👉including Languages, Frameworks, Databases, Front-end and Back-end
-          tools and APIs
+    <section className="skills" id="skill">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="section-heading">Skills</h2>
+        <hr className="section-divider" />
+        <p className="section-subheading">
+          Languages, Frameworks, Databases, and Tools
         </p>
-        <Bounce right cascade>
-          <div className="row">
-            {SkillsList.map((skill) => (
-              <div key={skill._id} className="col-md-3">
-                <div className="card m-2">
-                  <div className="card-content">
-                    <div className="card-body">
-                      <div className="media d-flex justify-content-center">
-                        <div className="alig-self-center">
-                          <skill.icon className="skill-icon" />
-                        </div>
-                        <div className="media-body">
-                          <h5>{skill.name}</h5>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Bounce>
+      </motion.div>
+
+      <div className="skills__grid">
+        {SkillsList.map((skill, i) => (
+          <motion.div
+            key={skill._id}
+            className="skill-card glass-card"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-30px" }}
+            transition={{ duration: 0.35, delay: i * 0.04 }}
+            whileHover={{ y: -4, scale: 1.03 }}
+          >
+            <skill.icon className="skill-card__icon" />
+            <span className="skill-card__name">{skill.name}</span>
+          </motion.div>
+        ))}
       </div>
-    </>
+    </section>
   );
 };
 

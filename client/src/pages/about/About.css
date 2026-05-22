@@ -1,55 +1,88 @@
 .about {
-  margin: 30px 0px;
-  padding: 20px;
-  margin-left: 200px;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  padding: 5rem 3rem;
+  background: var(--bg);
 }
 
-.about-image img {
-  border-radius: 10px;
-  width: 100%;
-  height: 400px;
-}
-
-.about-content {
+.about__card {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  gap: 3rem;
   align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2.5rem;
 }
 
-.about-content h1 {
-  color: black;
-  font-family: cursive;
-  border-bottom: 2px solid gray;
-  text-align: center;
+.about__image-wrap {
+  position: relative;
+  flex-shrink: 0;
 }
 
-.about-content p {
-  text-align: justify;
-  padding: 20px;
+.about__image {
+  width: 260px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+  position: relative;
+  z-index: 1;
 }
 
-/* DARK MODE */
-#Dark .about {
-  background-color: rgba(0, 0, 0, 0.15);
+.about__image-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 20px;
+  background: var(--gradient);
+  z-index: 0;
+  opacity: 0.35;
 }
 
-#Dark .about-content h1 {
-  color: #b0a4a4;
-  border-bottom: 2px solid #b0a4a4;
+.about__content {
+  flex: 1;
 }
 
-/* MEDIA QUERY */
-@media (max-width: 600px) {
+.about__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.about__text {
+  color: var(--text-muted);
+  line-height: 1.8;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.about__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.about__tag {
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(124, 58, 237, 0.12);
+  border: 1px solid var(--card-border);
+  color: var(--accent-light);
+}
+
+@media (max-width: 768px) {
   .about {
-    margin: 0;
-    padding: 0;
-    margin-top: 20px;
-    width: 100%;
+    padding: 3rem 1.25rem;
   }
 
-  .about-content h1 {
-    margin-top: 20px;
+  .about__card {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1.5rem;
+  }
+
+  .about__image {
+    width: 200px;
+    height: 240px;
   }
 }

@@ -1,103 +1,162 @@
 .contact {
-  margin-left: 130px;
-  margin-bottom: 60px;
-  padding-top: 20px;
+  padding: 5rem 3rem;
+  background: var(--bg-2);
 }
 
-.card0 {
-  box-shadow: 0px 4px 8px 0px;
-  border-radius: 0px;
+.contact__layout {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 1.75rem;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.card2 {
-  margin: 0px 40px;
-}
-
-.card1 .image {
-  padding: 50px;
-  margin-top: 25px;
-  height: 100%;
-  width: 100%;
-}
-
-.border-line {
-  border-right: 2px solid #e0e0e0;
-}
-
-.line {
-  height: 1px;
-  width: 45%;
-  background-color: #e0e0e0;
-  margin-top: 10px;
-}
-
-.or {
+.contact__info {
+  padding: 2rem;
   display: flex;
-  width: 10%;
-  font-weight: bold;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-::placeholder {
-  color: #bdbdbd;
-  opacity: 1;
-  font-weight: 300;
+.contact__info-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
 }
 
-input,
-textarea {
-  padding: 10px 12px;
-  border: 1px solid lightgray;
-  border-radius: 2px;
-  margin-top: 5px;
-  margin-top: 2px;
+.contact__info-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.contact__socials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 0.5rem;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.social-btn:hover {
+  background: rgba(124, 58, 237, 0.08);
+  color: var(--text);
+  border-color: rgba(124, 58, 237, 0.3);
+}
+
+.contact__form-wrap {
+  padding: 2rem;
+}
+
+.contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.form-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
-  color: #138781;
-  font-size: 1rem;
-  letter-spacing: 1px;
 }
 
-input:focus,
-textarea:focus {
-  box-shadow: none !important;
-  outline: 1px solid #138781 !important;
-  outline-width: 0px;
+.form-input::placeholder {
+  color: var(--text-faint);
 }
 
-button:focus {
-  box-shadow: none;
-  outline-width: 0px;
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 
-.button {
-  background-color: #1e1e2c;
-  color: white;
-  border-radius: 2px;
-  margin-top: 15px;
-  padding: 10px;
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
 }
 
-.button:hover {
-  background-color: #000;
-  color: white;
+.form-status {
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
 }
 
-/* MEDIA QUERY */
-@media (max-width: 600px) {
+.form-status--success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.form-status--error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.form-submit {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  background: var(--gradient);
+  color: #fff;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  width: 100%;
+}
+
+.form-submit:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
   .contact {
-    margin: 0;
-    padding: 0;
-    margin-top: 30px;
-    margin-bottom: 25px;
+    padding: 3rem 1.25rem;
   }
 
-  .contact .card2 {
-    margin: 0;
-  }
-
-  .contact .card2 h6 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 25px;
+  .contact__layout {
+    grid-template-columns: 1fr;
   }
 }

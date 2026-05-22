@@ -1,44 +1,74 @@
 .mobile-nav {
-  overflow: hidden;
   position: fixed;
   top: 0;
-  width: 100%;
-  z-index: 1;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  display: none;
 }
 
-.mobile-nav-header {
-  height: 50px;
-  width: 100%;
-  background-color: #1e1e2c;
-  padding: 8px;
+.mobile-nav__bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
 }
 
-.mobile-nav-header .mobile-nav-icon {
-  color: white;
+.mobile-nav__toggle {
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--accent-light);
   cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease;
 }
 
-.mobile-nav-title {
-  margin-left: 20px;
-  color: #f29f67;
-  font-weight: bold;
-  vertical-align: middle;
-  font-size: 20px;
+.mobile-nav__toggle:hover {
+  background: rgba(124, 58, 237, 0.3);
 }
 
-.mobile-nav-menu .nav-items {
-  height: auto;
-  width: 200px;
-  background-color: #1e1e1e;
-  padding: 10px;
-  padding-bottom: 20px;
-  border-bottom-right-radius: 10px;
-  margin-left: 0px;
-  margin-top: 0px;
+.mobile-nav__title {
+  color: var(--accent2);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
 }
 
-@media (min-width: 600px) {
+.mobile-nav__menu {
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mobile-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.875rem;
+  border-radius: 8px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.mobile-nav__item:hover {
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--accent-light);
+}
+
+@media (max-width: 768px) {
   .mobile-nav {
-    display: none;
+    display: block;
   }
 }

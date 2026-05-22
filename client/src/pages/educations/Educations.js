@@ -6,70 +6,73 @@ import {
 } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
 import { MdSchool } from "react-icons/md";
+import { motion } from "framer-motion";
+
+const educations = [
+  {
+    date: "2016 – 2017",
+    title: "Secondary (10th)",
+    school: "Kendriya Vidyalaya AFS Sulur",
+    location: "Sulur, India",
+    grade: "10.00 CGPA",
+  },
+  {
+    date: "2018 – 2019",
+    title: "Higher Secondary (PCM + CS)",
+    school: "Kendriya Vidyalaya AFS Sulur",
+    location: "Sulur, India",
+    grade: "91%",
+  },
+  {
+    date: "2019 – 2023",
+    title: "Bachelor of Engineering (ECE)",
+    school: "Nitte Meenakshi Institute of Technology",
+    location: "Bengaluru, India",
+    grade: "7.75 CGPA",
+  },
+];
 
 const Educations = () => {
   return (
-    <>
-      <div className="education" id="education">
-        <h2 className="col-12 mt-3 text-center">Education Details</h2>
-        <hr></hr>
-        <p className="pb-3 text-center">
-          👉here are my important educational qualifications
-        </p>
-        <VerticalTimeline>
+    <section className="education" id="education">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="section-heading">Education</h2>
+        <hr className="section-divider" />
+        <p className="section-subheading">My academic qualifications</p>
+      </motion.div>
+
+      <VerticalTimeline lineColor="rgba(124,58,237,0.25)">
+        {educations.map((edu, i) => (
           <VerticalTimelineElement
-            className="vertical-timeline-element--work"
-            contentStyle={{ background: "white", color: "black" }}
-            contentArrowStyle={{ borderRight: "7px solid  white" }}
-            date="2016 - 2017"
-            iconStyle={{ background: "#138781", color: "#fff" }}
+            key={i}
+            contentStyle={{
+              background: "var(--card-bg)",
+              border: "1px solid rgba(124,58,237,0.18)",
+              borderRadius: "12px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+              color: "var(--text)",
+            }}
+            contentArrowStyle={{ borderRight: "7px solid rgba(124,58,237,0.3)" }}
+            date={edu.date}
+            dateClassName="edu-date"
+            iconStyle={{ background: "#7c3aed", color: "#fff", boxShadow: "0 0 0 4px rgba(124,58,237,0.25)" }}
             icon={<MdSchool />}
           >
-            <h3 className="vertical-timeline-element-title">Secondary</h3>
-            <h4 className="vertical-timeline-element-subtitle">
-              Kendriya Vidyalaya AFS Sulur
-            </h4>
-            <div>(Sulur, India)</div>
-            <p>Grade - 10.00 CGPA</p>
+            <h3 className="edu-title">{edu.title}</h3>
+            <h4 className="edu-school">{edu.school}</h4>
+            <p className="edu-location">{edu.location}</p>
+            <span className="edu-grade">{edu.grade}</span>
           </VerticalTimelineElement>
-          <VerticalTimelineElement
-            className="vertical-timeline-element--work"
-            contentStyle={{ background: "white", color: "black" }}
-            contentArrowStyle={{ borderRight: "7px solid  white" }}
-            date="2018 - 2019"
-            iconStyle={{ background: "#138781", color: "#fff" }}
-            icon={<MdSchool />}
-          >
-            <h3 className="vertical-timeline-element-title">
-              Higher Secondary (PCM + CS)
-            </h3>
-            <h4 className="vertical-timeline-element-subtitle">
-              Kendriya Vidyalaya AFS Sulur
-            </h4>
-            <div>(Sulur, India)</div>
-            <p>Grade - 91%</p>
-          </VerticalTimelineElement>
-          <VerticalTimelineElement
-            className="vertical-timeline-element--work"
-            contentStyle={{ background: "white", color: "black" }}
-            contentArrowStyle={{ borderRight: "7px solid  white" }}
-            date="2019 - 2023"
-            iconStyle={{ background: "#138781", color: "#fff" }}
-            icon={<MdSchool />}
-          >
-            <h3 className="vertical-timeline-element-title">
-              Bachelor of Engineering (ECE)
-            </h3>
-            <h4 className="vertical-timeline-element-subtitle">
-              Nitte Meenakshi Institute of Technology
-            </h4>
-            <div>(Bengaluru, India)</div>
-            <p>Grade - 7.75 CGPA</p>
-          </VerticalTimelineElement>
-        </VerticalTimeline>
-      </div>
-    </>
+        ))}
+      </VerticalTimeline>
+    </section>
   );
 };
 
 export default Educations;
+

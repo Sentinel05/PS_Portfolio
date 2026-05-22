@@ -3,7 +3,7 @@ import {
   SiJavascript,
   SiJest,
   SiPostman,
-  SiVisualstudiocode,
+  SiVscodium,
   SiJupyter,
   SiWireshark,
 } from "react-icons/si";
@@ -100,7 +100,7 @@ export const SkillsList = [
   {
     _id: 15,
     name: "VS Code",
-    icon: SiVisualstudiocode,
+    icon: SiVscodium,
   },
   {
     _id: 16,

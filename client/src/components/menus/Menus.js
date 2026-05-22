@@ -5,181 +5,54 @@ import { MdMilitaryTech } from "react-icons/md";
 import { GiGraduateCap } from "react-icons/gi";
 import { IoConstruct } from "react-icons/io5";
 import { Link } from "react-scroll";
-import Zoom from "react-reveal/Zoom";
-import Fade from "react-reveal/Fade";
-import Pic from "../../assets/images/cool-dp.jpg";
+import { motion } from "framer-motion";
 
-const Menus = ({ toggle }) => {
+const navItems = [
+  { to: "home", label: "Home", Icon: FcHome },
+  { to: "about", label: "About", Icon: FcAbout },
+  { to: "education", label: "Education", Icon: GiGraduateCap },
+  { to: "work", label: "Work", Icon: FcBusiness },
+  { to: "skill", label: "Skills", Icon: MdMilitaryTech },
+  { to: "project", label: "Projects", Icon: IoConstruct },
+  { to: "contact", label: "Contact", Icon: FcContacts },
+];
+
+const Menus = ({ expanded }) => {
   return (
-    <>
-      {toggle ? (
-        <>
-          <Zoom>
-            <div className="navbar-profile-pic">
-              <img src={Pic} alt="dp"></img>
-            </div>
-          </Zoom>
-          <Fade left cascade>
-            <div className="nav-items">
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="home"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    offset={-10}
-                  >
-                    <FcHome></FcHome>
-                    Home
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="about"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    offset={-25}
-                  >
-                    <FcAbout></FcAbout>
-                    About
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="education"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    offset={-25}
-                  >
-                    <GiGraduateCap></GiGraduateCap>
-                    Educatiion Details
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="work"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    offset={-25}
-                  >
-                    <FcBusiness></FcBusiness>
-                    Work Experience
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="skill"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    offset={-25}
-                  >
-                    <MdMilitaryTech></MdMilitaryTech>
-                    Skills
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="project"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    offset={-25}
-                  >
-                    <IoConstruct></IoConstruct>
-                    Projects
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="contact"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    offset={-25}
-                  >
-                    <FcContacts></FcContacts>
-                    Contact Details
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </Fade>
-        </>
-      ) : (
-        <>
-          <Fade left cascade>
-            <div className="nav-items">
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link to="home" spy={true} smooth={true} duration={100}>
-                    <FcHome></FcHome>
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link to="about" spy={true} smooth={true} duration={100}>
-                    <FcAbout></FcAbout>
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link to="education" spy={true} smooth={true} duration={100}>
-                    <GiGraduateCap></GiGraduateCap>
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link to="work" spy={true} smooth={true} duration={100}>
-                    <FcBusiness></FcBusiness>
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link to="skill" spy={true} smooth={true} duration={100}>
-                    <MdMilitaryTech></MdMilitaryTech>
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link to="project" spy={true} smooth={true} duration={100}>
-                    <IoConstruct></IoConstruct>
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link to="contact" spy={true} smooth={true} duration={100}>
-                    <FcContacts></FcContacts>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </Fade>
-        </>
-      )}
-    </>
+    <nav className="sidebar-nav">
+      {navItems.map(({ to, label, Icon }, i) => (
+        <motion.div
+          key={to}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.07, duration: 0.35 }}
+        >
+          <Link
+            to={to}
+            spy={true}
+            smooth={true}
+            duration={400}
+            offset={-20}
+            activeClass="nav-item--active"
+            className="nav-item"
+          >
+            <span className="nav-item__icon">
+              <Icon size={20} />
+            </span>
+            {expanded && (
+              <motion.span
+                className="nav-item__label"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+              >
+                {label}
+              </motion.span>
+            )}
+          </Link>
+        </motion.div>
+      ))}
+    </nav>
   );
 };
 

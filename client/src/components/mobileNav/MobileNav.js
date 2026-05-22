@@ -5,146 +5,59 @@ import { MdMilitaryTech } from "react-icons/md";
 import { GiGraduateCap } from "react-icons/gi";
 import { IoConstruct } from "react-icons/io5";
 import { Link } from "react-scroll";
-import { AiOutlineMenuFold, AiOutlineMenuUnfold } from "react-icons/ai";
+import { HiMenuAlt3, HiX } from "react-icons/hi";
+import { motion, AnimatePresence } from "framer-motion";
+
+const navItems = [
+  { to: "home", label: "Home", Icon: FcHome },
+  { to: "about", label: "About", Icon: FcAbout },
+  { to: "education", label: "Education", Icon: GiGraduateCap },
+  { to: "work", label: "Work Experience", Icon: FcBusiness },
+  { to: "skill", label: "Skills", Icon: MdMilitaryTech },
+  { to: "project", label: "Projects", Icon: IoConstruct },
+  { to: "contact", label: "Contact", Icon: FcContacts },
+];
 
 const MobileNav = () => {
   const [open, setOpen] = useState(false);
 
-  //handle open
-  const handleOpen = () => {
-    setOpen(!open);
-  };
-
-  //handle menu clicks
-  const handleMenuClicks = () => {
-    setOpen(false);
-  };
-
   return (
-    <>
-      <div className="mobile-nav">
-        <div className="mobile-nav-header">
-          {open ? (
-            <AiOutlineMenuFold
-              size={30}
-              className="mobile-nav-icon"
-              onClick={handleOpen}
-            ></AiOutlineMenuFold>
-          ) : (
-            <AiOutlineMenuUnfold
-              size={30}
-              className="mobile-nav-icon"
-              onClick={handleOpen}
-            ></AiOutlineMenuUnfold>
-          )}
-          <span className="mobile-nav-title">My Portfolio App</span>
-        </div>
-        {open && (
-          <div className="mobile-nav-menu">
-            <div className="nav-items">
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="home"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    onClick={handleMenuClicks}
-                  >
-                    <FcHome></FcHome>
-                    Home
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="about"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    onClick={handleMenuClicks}
-                  >
-                    <FcAbout></FcAbout>
-                    About
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="education"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    onClick={handleMenuClicks}
-                  >
-                    <GiGraduateCap></GiGraduateCap>
-                    Educatiion Details
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="work"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    onClick={handleMenuClicks}
-                  >
-                    <FcBusiness></FcBusiness>
-                    Work Experience
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="skill"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    onClick={handleMenuClicks}
-                  >
-                    <MdMilitaryTech></MdMilitaryTech>
-                    Skills
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="project"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    onClick={handleMenuClicks}
-                  >
-                    <IoConstruct></IoConstruct>
-                    Projects
-                  </Link>
-                </div>
-              </div>
-              <div className="nav-item">
-                <div className="nav-link">
-                  <Link
-                    to="contact"
-                    spy={true}
-                    smooth={true}
-                    duration={100}
-                    onClick={handleMenuClicks}
-                  >
-                    <FcContacts></FcContacts>
-                    Contact Details
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+    <div className="mobile-nav">
+      <div className="mobile-nav__bar">
+        <button className="mobile-nav__toggle" onClick={() => setOpen(!open)}>
+          {open ? <HiX size={24} /> : <HiMenuAlt3 size={24} />}
+        </button>
+        <span className="mobile-nav__title">PS Portfolio</span>
       </div>
-    </>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="mobile-nav__menu"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {navItems.map(({ to, label, Icon }) => (
+              <Link
+                key={to}
+                to={to}
+                spy={true}
+                smooth={true}
+                duration={400}
+                offset={-60}
+                className="mobile-nav__item"
+                onClick={() => setOpen(false)}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

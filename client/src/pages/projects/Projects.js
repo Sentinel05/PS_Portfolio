@@ -1,106 +1,97 @@
 import React from "react";
 import "./Projects.css";
-import Flip from "react-reveal/Flip";
 import Portfolio from "../../assets/images/Portfolio.png";
 import TicTacToe from "../../assets/images/TicTacToe.png";
 import Supermarket from "../../assets/images/Supermarket.png";
+import { motion } from "framer-motion";
+import { FiExternalLink } from "react-icons/fi";
+
+const projects = [
+  {
+    image: Portfolio,
+    type: "Full-Stack",
+    typeColor: "#7c3aed",
+    tags: ["Node", "Express", "React", "MongoDB"],
+    title: "Portfolio Website",
+    desc: "A full-stack MERN portfolio showcasing projects, skills and work experience with a modern design.",
+    link: "https://github.com/Sentinel05/PS_Portfolio",
+  },
+  {
+    image: TicTacToe,
+    type: "Back-End",
+    typeColor: "#0891b2",
+    tags: ["C++", "Backtracking", "AI"],
+    title: "Tic Tac Toe",
+    desc: "A terminal-based Tic Tac Toe game with an unbeatable AI opponent implemented using backtracking.",
+    link: "https://github.com/Sentinel05/Tic-Tac-Toe",
+  },
+  {
+    image: Supermarket,
+    type: "Back-End",
+    typeColor: "#059669",
+    tags: ["C++", "File Management"],
+    title: "Supermarket Portal",
+    desc: "A file-based supermarket management system with product CRUD, billing and inventory control.",
+    link: "https://github.com/Sentinel05/Supermarket-Portal",
+  },
+];
 
 const Projects = () => {
   return (
-    <>
-      <div className="container project" id="project">
-        <h2 className="col-12 mt-3 text-center">Projects</h2>
-        <hr></hr>
-        <p className="pb-3 text-center">
-          👉here are my top 3 recent projects with live links and source code
-        </p>
+    <section className="projects" id="project">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="section-heading">Projects</h2>
+        <hr className="section-divider" />
+        <p className="section-subheading">My top recent projects</p>
+      </motion.div>
 
-        <div className="row" id="ads">
-          <Flip right cascade>
-            <div className="col-md-4">
-              <div className="card rounded">
-                <div className="card-image">
-                  <span className="card-notify-badge">Full-Stack</span>
-                  <img
-                    src={Portfolio}
-                    alt="project1"
-                  ></img>
-                </div>
-                <div className="card-image-overlay m-auto mt-3">
-                  <span className="card-detail-badge">Node</span>
-                  <span className="card-detail-badge">Express</span>
-                  <span className="card-detail-badge">React</span>
-                  <span className="card-detail-badge">Mongodb</span>
-                </div>
-                <div className="card-body text-center">
-                  <div className="m-auto">
-                    <h5>Portfolio Website</h5>
-                  </div>
-                  <a
-                    className="ad-btn"
-                    href="https://github.com/Sentinel05/PS_Portfolio"
-                  >
-                    Checkout
-                  </a>
-                </div>
-              </div>
+      <div className="projects__grid">
+        {projects.map((p, i) => (
+          <motion.div
+            key={i}
+            className="project-card glass-card"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: i * 0.12 }}
+            whileHover={{ y: -6 }}
+          >
+            <div className="project-card__img-wrap">
+              <img src={p.image} alt={p.title} className="project-card__img" />
+              <span
+                className="project-card__badge"
+                style={{ background: p.typeColor }}
+              >
+                {p.type}
+              </span>
             </div>
-            <div className="col-md-4">
-              <div className="card rounded">
-                <div className="card-image">
-                  <span className="card-notify-badge">Back-End</span>
-                  <img
-                    src={TicTacToe}
-                    alt="project2"
-                  ></img>
-                </div>
-                <div className="card-image-overlay m-auto mt-3">
-                  <span className="card-detail-badge">C++</span>
-                  <span className="card-detail-badge">Backtracking</span>
-                </div>
-                <div className="card-body text-center">
-                  <div className="m-auto">
-                    <h5>Tic Tac Toe</h5>
-                  </div>
-                  <a
-                    className="ad-btn"
-                    href="https://github.com/Sentinel05/Tic-Tac-Toe"
-                  >
-                    Checkout
-                  </a>
-                </div>
+            <div className="project-card__body">
+              <div className="project-card__tags">
+                {p.tags.map((t) => (
+                  <span key={t} className="project-card__tag">{t}</span>
+                ))}
               </div>
+              <h3 className="project-card__title">{p.title}</h3>
+              <p className="project-card__desc">{p.desc}</p>
+              <a
+                href={p.link}
+                target="_blank"
+                rel="noreferrer"
+                className="project-card__link"
+              >
+                <FiExternalLink size={14} />
+                View on GitHub
+              </a>
             </div>
-            <div className="col-md-4">
-              <div className="card rounded">
-                <div className="card-image">
-                  <span className="card-notify-badge">Back-End</span>
-                  <img
-                    src={Supermarket}
-                    alt="project3"
-                  ></img>
-                </div>
-                <div className="card-image-overlay m-auto mt-3">
-                  <span className="card-detail-badge">C++</span>
-                  <span className="card-detail-badge">File Management</span>
-                </div>
-                <div className="card-body text-center">
-                  <div className="m-auto">
-                    <h5>Supermarket Portal</h5>
-                  </div>
-                  <a
-                    className="ad-btn"
-                    href="https://github.com/Sentinel05/Supermarket-Portal"
-                  >
-                    Checkout
-                  </a>
-                </div>
-              </div>
-            </div>
-          </Flip>
-        </div>
+          </motion.div>
+        ))}
       </div>
-    </>
+    </section>
   );
 };
 

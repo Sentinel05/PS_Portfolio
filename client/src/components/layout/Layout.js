@@ -1,37 +1,28 @@
 import { React, useState } from "react";
 import Home from "../../pages/home/Home";
-import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
+import { RiMenuFoldLine, RiMenuUnfoldLine } from "react-icons/ri";
 import "./Layout.css";
 import Menus from "../menus/Menus";
 
 const Layout = () => {
-  const [toggle, setToggle] = useState(true);
-
-  //change toggle
-  const handleToggle = () => {
-    setToggle(!toggle);
-  };
+  const [expanded, setExpanded] = useState(true);
 
   return (
-    <>
-      <div className="sidebar-section">
-        <div className={toggle ? "sidebar-toggle sidebar" : "sidebar"}>
-          <div className="sidebar-toggle-icons">
-            <p onClick={handleToggle}>
-              {toggle ? (
-                <FaAngleDoubleLeft size={30}></FaAngleDoubleLeft>
-              ) : (
-                <FaAngleDoubleRight size={30}></FaAngleDoubleRight>
-              )}
-            </p>
-          </div>
-          <Menus toggle={toggle}></Menus>
-        </div>
-        <div className="">
-          <Home></Home>
-        </div>
-      </div>
-    </>
+    <div className={`sidebar ${expanded ? "sidebar--expanded" : "sidebar--collapsed"}`}>
+      <button
+        className="sidebar__toggle"
+        onClick={() => setExpanded(!expanded)}
+        aria-label="Toggle sidebar"
+      >
+        {expanded ? (
+          <RiMenuFoldLine size={20} />
+        ) : (
+          <RiMenuUnfoldLine size={20} />
+        )}
+      </button>
+      <Home expanded={expanded} />
+      <Menus expanded={expanded} />
+    </div>
   );
 };
 

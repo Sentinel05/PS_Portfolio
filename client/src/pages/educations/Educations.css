@@ -1,43 +1,51 @@
 .education {
-  margin: 50px 0px;
-  padding-top: 10px;
-  padding-left: 130px;
-  background-color: rgba(128, 128, 128, 0.075);
+  padding: 5rem 3rem;
+  background: var(--bg-2);
 }
 
-.education hr {
-  color: #138781;
-  width: 600px;
-  margin: 10px auto;
+.edu-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-light) !important;
+  margin-bottom: 0.25rem;
 }
 
-.education h2 {
-  font-weight: bold;
-  color: #138781;
+.edu-school {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text) !important;
+  margin-bottom: 0.2rem;
 }
 
-.education .vertical-timeline-element-title {
-  color: #138781;
+.edu-location {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
 }
 
-.education .vertical-timeline-element-subtitle {
-  color: #1e1e2c;
+.edu-grade {
+  display: inline-block;
+  padding: 0.2rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  color: var(--accent-light);
 }
 
-/* MEDIA QUERY */
-@media (max-width: 600px) {
+.edu-date {
+  color: var(--text-muted) !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+}
+
+.vertical-timeline::before {
+  background: rgba(124, 58, 237, 0.2) !important;
+}
+
+@media (max-width: 768px) {
   .education {
-    margin: 0;
-    padding: 0;
-    margin-top: 30px;
-  }
-
-  .education h2 {
-    padding-top: 20px;
-  }
-
-  .education hr {
-    width: 300px;
-    margin-bottom: 10px;
+    padding: 3rem 1rem;
   }
 }
