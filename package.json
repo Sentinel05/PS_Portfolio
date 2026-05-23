@@ -8,7 +8,7 @@
     "server": "node server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "build": "npm run build --prefix client",
+    "build": "npm install --prefix client --legacy-peer-deps && NODE_OPTIONS=--max_old_space_size=400 npm run build --prefix client",
     "test": "echo \"Error: no test specified\" && exit 1",
     "install-all": "npm install && npm install --prefix client --legacy-peer-deps"
   },
