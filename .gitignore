@@ -6,3 +6,6 @@ node_modules/
 
 # Frontend dependencies
 /client/node_modules/
+
+# Frontend production build
+/client/build/
