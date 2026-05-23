@@ -4,6 +4,7 @@
   "description": "portfolio app",
   "main": "server.js",
   "scripts": {
+    "prestart": "npm install --legacy-peer-deps",
     "start": "node server.js",
     "server": "node server.js",
     "client": "npm start --prefix client",
