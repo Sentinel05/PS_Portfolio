@@ -2,7 +2,6 @@ import { React, useState, useRef } from "react";
 import "./Contact.css";
 import { FaLinkedin, FaWhatsappSquare, FaGithub } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
-import emailjs from "@emailjs/browser";
 import { motion } from "framer-motion";
 
 const socialLinks = [
@@ -47,32 +46,32 @@ const Contact = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setStatus(null);
-    emailjs
-      .send(
-        "service_6evilyb",
-        "template_c64o3se",
-        {
+    try {
+      const res = await fetch("/api/v1/potfolio/sendEmail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           from_name: form.name,
-          to_name: "Priyanshu Sarkar",
           from_email: form.email,
-          to_email: "p30sarkar@gmail.com",
           message: form.message,
-        },
-        "XPlopKMKr2oWOtoHd"
-      )
-      .then(() => {
-        setLoading(false);
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
         setStatus("success");
         setForm({ name: "", email: "", message: "" });
-      })
-      .catch(() => {
-        setLoading(false);
+      } else {
         setStatus("error");
-      });
+      }
+    } catch {
+      setStatus("error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
