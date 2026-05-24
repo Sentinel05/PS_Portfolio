@@ -2,7 +2,7 @@ const Education = require("../models/Education");
 const Work = require("../models/Work");
 const Project = require("../models/Project");
 const Skill = require("../models/Skill");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const sendEmailController = async (req, res) => {
   try {
@@ -12,21 +12,12 @@ const sendEmailController = async (req, res) => {
       return res.status(400).send({ success: false, message: "All fields are required." });
     }
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      family: 4,
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-      },
-    });
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await transporter.sendMail({
-      from: `"${from_name}" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: "Portfolio Contact <onboarding@resend.dev>",
       to: process.env.GMAIL_USER,
-      replyTo: from_email,
+      reply_to: from_email,
       subject: `Portfolio Contact from ${from_name}`,
       text: `Name: ${from_name}\nEmail: ${from_email}\n\n${message}`,
     });
