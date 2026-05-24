@@ -10,11 +10,11 @@ import { motion } from "framer-motion";
 
 const educations = [
   {
-    date: "2016 – 2017",
-    title: "Secondary (10th)",
-    school: "Kendriya Vidyalaya AFS Sulur",
-    location: "Sulur, India",
-    grade: "10.00 CGPA",
+    date: "2019 – 2023",
+    title: "Bachelor of Engineering (ECE)",
+    school: "Nitte Meenakshi Institute of Technology",
+    location: "Bengaluru, India",
+    grade: "7.75 CGPA",
   },
   {
     date: "2018 – 2019",
@@ -24,11 +24,11 @@ const educations = [
     grade: "91%",
   },
   {
-    date: "2019 – 2023",
-    title: "Bachelor of Engineering (ECE)",
-    school: "Nitte Meenakshi Institute of Technology",
-    location: "Bengaluru, India",
-    grade: "7.75 CGPA",
+    date: "2016 – 2017",
+    title: "Secondary (10th)",
+    school: "Kendriya Vidyalaya AFS Sulur",
+    location: "Sulur, India",
+    grade: "10.00 CGPA",
   },
 ];
 

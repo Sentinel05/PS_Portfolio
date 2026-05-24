@@ -10,11 +10,11 @@ import { motion } from "framer-motion";
 
 const works = [
   {
-    date: "Feb 2023 – Aug 2023",
-    title: "Software Engineer Intern",
-    company: "Micro Focus",
+    date: "Jan 2026 – Present",
+    title: "Software Engineer",
+    company: "OpenText",
     location: "Bengaluru, India",
-    desc: "Contributed to enterprise backup and recovery solutions, gaining hands-on experience with Data Protector.",
+    desc: "Leading development of Windows Defender integration and complex enterprise customer incident resolution.",
   },
   {
     date: "Sept 2023 – Dec 2025",
@@ -24,11 +24,11 @@ const works = [
     desc: "Developed integrational features for SAP HANA, VMware and Documentum backups in Data Protector.",
   },
   {
-    date: "Jan 2026 – Present",
-    title: "Software Engineer",
-    company: "OpenText",
+    date: "Feb 2023 – Aug 2023",
+    title: "Software Engineer Intern",
+    company: "Micro Focus",
     location: "Bengaluru, India",
-    desc: "Leading development of Windows Defender integration and complex enterprise customer incident resolution.",
+    desc: "Contributed to enterprise backup and recovery solutions, gaining hands-on experience with Data Protector.",
   },
 ];
 
