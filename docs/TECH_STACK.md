@@ -11,7 +11,6 @@
 | `react` | ^18.3.1 | Core UI library |
 | `react-dom` | ^18.3.1 | DOM rendering |
 | `react-scripts` | 5.0.1 | CRA build toolchain (dev server, bundler, linter) |
-| `react-router-dom` (via App.js) | — | Client-side routing between sections |
 | `react-scroll` | ^1.9.0 | Smooth scroll navigation (menu links → sections) |
 | `react-scroll-to-top` | ^3.0.0 | Floating scroll-to-top button |
 | `react-vertical-timeline-component` | ^3.6.0 | Education and Work Experience timeline UI |
@@ -19,6 +18,7 @@
 | `framer-motion` | ^11.3.0 | Scroll-triggered animations on section headings |
 | `typewriter-effect` | ^2.21.0 | Animated typewriter text on Home page |
 | `@emailjs/browser` | ^4.3.3 | Sends contact form emails directly from the browser without a backend mail server |
+| `web-vitals` | ^4.2.0 | Core Web Vitals performance measurement |
 
 **Styling:** Plain CSS per component — no CSS framework (no Tailwind/Bootstrap). Theme managed via CSS custom properties through `ThemeContext.js` (light/dark mode).
 
@@ -32,10 +32,11 @@
 | `cors` | ^2.8.5 | Allows cross-origin requests from the React dev server |
 | `dotenv` | ^16.3.1 | Loads `.env` variables (port, secrets) |
 | `concurrently` | ^9.2.1 | Runs Express server and React dev server simultaneously with `npm run dev` |
+| `mongoose` | ^9.6.2 | MongoDB ODM — schemas, models, and queries |
 
-**Current API:** `/api/v1/potfolio` (single route — contact form stub). No database connection yet. All portfolio data (education, work, projects, skills) is hard-coded in the React components.
+**Current API:** `/api/v1/potfolio` — five routes: `POST /sendEmail` (stub; real email handled client-side via EmailJS) and four live GET endpoints (`/educations`, `/works`, `/projects`, `/skills`) that query MongoDB Atlas and return JSON. Database is connected and active — all portfolio content is served dynamically from MongoDB.
 
-**Entry point:** `server.js` — Express app; serves the React production build as static files in production.
+**Entry point:** `server.js` — Express app; connects to MongoDB Atlas on startup via Mongoose, serves the React production build as static files, and exposes the REST API.
 
 ---
 
@@ -44,16 +45,30 @@
 ```
 Portfolio/
 ├── server.js              # Express entry point
+├── package.json           # Root — backend deps + all npm scripts
+├── config/
+│   └── db.js              # Mongoose connect(), Google DNS fix, exits on failure
+├── models/
+│   ├── Education.js       # Mongoose schema — education entries
+│   ├── Work.js            # Mongoose schema — work history entries
+│   ├── Project.js         # Mongoose schema — project entries
+│   └── Skill.js           # Mongoose schema — skill entries
+├── data/
+│   └── seed.js            # Wipes + repopulates all 4 collections
 ├── routes/
 │   └── portfolioRoutes.js # API route definitions
 ├── controllers/
-│   └── portfolioController.js  # Route handler logic
+│   └── portfolioController.js  # Route handler logic (4 GET + sendEmail stub)
+├── scripts/
+│   ├── dev.bat            # Windows shortcut: npm run dev
+│   └── start.bat          # Windows shortcut: build + start
+├── docs/                  # Project documentation
 └── client/                # React app (CRA)
     └── src/
         ├── pages/         # One folder per page section
         ├── components/    # Layout, Menus, MobileNav
         ├── context/       # ThemeContext (light/dark)
-        └── utils/         # SkillsList.js (icon + label data)
+        └── utils/         # SkillsList.js (iconRegistry map)
 ```
 
 ---
@@ -92,35 +107,36 @@ Answer displayed in chat widget on the site
 
 ### Goal 2 — Admin CMS (Edit website without touching code)
 
-Replaces all hard-coded data in React components with data fetched from MongoDB.  
-An admin UI lets you log in and update content which is saved to MongoDB via REST APIs.
+**Phase 1 — Data layer: ✅ Complete**  
+MongoDB Atlas (M0 free cluster) is connected via Mongoose. All portfolio content is served by live GET endpoints and fetched dynamically by each React page component. The seed script (`data/seed.js`) populates all four collections with initial data.
 
-| Tool | Free Tier | Role |
-|---|---|---|
-| **MongoDB Atlas M0** | 512MB shared cluster — free forever | Primary database: stores all portfolio content (education, work, projects, skills, contact messages) |
-| **Mongoose** | Open source, free | ODM for Node.js — defines schemas and talks to Atlas |
-| **jsonwebtoken (JWT)** | Open source, free | Issues signed tokens on admin login; protects write/delete API routes |
-| **bcryptjs** | Open source, free | Hashes the admin password before storing it in MongoDB |
+**Phase 2 — Admin auth and dashboard: ⬜ Remaining**  
+An admin UI to log in and update content through a UI, saved to MongoDB via protected REST APIs.
 
-**MongoDB Collections:**
+| Tool | Free Tier | Status | Role |
+|---|---|---|---|
+| **MongoDB Atlas M0** | 512MB shared cluster — free forever | ✅ Active | Primary database — stores all portfolio content |
+| **Mongoose** | Open source, free | ✅ Active | ODM for Node.js — schemas and queries |
+| **jsonwebtoken (JWT)** | Open source, free | ⬜ Planned | Signs tokens on admin login; protects write/delete routes |
+| **bcryptjs** | Open source, free | ⬜ Planned | Hashes admin password before storing in MongoDB |
+
+**Active MongoDB collections (4 of 6):**
 ```
-education       — degree, school, location, grade, date
-works           — title, company, location, description, date
-projects        — title, description, tech stack, links
-skills          — name, icon, category
-contact_messages — name, email, message, timestamp
-admin           — username, hashed password
+education        — date, title, school, location, grade, order        ✅
+works            — date, title, company, location, desc, order         ✅
+projects         — imageKey, type, typeColor, tags, title, desc, link, order  ✅
+skills           — name, iconName, order                              ✅
+contact_messages — name, email, message, timestamp                    ⬜ planned
+admin            — username, hashed password                          ⬜ planned
 ```
 
-**New backend additions needed:**
-- `GET /api/v1/<collection>` — public read routes (React fetches data on load instead of using hard-coded arrays)
-- `POST/PUT/DELETE /api/v1/<collection>` — protected write routes (JWT middleware guards these)
+**Remaining backend additions:**
+- `POST/PUT/DELETE /api/v1/<collection>` — protected write routes (JWT middleware)
 - `POST /api/v1/admin/login` — validates credentials, returns JWT
 
-**New frontend additions needed:**
+**Remaining frontend additions:**
 - Admin login page (protected route, not in the public nav)
 - Admin dashboard with forms to add/edit/delete each content section
-- Replace hard-coded data arrays in each page component with `useEffect` + `fetch` calls to the read APIs
 
 ---
 

@@ -47,7 +47,7 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 | `cors` | `^2.8.5` | Cross-origin requests |
 | `dotenv` | `^16.3.1` | Environment variable loading |
 | `concurrently` | `^9.2.1` | Run server + client together in dev |
-| `mongoose` | `^8.x` | MongoDB ODM — schemas + queries |
+| `mongoose` | ^9.6.2 | MongoDB ODM — schemas + queries |
 
 ### Frontend (inside `client/`)
 | Package | Version | Purpose |
@@ -314,7 +314,7 @@ Run from the **root** (`e:\Coding\Portfolio`):
 |---|---|---|
 | `npm start` | `node server.js` | Production server on :8080 |
 | `npm run dev` | `concurrently "npm run server" "npm run client"` | Dev: Express :8080 + React :3000 |
-| `npm run build` | `npm run build --prefix client` | CRA production build → `client/build/` |
+| `npm run build` | `npm install --prefix client --legacy-peer-deps && npm run build --prefix client` | Installs client deps then creates CRA production build → `client/build/` |
 | `npm run server` | `node server.js` | Express only |
 | `npm run client` | `npm start --prefix client` | React dev server only |
 | `npm run install-all` | Install root + client deps | Use `--legacy-peer-deps` for client |

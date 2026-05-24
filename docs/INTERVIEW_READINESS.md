@@ -6,7 +6,7 @@
 
 ## Quick Elevator Pitch
 
-> "I built a full-stack personal portfolio using React 18 and Node/Express. The frontend is a single-page app with a collapsible sidebar, smooth-scroll navigation, dark/light theming powered by CSS custom properties, and framer-motion animations. The backend is a lightweight Express server that serves the production React build as static files and exposes a REST API. The contact form is integrated with EmailJS so messages go directly to my inbox without a backend email service. I designed and implemented the entire project from scratch — architecture, UI/UX, CI-ready build pipeline, and git hygiene."
+> "I built a full-stack MERN portfolio using React 18, Node/Express, and MongoDB Atlas. The frontend is a single-page app with a collapsible sidebar, smooth-scroll navigation, dark/light theming powered by CSS custom properties, and framer-motion animations. The backend is an Express server connected to MongoDB Atlas — it serves all portfolio content (education, work history, projects, skills) via REST APIs and the React production build as static files. The contact form integrates with EmailJS so messages go directly to my inbox without a backend email service. I designed and implemented the entire project from scratch — architecture, UI/UX, data modeling, API layer, and git hygiene."
 
 ---
 
@@ -18,7 +18,7 @@
 A: It's a monorepo with two layers. The backend is an Express server at the root level — it serves the production React build as static files and exposes REST API routes. The frontend is a CRA (Create React App) React 18 SPA inside the `client/` subfolder. In development, both run independently (Express on :8080, React dev server on :3000 with HMR). In production, Express alone serves everything on :8080.
 
 **Q: Why use Express if the frontend handles everything?**  
-A: Express is there for production serving (static files + SPA fallback route), environment-specific configuration via `.env`, and a ready API layer (`/api/v1/potfolio/*`) that can be extended later — for example, to add server-side email processing, authentication, or a database connection. The contact form currently uses EmailJS client-side, but the API stub is already wired.
+A: Express is there for production serving (static files + SPA fallback route), environment-specific configuration via `.env`, MongoDB Atlas integration (all portfolio content is stored in and served from the database), and a ready API layer (`/api/v1/potfolio/*`) designed to be extended further — for example, to add authentication and a content management UI.
 
 **Q: How do you handle routing in an SPA with Express?**  
 A: Express has a wildcard GET route (`app.get("*", ...)`) at the bottom that always returns `client/build/index.html`. React Router (or react-scroll in this case) handles the in-page navigation client-side. This prevents 404s on hard refresh.
@@ -53,7 +53,7 @@ A: I use a design-token approach with CSS custom properties defined in `index.cs
 ### Backend
 
 **Q: What does the Express server actually do?**  
-A: Three things: (1) serve static files from `client/build/` using `express.static`, (2) handle API routes under `/api/v1/potfolio/`, (3) fall back to `index.html` for any unmatched GET request so React's client-side navigation works. CORS is enabled globally for development flexibility.
+A: Four things: (1) connect to MongoDB Atlas on startup via Mongoose's `connectDB()` and serve portfolio content through GET endpoints, (2) serve static files from `client/build/` using `express.static`, (3) handle API routes under `/api/v1/potfolio/` — four live GET routes query MongoDB and one stub handles the contact form endpoint, (4) fall back to `index.html` for any unmatched GET request so React's client-side navigation works. CORS is enabled globally for development flexibility.
 
 **Q: How does the contact form work end-to-end?**  
 A: The user fills in name, email, and message. On submit, `@emailjs/browser` sends the form data directly from the browser to EmailJS's cloud service using my service ID, template ID, and public key. EmailJS renders my email template and delivers it to my Gmail. There is no email data passing through my Express server — this keeps the backend stateless and avoids needing SMTP credentials on the server.
@@ -138,7 +138,7 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it'
 | Sidebar collapsed width | 72px |
 | Number of skills listed | 21 |
 | Number of projects listed | 3 |
-| Work history entries | 3 (Intern → ASE → SE at OpenText) |
+| Work history entries | 3 (Intern at Micro Focus → ASE at OpenText → SE at OpenText) |
 | Education entries | 3 (10th, 12th, B.E.) |
 
 ---
