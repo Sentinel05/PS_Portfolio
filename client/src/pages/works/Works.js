@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Works.css";
 import {
   VerticalTimeline,
@@ -8,31 +8,16 @@ import "react-vertical-timeline-component/style.min.css";
 import { MdWork } from "react-icons/md";
 import { motion } from "framer-motion";
 
-const works = [
-  {
-    date: "Jan 2026 – Present",
-    title: "Software Engineer",
-    company: "OpenText",
-    location: "Bengaluru, India",
-    desc: "Leading development of Windows Defender integration and complex enterprise customer incident resolution.",
-  },
-  {
-    date: "Sept 2023 – Dec 2025",
-    title: "Associate Software Engineer",
-    company: "OpenText",
-    location: "Bengaluru, India",
-    desc: "Developed integrational features for SAP HANA, VMware and Documentum backups in Data Protector.",
-  },
-  {
-    date: "Feb 2023 – Aug 2023",
-    title: "Software Engineer Intern",
-    company: "Micro Focus",
-    location: "Bengaluru, India",
-    desc: "Contributed to enterprise backup and recovery solutions, gaining hands-on experience with Data Protector.",
-  },
-];
-
 const Works = () => {
+  const [works, setWorks] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/v1/potfolio/works")
+      .then((res) => res.json())
+      .then((json) => { if (json.success) setWorks(json.data); })
+      .catch((err) => console.error("Failed to fetch works:", err));
+  }, []);
+
   return (
     <section className="work" id="work">
       <motion.div

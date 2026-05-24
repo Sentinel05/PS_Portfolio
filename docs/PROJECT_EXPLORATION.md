@@ -47,6 +47,7 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 | `cors` | `^2.8.5` | Cross-origin requests |
 | `dotenv` | `^16.3.1` | Environment variable loading |
 | `concurrently` | `^9.2.1` | Run server + client together in dev |
+| `mongoose` | `^8.x` | MongoDB ODM — schemas + queries |
 
 ### Frontend (inside `client/`)
 | Package | Version | Purpose |
@@ -75,24 +76,34 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 Portfolio/
 ├── server.js                  # Express entry point
 ├── package.json               # Root — backend deps + all npm scripts
-├── .env                       # (gitignored) PORT, secrets
+├── .env                       # (gitignored) PORT, MONGO_URI
 ├── .gitignore                 # Ignores: node_modules, .env, client/build
-├── dev.bat                    # Windows shortcut: npm run dev
-├── start.bat                  # Windows shortcut: npm run build + npm start
-├── README.md                  # User-facing setup guide
-├── PROJECT_EXPLORATION.md     # ← this file
-├── INTERVIEW_READINESS.md     # Interview Q&A reference
-│
+├── config/
+│   └── db.js                  # Mongoose connect(), exits on failure
+├── models/
+│   ├── Education.js           # { date, title, school, location, grade, order }
+│   ├── Work.js                # { date, title, company, location, desc, order }
+│   ├── Project.js             # { imageKey, type, typeColor, tags, title, desc, link, order }
+│   └── Skill.js               # { name, iconName, order }
+├── data/
+│   └── seed.js                # Wipes + repopulates all 4 collections
 ├── controllers/
-│   └── portfolioController.js # sendEmailController (placeholder — real email via EmailJS)
+│   └── portfolioController.js # sendEmail + 4 GET controllers
 ├── routes/
-│   └── portfolioRoutes.js     # POST /api/v1/potfolio/sendEmail
-│
+│   └── portfolioRoutes.js     # POST /sendEmail + GET /educations /works /projects /skills
+├── scripts/
+│   ├── dev.bat                # Windows shortcut: npm run dev (pushd to root)
+│   └── start.bat              # Windows shortcut: npm run build + npm start
+├── docs/
+│   ├── PROJECT_EXPLORATION.md # ← this file
+│   ├── INTERVIEW_READINESS.md # Interview Q&A reference
+│   ├── TECH_STACK.md          # Full stack breakdown (current + planned)
+│   └── MONGODB_SETUP.md       # Complete MongoDB Atlas setup guide
 └── client/                    # CRA React app
     ├── package.json
     ├── .gitignore              # /build, /node_modules, .env.*
     ├── public/
-    │   └── index.html         # Fonts + Bootstrap CDN links
+    │   └── index.html             # Fonts + Bootstrap CDN links
     └── src/
         ├── index.js           # React root render
         ├── index.css          # Global CSS variables + resets
@@ -113,13 +124,13 @@ Portfolio/
         ├── pages/
         │   ├── home/            # Sidebar profile panel (photo, typewriter, theme toggle)
         │   ├── about/           # Glassmorphism card + tech tags
-        │   ├── educations/      # VerticalTimeline — academic history
-        │   ├── works/           # VerticalTimeline — work history
-        │   ├── skills/          # CSS grid of skill icons
-        │   ├── projects/        # Card grid with badges and GitHub links
+        │   ├── educations/      # VerticalTimeline — fetches /api/v1/potfolio/educations
+        │   ├── works/           # VerticalTimeline — fetches /api/v1/potfolio/works
+        │   ├── skills/          # CSS grid — fetches /api/v1/potfolio/skills
+        │   ├── projects/        # Card grid — fetches /api/v1/potfolio/projects
         │   └── contact/         # Social links + EmailJS contact form
         └── utils/
-            └── SkillsList.js    # Exported array of { _id, name, icon } objects
+            └── SkillsList.js    # iconRegistry: { iconName → React component }
 ```
 
 ---
@@ -130,12 +141,16 @@ Portfolio/
 Browser
   │
   ├── Development mode (npm run dev)
-  │     ├── React Dev Server :3000  ← webpack-dev-server, HMR
-  │     └── Express :8080           ← API only
+  │     ├── React Dev Server :3000  ← webpack-dev-server, HMR, proxies /api → :8080
+  │     └── Express :8080           ← API + MongoDB
   │
   └── Production mode (npm start)
         └── Express :8080
-              ├── GET  /api/v1/potfolio/sendEmail  ← placeholder API
+              ├── GET  /api/v1/potfolio/educations  ← MongoDB → JSON
+              ├── GET  /api/v1/potfolio/works        ← MongoDB → JSON
+              ├── GET  /api/v1/potfolio/projects     ← MongoDB → JSON
+              ├── GET  /api/v1/potfolio/skills       ← MongoDB → JSON
+              ├── POST /api/v1/potfolio/sendEmail    ← stub (email via EmailJS client-side)
               └── GET  *  → serves client/build/index.html (SPA fallback)
 ```
 
@@ -186,7 +201,7 @@ const [theme, setTheme] = useState("dark");
 Exposes `[theme, setTheme]` via `useTheme()` hook.
 
 ### Skills — SkillsList.js
-20 skills total including: TypeScript, JavaScript, C++, HTML, CSS, C, Java, Python, Angular, React, SQL, Jest, Postman, RESTful APIs, VS Code, Jupyter, Turbo C++, SDN, Wi-Fi, Networking.
+`iconRegistry` object that maps icon name strings to React icon components, e.g. `{ SiTypescript: SiTypescript, ... }`. Used by `Skills.js` to look up the correct icon after fetching skill data (which stores `iconName` strings) from MongoDB.
 
 ### Projects Data
 | Project | Type | Stack | GitHub |
@@ -212,7 +227,8 @@ All page sections use framer-motion `whileInView` with `viewport={{ once: true }
 
 ### server.js
 ```
-Express app
+Expres app
+  connectDB()                   # Mongoose connect to Atlas on startup
   cors()                        # Allow all origins
   express.json()                # Parse JSON bodies
   express.static('./client/build')   # Serve React production build
@@ -223,8 +239,20 @@ Express app
 > **Note:** The API base path has a typo — `potfolio` (missing 'r'). Do not fix without updating all consumers.
 
 ### portfolioController.js
-Currently a **stub** — `sendEmailController` always returns `200 { success: true }`.  
-Real email is handled entirely client-side by `@emailjs/browser`.
+- `sendEmailController` — stub, always returns `200 { success: true }`. Real email via `@emailjs/browser`.
+- `getEducationsController` — `Education.find().sort({ order: 1 })`
+- `getWorksController` — `Work.find().sort({ order: 1 })`
+- `getProjectsController` — `Project.find().sort({ order: 1 })`
+- `getSkillsController` — `Skill.find().sort({ order: 1 })`
+
+### portfolioRoutes.js
+| Method | Path | Handler |
+|---|---|---|
+| POST | `/sendEmail` | `sendEmailController` |
+| GET | `/educations` | `getEducationsController` |
+| GET | `/works` | `getWorksController` |
+| GET | `/projects` | `getProjectsController` |
+| GET | `/skills` | `getSkillsController` |
 
 ---
 
@@ -294,20 +322,19 @@ Run from the **root** (`e:\Coding\Portfolio`):
 ### Windows Batch Files
 | File | Equivalent |
 |---|---|
-| `dev.bat` | `npm run dev` (with Node PATH fallback) |
-| `start.bat` | `npm run build` then `npm start` |
+| `scripts/dev.bat` | `npm run dev` (with Node PATH fallback, pushd to project root) |
+| `scripts/start.bat` | `npm run build` then `npm start` |
 
 ---
 
 ## 10. Environment Variables
 
-Create a `.env` file in the root:
+| Variable | Required | Description |
+|---|---|---|
+| `PORT` | No | Express server port (default `8080`) |
+| `MONGO_URI` | **Yes** | MongoDB Atlas connection string |
 
-```
-PORT=8080
-```
-
-No other required variables for base operation. EmailJS credentials are hardcoded client-side (safe per EmailJS design).
+Set in `.env` at the project root (gitignored). On Render, set via the **Environment** tab in the service dashboard — no changes to build/start commands are needed.
 
 ---
 
@@ -327,9 +354,11 @@ No other required variables for base operation. EmailJS credentials are hardcode
 | API URL typo | Route is `/api/v1/potfolio/sendEmail` (missing 'r') — intentional legacy |
 | react-icons v5 breaking changes | `SiVisualstudiocode` was renamed to `SiVscodium`; always check v5 migration guide |
 | CRA install | `npm install --prefix client` requires `--legacy-peer-deps` to avoid peer dep conflicts |
-| Node not in PATH (Windows) | Node installed at `C:\Program Files\nodejs\`; added to user PATH via PowerShell. Use `dev.bat` as fallback |
+| Node not in PATH (Windows) | Node installed at `C:\Program Files\nodejs\`; added to user PATH via PowerShell. Use `scripts/dev.bat` as fallback |
 | Production build required for `npm start` | Express serves `client/build/` — if the folder doesn't exist, the frontend 404s |
 | EmailJS stub | Backend `/sendEmail` endpoint is a stub; do not rely on it for actual email |
+| Node.js DNS / c-ares (Windows) | `querySrv ECONNREFUSED` on MongoDB SRV lookup — Windows firewall blocks Node.js c-ares on port 53. Fix: `dns.setServers(["8.8.8.8", "8.8.4.4"])` added to `config/db.js` and `data/seed.js`. See [MONGODB_SETUP.md §9](MONGODB_SETUP.md#9-windows-dns--c-ares-issue-and-fix) |
+| URI password special chars | `@` in Atlas password breaks URI parsing. Must URL-encode as `%40`. See [MONGODB_SETUP.md §7](MONGODB_SETUP.md#7-url-encoding-special-characters-in-passwords) |
 
 ---
 
@@ -345,6 +374,6 @@ No other required variables for base operation. EmailJS credentials are hardcode
 | Gmail address | Contact.js | Link |
 | LinkedIn URL | Contact.js | Link |
 | GitHub URL | Contact.js, Projects.js | Link |
-| Work history | Works.js | Text data |
-| Education history | Educations.js | Text data |
+| Work history | MongoDB `works` collection | Text data (via API) |
+| Education history | MongoDB `educations` collection | Text data (via API) |
 | Project screenshots | `client/src/assets/images/` | Images |

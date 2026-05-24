@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Projects.css";
 import Portfolio from "../../assets/images/Portfolio.png";
 import TicTacToe from "../../assets/images/TicTacToe.png";
@@ -6,37 +6,22 @@ import Supermarket from "../../assets/images/Supermarket.png";
 import { motion } from "framer-motion";
 import { FiExternalLink } from "react-icons/fi";
 
-const projects = [
-  {
-    image: Portfolio,
-    type: "Full-Stack",
-    typeColor: "#7c3aed",
-    tags: ["Node", "Express", "React", "MongoDB"],
-    title: "Portfolio Website",
-    desc: "A full-stack MERN portfolio showcasing projects, skills and work experience with a modern design.",
-    link: "https://github.com/Sentinel05/PS_Portfolio",
-  },
-  {
-    image: TicTacToe,
-    type: "Back-End",
-    typeColor: "#0891b2",
-    tags: ["C++", "Backtracking", "AI"],
-    title: "Tic Tac Toe",
-    desc: "A terminal-based Tic Tac Toe game with an unbeatable AI opponent implemented using backtracking.",
-    link: "https://github.com/Sentinel05/Tic-Tac-Toe",
-  },
-  {
-    image: Supermarket,
-    type: "Back-End",
-    typeColor: "#059669",
-    tags: ["C++", "File Management"],
-    title: "Supermarket Portal",
-    desc: "A file-based supermarket management system with product CRUD, billing and inventory control.",
-    link: "https://github.com/Sentinel05/Supermarket-Portal",
-  },
-];
+const imageMap = {
+  Portfolio,
+  TicTacToe,
+  Supermarket,
+};
 
 const Projects = () => {
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/v1/potfolio/projects")
+      .then((res) => res.json())
+      .then((json) => { if (json.success) setProjects(json.data); })
+      .catch((err) => console.error("Failed to fetch projects:", err));
+  }, []);
+
   return (
     <section className="projects" id="project">
       <motion.div
@@ -53,7 +38,7 @@ const Projects = () => {
       <div className="projects__grid">
         {projects.map((p, i) => (
           <motion.div
-            key={i}
+            key={p._id}
             className="project-card glass-card"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -62,7 +47,7 @@ const Projects = () => {
             whileHover={{ y: -6 }}
           >
             <div className="project-card__img-wrap">
-              <img src={p.image} alt={p.title} className="project-card__img" />
+              <img src={imageMap[p.imageKey]} alt={p.title} className="project-card__img" />
               <span
                 className="project-card__badge"
                 style={{ background: p.typeColor }}

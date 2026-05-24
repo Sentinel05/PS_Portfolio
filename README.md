@@ -7,12 +7,11 @@ A full-stack personal portfolio website built with the MERN stack (MongoDB, Expr
 | Layer    | Technology                                      |
 |----------|-------------------------------------------------|
 | Frontend | React 18, framer-motion, react-icons, react-scroll, typewriter-effect |
-| Backend  | Node.js, Express.js                             |
+| Backend  | Node.js, Express.js, Mongoose                   |
+| Database | MongoDB Atlas (M0 free tier)                    |
 | Styling  | CSS custom properties (dark/light theme), Bootstrap 5 (CDN) |
 | Email    | EmailJS (`@emailjs/browser`)                    |
 | Deploy   | Render                                          |
-
-> MongoDB is planned but not yet implemented.
 
 ## Live Demo
 
@@ -29,18 +28,20 @@ A full-stack personal portfolio website built with the MERN stack (MongoDB, Expr
 
 ## Quick Start (Windows)
 
-If `npm` is not recognised in your terminal, just double-click one of these batch files in the project root — no PATH setup needed:
+If `npm` is not recognised in your terminal, just double-click one of these batch files — no PATH setup needed:
 
-| File        | What it does                                        |
-|-------------|-----------------------------------------------------|
-| `dev.bat`   | Starts both servers for development (recommended)   |
-| `start.bat` | Builds the React app then starts the production server |
+| File                | What it does                                        |
+|---------------------|-----------------------------------------------------|
+| `scripts/dev.bat`   | Starts both servers for development (recommended)   |
+| `scripts/start.bat` | Builds the React app then starts the production server |
 
 > **Prerequisite:** [Node.js](https://nodejs.org/) must be installed on the machine.
 
 ---
 
 ## Getting Started
+
+> For full MongoDB Atlas setup details, known issues, and troubleshooting see [docs/MONGODB_SETUP.md](docs/MONGODB_SETUP.md).
 
 ### 1. Clone the repository
 
@@ -114,10 +115,27 @@ Then open [http://localhost:8080](http://localhost:8080).
 Portfolio/
 ├── server.js               # Express entry point
 ├── package.json            # Root scripts & server deps
+├── .env                    # PORT + MONGO_URI (gitignored)
+├── config/
+│   └── db.js               # Mongoose connection
+├── models/                 # Mongoose schemas
+│   ├── Education.js
+│   ├── Work.js
+│   ├── Project.js
+│   └── Skill.js
+├── data/
+│   └── seed.js             # One-time DB seeder
 ├── routes/
 │   └── portfolioRoutes.js  # API routes
 ├── controllers/
 │   └── portfolioController.js
+├── scripts/                # Windows batch file shortcuts
+│   ├── dev.bat
+│   └── start.bat
+├── docs/                   # Reference documentation
+│   ├── INTERVIEW_READINESS.md
+│   ├── PROJECT_EXPLORATION.md
+│   └── TECH_STACK.md
 └── client/                 # React app (Create React App)
     ├── package.json
     └── src/
@@ -130,15 +148,15 @@ Portfolio/
         ├── pages/
         │   ├── home/       # Sidebar profile panel
         │   ├── about/
-        │   ├── educations/
-        │   ├── works/
-        │   ├── skills/
-        │   ├── projects/
+        │   ├── educations/ # Fetches from /api/v1/potfolio/educations
+        │   ├── works/      # Fetches from /api/v1/potfolio/works
+        │   ├── skills/     # Fetches from /api/v1/potfolio/skills
+        │   ├── projects/   # Fetches from /api/v1/potfolio/projects
         │   └── contact/    # EmailJS contact form
         ├── context/
         │   └── ThemeContext.js   # Dark/light theme
         └── utils/
-            └── SkillsList.js     # Skills data & icons
+            └── SkillsList.js     # Icon registry (iconName → component)
 ```
 
 ---
@@ -180,11 +198,20 @@ If `npm` is not found in your terminal (common on Windows when Node.js was insta
 
 ## Environment Variables
 
-Create a `.env` file in the project root if you need to customise the port:
+Create a `.env` file in the project root (already generated — fill in your values):
 
 ```env
 PORT=8080
+MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority
 ```
+
+After setting `MONGO_URI`, seed the database once before starting the server:
+
+```bash
+node data/seed.js
+```
+
+> If you get a `querySrv ECONNREFUSED` error on Windows, see the [DNS fix in MONGODB_SETUP.md](docs/MONGODB_SETUP.md#9-windows-dns--c-ares-issue-and-fix).
 
 ---
 

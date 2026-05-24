@@ -1,7 +1,8 @@
 @echo off
-title PS Portfolio - Dev Server
+title PS Portfolio - Production Server
 
-:: Try npm from PATH first, then fall back to default Node.js install location
+pushd "%~dp0.."
+
 where npm >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     if exist "C:\Program Files\nodejs\npm.cmd" (
@@ -13,9 +14,16 @@ if %ERRORLEVEL% neq 0 (
     )
 )
 
-echo Starting PS Portfolio in development mode...
-echo   Backend  -^> http://localhost:8080
-echo   Frontend -^> http://localhost:3000
+echo Building React client...
+npm run build
+if %ERRORLEVEL% neq 0 (
+    echo Build failed.
+    pause
+    exit /b 1
+)
+
 echo.
-npm run dev
+echo Starting production server on http://localhost:8080
+npm start
 pause
+popd

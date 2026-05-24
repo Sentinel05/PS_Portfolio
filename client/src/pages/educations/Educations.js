@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Educations.css";
 import {
   VerticalTimeline,
@@ -8,31 +8,16 @@ import "react-vertical-timeline-component/style.min.css";
 import { MdSchool } from "react-icons/md";
 import { motion } from "framer-motion";
 
-const educations = [
-  {
-    date: "2019 – 2023",
-    title: "Bachelor of Engineering (ECE)",
-    school: "Nitte Meenakshi Institute of Technology",
-    location: "Bengaluru, India",
-    grade: "7.75 CGPA",
-  },
-  {
-    date: "2018 – 2019",
-    title: "Higher Secondary (PCM + CS)",
-    school: "Kendriya Vidyalaya AFS Sulur",
-    location: "Sulur, India",
-    grade: "91%",
-  },
-  {
-    date: "2016 – 2017",
-    title: "Secondary (10th)",
-    school: "Kendriya Vidyalaya AFS Sulur",
-    location: "Sulur, India",
-    grade: "10.00 CGPA",
-  },
-];
-
 const Educations = () => {
+  const [educations, setEducations] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/v1/potfolio/educations")
+      .then((res) => res.json())
+      .then((json) => { if (json.success) setEducations(json.data); })
+      .catch((err) => console.error("Failed to fetch educations:", err));
+  }, []);
+
   return (
     <section className="education" id="education">
       <motion.div

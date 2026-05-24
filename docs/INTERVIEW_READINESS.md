@@ -92,11 +92,14 @@ A: `concurrently` runs multiple npm scripts in parallel in a single terminal wit
 
 ### Data & Content
 
-**Q: Where is the portfolio data stored?**  
-A: All content (work history, education, projects, skills) is hardcoded as JavaScript arrays in the respective page component files. There is no database. This is intentional for a portfolio — the data rarely changes, and a database would add infrastructure complexity with no benefit.
+**Q: Where is the portfolio data stored?**
+A: All content (work history, education, projects, skills) is stored in **MongoDB Atlas** (free M0 cluster). Each collection has a Mongoose schema. The Express backend exposes public GET endpoints (`/api/v1/potfolio/educations`, `/works`, `/projects`, `/skills`) that query MongoDB sorted by an `order` field. React page components use `useEffect` + `fetch` to load this data on mount instead of hardcoding arrays.
 
-**Q: How would you scale this to use a database?**  
-A: I'd add MongoDB (or PostgreSQL) and move the data arrays into a database seeded via a migration script. Express already has the API layer (`/api/v1/potfolio/`) — I'd add GET routes that fetch from the database and return JSON. React components would use `useEffect` + `fetch` (or React Query) instead of hardcoded arrays.
+**Q: How would you scale this further?**
+A: The DB layer is already in place. Next steps are: (1) admin authentication with JWT + bcryptjs so content can be updated through a UI without touching code, (2) adding a chatbot using RAG (LangChain.js + Pinecone + Gemini) to answer visitor questions about the portfolio.
+
+**Q: Why not keep the data hardcoded?**
+A: Hardcoded data couples content to code — every update requires a code change, a build, and a redeploy. With MongoDB-backed APIs, content changes are a database write. This is the foundation for the planned admin CMS where I can update the portfolio from a UI without touching source code.
 
 ---
 
@@ -110,10 +113,10 @@ A: The CSS custom property system. By defining all design tokens in one place (`
 
 **Q: What would you improve if you had more time?**  
 A: 
-1. **Database-backed content** — store work/education/project data in MongoDB so updates don't require a code change.
-2. **Authentication** — an admin panel to edit portfolio content without touching code.
+1. **Admin CMS panel** — authenticated admin UI to update portfolio content without touching code (JWT + bcryptjs already planned).
+2. **Chatbot** — RAG-based visitor Q&A using LangChain.js, Pinecone, and Gemini API.
 3. **Unit tests** — add React Testing Library tests for core components.
-4. **CI/CD pipeline** — GitHub Actions to auto-build and deploy to a cloud host on push to main.
+4. **CI/CD pipeline** — GitHub Actions to auto-build and deploy to Render on push to main.
 5. **TypeScript** — migrate the frontend to TypeScript for type safety.
 6. **Accessibility (a11y)** — audit and improve ARIA roles, keyboard navigation, contrast ratios.
 
@@ -133,7 +136,7 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it'
 | Dev frontend port | 3000 |
 | Sidebar expanded width | 240px |
 | Sidebar collapsed width | 72px |
-| Number of skills listed | 20 |
+| Number of skills listed | 21 |
 | Number of projects listed | 3 |
 | Work history entries | 3 (Intern → ASE → SE at OpenText) |
 | Education entries | 3 (10th, 12th, B.E.) |
@@ -153,3 +156,7 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it'
 - **CRA** (Create React App) with `react-scripts`
 - **`concurrently`** for parallel dev processes
 - **CSS cascade** for zero-JS theme switching
+- **Mongoose ODM** with MongoDB Atlas M0
+- **RAG** (Retrieval-Augmented Generation) — planned chatbot pattern
+- **Seed script** for initial DB population
+- **CRA proxy** for dev-mode API forwarding
