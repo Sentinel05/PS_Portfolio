@@ -21,7 +21,7 @@ const socialLinks = [
   },
   {
     Icon: SiGmail,
-    href: "mailto:ps30.official@gmail.com",
+    href: "mailto:psarkar.work05@gmail.com",
     color: "#ea4335",
     label: "Email",
   },

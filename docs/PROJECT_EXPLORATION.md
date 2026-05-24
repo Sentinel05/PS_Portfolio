@@ -301,7 +301,7 @@ Expres app
 |---|---|
 | LinkedIn | linkedin.com/in/priyanshu-sarkar-79464b242 |
 | WhatsApp | api.whatsapp.com/send?phone=7904953079 |
-| Gmail | ps30.official@gmail.com |
+| Gmail | psarkar.work05@gmail.com |
 | GitHub | github.com/Sentinel05 |
 
 ---
