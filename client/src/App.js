@@ -1,4 +1,5 @@
 import "./App.css";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import About from "./pages/about/About";
 import Skills from "./pages/skills/Skills";
@@ -13,13 +14,28 @@ import Chatbot from "./components/chatbot/Chatbot";
 import { motion } from "framer-motion";
 import Typewriter from "typewriter-effect";
 import Resume from "./assets/documents/Priyanshu_Sarkar.pdf";
-import "./App.css";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminPortfolio from "./pages/admin/AdminPortfolio";
+import Welcome from "./pages/welcome/Welcome";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
+// ── Public portfolio page ─────────────────────────────────────────────────────
+const Portfolio = () => {
   const [theme] = useTheme();
+  const navigate = useNavigate();
+  const guestName = sessionStorage.getItem("guestName");
 
   return (
     <div className={`app-root ${theme === "light" ? "light-mode" : ""}`}>
+      {/* Back to Welcome floating button */}
+      <button
+        className="portfolio-home-btn"
+        onClick={() => navigate("/")}
+        title="Back to Welcome"
+      >
+        ← Home
+      </button>
+
       <MobileNav />
       <Layout />
       <div className="main-content">
@@ -92,7 +108,37 @@ function App() {
       <Chatbot />
     </div>
   );
+};
+
+// ── App Router ────────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <Routes>
+      {/* Landing — role selection for every visitor */}
+      <Route path="/" element={<Welcome />} />
+
+      {/* Public portfolio (guest view) */}
+      <Route path="/portfolio/*" element={<Portfolio />} />
+
+      {/* Admin auth */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      {/* Admin portal — protected */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminPortfolio />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Fallback — redirect unknown paths to landing */}
+      <Route path="*" element={<Welcome />} />
+    </Routes>
+  );
 }
 
 export default App;
+
 
