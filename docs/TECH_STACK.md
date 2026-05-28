@@ -34,12 +34,8 @@
 | `concurrently` | ^9.2.1 | Runs Express server and React dev server simultaneously with `npm run dev` |
 | `mongoose` | ^9.6.2 | MongoDB ODM — schemas, models, and queries |
 | `resend` | ^6.12.3 | Transactional email service — used by `sendEmailController` |
-| `@google/generative-ai` | (transitive) | Google Gemini SDK — direct embeddings + chat generation |
+| `@google/generative-ai` | ^0.24.0 | Google Gemini SDK — direct embeddings (`gemini-embedding-2`) + chat (`gemini-2.5-flash`) |
 | `@pinecone-database/pinecone` | ^7.2.0 | Pinecone vector DB client — upsert and query vectors |
-| `@langchain/core` | ^1.1.48 | LangChain core utilities |
-| `@langchain/google-genai` | ^2.1.31 | LangChain Google Gemini integration (embeddings wrapper) |
-| `@langchain/pinecone` | ^1.0.3 | LangChain Pinecone integration |
-| `langchain` | ^1.4.2 | LangChain orchestration framework |
 
 **Current API base:** `/api/v1/ps-portfolio` — six routes: `POST /sendEmail` (real email via Resend), four live GET endpoints (`/educations`, `/works`, `/projects`, `/skills`) querying MongoDB Atlas, and `POST /chat` powering the RAG chatbot.
 

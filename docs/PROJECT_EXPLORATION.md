@@ -49,12 +49,8 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 | `concurrently` | `^9.2.1` | Run server + client together in dev |
 | `mongoose` | `^9.6.2` | MongoDB ODM — schemas + queries |
 | `resend` | `^6.12.3` | Transactional email (sendEmailController) |
-| `@google/generative-ai` | (transitive) | Gemini SDK — embeddings + LLM |
+| `@google/generative-ai` | `^0.24.0` | Gemini SDK — `gemini-embedding-2` embeddings + `gemini-2.5-flash` LLM |
 | `@pinecone-database/pinecone` | `^7.2.0` | Pinecone vector DB client |
-| `@langchain/core` | `^1.1.48` | LangChain core |
-| `@langchain/google-genai` | `^2.1.31` | LangChain Gemini integration |
-| `@langchain/pinecone` | `^1.0.3` | LangChain Pinecone integration |
-| `langchain` | `^1.4.2` | LangChain orchestration |
 
 ### Frontend (inside `client/`)
 | Package | Version | Purpose |
