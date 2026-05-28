@@ -7,7 +7,7 @@ const Skills = () => {
   const [skills, setSkills] = useState([]);
 
   useEffect(() => {
-    fetch("/api/v1/potfolio/skills")
+    fetch("/api/v1/ps-portfolio/skills")
       .then((res) => res.json())
       .then((json) => { if (json.success) setSkills(json.data); })
       .catch((err) => console.error("Failed to fetch skills:", err));

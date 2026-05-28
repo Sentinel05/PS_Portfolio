@@ -6,7 +6,7 @@
 
 ## Quick Elevator Pitch
 
-> "I built a full-stack MERN portfolio using React 18, Node/Express, and MongoDB Atlas. The frontend is a single-page app with a collapsible sidebar, smooth-scroll navigation, dark/light theming powered by CSS custom properties, and framer-motion animations. The backend is an Express server connected to MongoDB Atlas — it serves all portfolio content (education, work history, projects, skills) via REST APIs and the React production build as static files. The contact form integrates with EmailJS so messages go directly to my inbox without a backend email service. I designed and implemented the entire project from scratch — architecture, UI/UX, data modeling, API layer, and git hygiene."
+> "I built a full-stack MERN portfolio using React 18, Node/Express, and MongoDB Atlas. The frontend is a single-page app with a collapsible sidebar, smooth-scroll navigation, dark/light theming powered by CSS custom properties, and framer-motion animations. The backend is an Express server connected to MongoDB Atlas — it serves all portfolio content (education, work history, projects, skills) via REST APIs and the React production build as static files. The contact form sends emails server-side via the Resend API. I also implemented a RAG-based AI chatbot (bottom-right floating widget) that uses Google Gemini embeddings and Pinecone vector search to answer visitor questions about my portfolio. I designed and implemented the entire project from scratch — architecture, UI/UX, data modeling, API layer, RAG pipeline, and git hygiene."
 
 ---
 
@@ -18,7 +18,7 @@
 A: It's a monorepo with two layers. The backend is an Express server at the root level — it serves the production React build as static files and exposes REST API routes. The frontend is a CRA (Create React App) React 18 SPA inside the `client/` subfolder. In development, both run independently (Express on :8080, React dev server on :3000 with HMR). In production, Express alone serves everything on :8080.
 
 **Q: Why use Express if the frontend handles everything?**  
-A: Express is there for production serving (static files + SPA fallback route), environment-specific configuration via `.env`, MongoDB Atlas integration (all portfolio content is stored in and served from the database), and a ready API layer (`/api/v1/potfolio/*`) designed to be extended further — for example, to add authentication and a content management UI.
+A: Express is there for production serving (static files + SPA fallback route), environment-specific configuration via `.env`, MongoDB Atlas integration (all portfolio content is stored in and served from the database), server-side email sending via Resend, and the RAG chatbot pipeline (`POST /api/v1/ps-portfolio/chat`). It's also a ready API layer designed to be extended further — for example, to add authentication and a content management UI.
 
 **Q: How do you handle routing in an SPA with Express?**  
 A: Express has a wildcard GET route (`app.get("*", ...)`) at the bottom that always returns `client/build/index.html`. React Router (or react-scroll in this case) handles the in-page navigation client-side. This prevents 404s on hard refresh.
@@ -53,20 +53,20 @@ A: I use a design-token approach with CSS custom properties defined in `index.cs
 ### Backend
 
 **Q: What does the Express server actually do?**  
-A: Four things: (1) connect to MongoDB Atlas on startup via Mongoose's `connectDB()` and serve portfolio content through GET endpoints, (2) serve static files from `client/build/` using `express.static`, (3) handle API routes under `/api/v1/potfolio/` — four live GET routes query MongoDB and one stub handles the contact form endpoint, (4) fall back to `index.html` for any unmatched GET request so React's client-side navigation works. CORS is enabled globally for development flexibility.
+A: Four things: (1) connect to MongoDB Atlas on startup via Mongoose's `connectDB()` and serve portfolio content through GET endpoints, (2) serve static files from `client/build/` using `express.static`, (3) handle API routes under `/api/v1/ps-portfolio/` — four GET routes query MongoDB, one POST route sends email via Resend, and one POST route runs the RAG chatbot pipeline, (4) fall back to `index.html` for any unmatched GET request so React's client-side navigation works. CORS is enabled globally for development flexibility.
 
 **Q: How does the contact form work end-to-end?**  
-A: The user fills in name, email, and message. On submit, `@emailjs/browser` sends the form data directly from the browser to EmailJS's cloud service using my service ID, template ID, and public key. EmailJS renders my email template and delivers it to my Gmail. There is no email data passing through my Express server — this keeps the backend stateless and avoids needing SMTP credentials on the server.
+A: The user fills in name, email, and message. On submit, the form data is sent to `POST /api/v1/ps-portfolio/sendEmail` on the Express backend. The controller uses the **Resend** SDK to send a transactional email to my Gmail. The visitor's email is set as `reply_to` so I can reply directly. No email data is exposed in the client — only the Resend API key lives in `.env` on the server.
 
-**Q: Are the EmailJS keys safe to expose in frontend code?**  
-A: Yes — EmailJS's security model is designed for client-side use. The public key authenticates requests to your account but doesn't grant access to your inbox or settings. The risk (abuse/spam) is mitigated by EmailJS's built-in rate limiting and domain whitelisting on the dashboard.
+**Q: Are the email credentials safe?**  
+A: The Resend API key and recipient address are stored in `.env` (gitignored) and only exist on the server. They are never sent to or exposed in the browser. This is more secure than the previous EmailJS approach where credentials lived in client-side code.
 
 ---
 
 ### Build & DevOps
 
 **Q: How do you run the project in development vs production?**  
-A: Development: `npm run dev` runs Express and the React dev server concurrently using the `concurrently` package. The React dev server has hot module replacement (HMR). Production: `npm run build` creates an optimized static bundle in `client/build/`, then `npm start` runs Express which serves that bundle. On Windows, `dev.bat` and `start.bat` handle this with a fallback for the Node.js PATH.
+A: Development: `npm run dev` runs Express and the React dev server concurrently using the `concurrently` package. The React dev server has hot module replacement (HMR) and proxies `/api` calls to Express on :8080. Production: `npm run build` creates an optimized static bundle in `client/build/`, then `npm start` runs Express which serves that bundle. On Windows, `dev.bat` and `start.bat` handle this with a fallback for the Node.js PATH. The chatbot ingestion (`npm run ingest`) is a one-time setup step — re-run it whenever MongoDB content changes.
 
 **Q: Why is `client/build/` gitignored?**  
 A: Build artifacts are generated output, not source code. Committing them bloats the repo, causes unnecessary merge conflicts, and gives a false impression of what the project actually contains. Anyone cloning the repo runs `npm run build` to regenerate it. CI/CD pipelines also build fresh artifacts — they never consume committed builds.
@@ -78,6 +78,8 @@ git clone <repo>
 cd Portfolio
 npm install                                           # backend deps
 npm install --prefix client --legacy-peer-deps        # frontend deps
+# Add MONGO_URI, RESEND_API_KEY, GMAIL_USER, GEMINI_API_KEY, PINECONE_API_KEY, PINECONE_INDEX to .env
+npm run ingest                                        # one-time chatbot ingestion
 npm run dev                                           # start both servers
 ```
 The `--legacy-peer-deps` flag is needed because `react-scripts 5.0.1` has strict peer dep requirements that conflict with the latest `@testing-library` packages.
@@ -93,10 +95,13 @@ A: `concurrently` runs multiple npm scripts in parallel in a single terminal wit
 ### Data & Content
 
 **Q: Where is the portfolio data stored?**
-A: All content (work history, education, projects, skills) is stored in **MongoDB Atlas** (free M0 cluster). Each collection has a Mongoose schema. The Express backend exposes public GET endpoints (`/api/v1/potfolio/educations`, `/works`, `/projects`, `/skills`) that query MongoDB sorted by an `order` field. React page components use `useEffect` + `fetch` to load this data on mount instead of hardcoding arrays.
+A: All content (work history, education, projects, skills) is stored in **MongoDB Atlas** (free M0 cluster). Each collection has a Mongoose schema. The Express backend exposes public GET endpoints (`/api/v1/ps-portfolio/educations`, `/works`, `/projects`, `/skills`) that query MongoDB sorted by an `order` field. React page components use `useEffect` + `fetch` to load this data on mount instead of hardcoding arrays.
+
+**Q: How does the chatbot work?**
+A: It uses a RAG (Retrieval-Augmented Generation) pattern. At setup time, `npm run ingest` fetches all MongoDB collections plus static bio/contact text, embeds each chunk using `gemini-embedding-2` (768-dimensional vectors), and upserts them into a Pinecone serverless index. At query time, `POST /api/v1/ps-portfolio/chat` embeds the visitor's question, runs a top-5 similarity search in Pinecone, retrieves the most relevant portfolio chunks, builds a grounded system prompt, and sends it to `gemini-2.5-flash` to generate the final answer. The answer is displayed in a floating chat widget (bottom-right) with the robot avatar.
 
 **Q: How would you scale this further?**
-A: The DB layer is already in place. Next steps are: (1) admin authentication with JWT + bcryptjs so content can be updated through a UI without touching code, (2) adding a chatbot using RAG (LangChain.js + Pinecone + Gemini) to answer visitor questions about the portfolio.
+A: The DB layer is already in place. Next step is admin authentication with JWT + bcryptjs so content can be updated through a UI without touching code. The chatbot can be extended with conversation history (multi-turn context) and re-ingestion automation whenever content changes.
 
 **Q: Why not keep the data hardcoded?**
 A: Hardcoded data couples content to code — every update requires a code change, a build, and a redeploy. With MongoDB-backed APIs, content changes are a database write. This is the foundation for the planned admin CMS where I can update the portfolio from a UI without touching source code.

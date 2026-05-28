@@ -9,6 +9,7 @@ import Contact from "./pages/contact/Contact";
 import ScrollToTop from "react-scroll-to-top";
 import { useTheme } from "./context/ThemeContext";
 import MobileNav from "./components/mobileNav/MobileNav";
+import Chatbot from "./components/chatbot/Chatbot";
 import { motion } from "framer-motion";
 import Typewriter from "typewriter-effect";
 import Resume from "./assets/documents/Priyanshu_Sarkar.pdf";
@@ -88,6 +89,7 @@ function App() {
           boxShadow: "0 4px 16px rgba(124,58,237,0.3)",
         }}
       />
+      <Chatbot />
     </div>
   );
 }

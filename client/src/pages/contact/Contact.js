@@ -51,7 +51,7 @@ const Contact = () => {
     setLoading(true);
     setStatus(null);
     try {
-      const res = await fetch("/api/v1/potfolio/sendEmail", {
+      const res = await fetch("/api/v1/ps-portfolio/sendEmail", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -12,7 +12,7 @@ const Educations = () => {
   const [educations, setEducations] = useState([]);
 
   useEffect(() => {
-    fetch("/api/v1/potfolio/educations")
+    fetch("/api/v1/ps-portfolio/educations")
       .then((res) => res.json())
       .then((json) => { if (json.success) setEducations(json.data); })
       .catch((err) => console.error("Failed to fetch educations:", err));

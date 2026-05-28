@@ -12,7 +12,7 @@ const Works = () => {
   const [works, setWorks] = useState([]);
 
   useEffect(() => {
-    fetch("/api/v1/potfolio/works")
+    fetch("/api/v1/ps-portfolio/works")
       .then((res) => res.json())
       .then((json) => { if (json.success) setWorks(json.data); })
       .catch((err) => console.error("Failed to fetch works:", err));

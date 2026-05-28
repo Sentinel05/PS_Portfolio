@@ -16,7 +16,7 @@ const Projects = () => {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    fetch("/api/v1/potfolio/projects")
+    fetch("/api/v1/ps-portfolio/projects")
       .then((res) => res.json())
       .then((json) => { if (json.success) setProjects(json.data); })
       .catch((err) => console.error("Failed to fetch projects:", err));

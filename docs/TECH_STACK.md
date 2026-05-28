@@ -33,8 +33,15 @@
 | `dotenv` | ^16.3.1 | Loads `.env` variables (port, secrets) |
 | `concurrently` | ^9.2.1 | Runs Express server and React dev server simultaneously with `npm run dev` |
 | `mongoose` | ^9.6.2 | MongoDB ODM — schemas, models, and queries |
+| `resend` | ^6.12.3 | Transactional email service — used by `sendEmailController` |
+| `@google/generative-ai` | (transitive) | Google Gemini SDK — direct embeddings + chat generation |
+| `@pinecone-database/pinecone` | ^7.2.0 | Pinecone vector DB client — upsert and query vectors |
+| `@langchain/core` | ^1.1.48 | LangChain core utilities |
+| `@langchain/google-genai` | ^2.1.31 | LangChain Google Gemini integration (embeddings wrapper) |
+| `@langchain/pinecone` | ^1.0.3 | LangChain Pinecone integration |
+| `langchain` | ^1.4.2 | LangChain orchestration framework |
 
-**Current API:** `/api/v1/potfolio` — five routes: `POST /sendEmail` (stub; real email handled client-side via EmailJS) and four live GET endpoints (`/educations`, `/works`, `/projects`, `/skills`) that query MongoDB Atlas and return JSON. Database is connected and active — all portfolio content is served dynamically from MongoDB.
+**Current API base:** `/api/v1/ps-portfolio` — six routes: `POST /sendEmail` (real email via Resend), four live GET endpoints (`/educations`, `/works`, `/projects`, `/skills`) querying MongoDB Atlas, and `POST /chat` powering the RAG chatbot.
 
 **Entry point:** `server.js` — Express app; connects to MongoDB Atlas on startup via Mongoose, serves the React production build as static files, and exposes the REST API.
 
@@ -56,54 +63,69 @@ Portfolio/
 ├── data/
 │   └── seed.js            # Wipes + repopulates all 4 collections
 ├── routes/
-│   └── portfolioRoutes.js # API route definitions
+│   └── portfolioRoutes.js # API route definitions (includes /chat)
 ├── controllers/
-│   └── portfolioController.js  # Route handler logic (4 GET + sendEmail stub)
+│   ├── portfolioController.js  # Route handler logic (4 GET + sendEmail via Resend)
+│   └── chatController.js       # RAG chatbot: embed → Pinecone query → Gemini LLM
 ├── scripts/
 │   ├── dev.bat            # Windows shortcut: npm run dev
-│   └── start.bat          # Windows shortcut: build + start
+│   ├── start.bat          # Windows shortcut: build + start
+│   └── ingest.js          # One-time ingestion: MongoDB → Gemini embeddings → Pinecone
 ├── docs/                  # Project documentation
 └── client/                # React app (CRA)
     └── src/
         ├── pages/         # One folder per page section
-        ├── components/    # Layout, Menus, MobileNav
+        ├── components/    # Layout, Menus, MobileNav, Chatbot
         ├── context/       # ThemeContext (light/dark)
         └── utils/         # SkillsList.js (iconRegistry map)
 ```
 
 ---
 
-## Incoming Stack (Roadmap Goals)
+## Implemented Features
 
-### Goal 1 — Chatbot (Visitor Q&A)
+### Goal 1 — Chatbot (Visitor Q&A) ✅ Complete
 
-The chatbot will use a **RAG (Retrieval-Augmented Generation)** pattern:  
-portfolio content is embedded as vectors → stored in a vector database → at query time, the most relevant chunks are retrieved and fed to an LLM to generate an accurate, grounded answer.
+The chatbot uses a **RAG (Retrieval-Augmented Generation)** pattern:  
+portfolio content is embedded as vectors → stored in Pinecone → at query time, the most relevant chunks are retrieved and fed to Gemini to generate a grounded answer.
 
-| Tool | Free Tier | Role |
-|---|---|---|
-| **Pinecone** | 1 index, 100K vectors — free forever | Vector database: stores embeddings of your portfolio content for semantic search |
-| **Google Gemini API** (via AI Studio) | Generous free tier (rate-limited) | Two jobs: (1) generate embeddings, (2) LLM that produces the chatbot's answer |
-| **LangChain.js** | Open source, free | Orchestration layer: chains together the embedding step → Pinecone retrieval → Gemini response into a single pipeline |
+| Tool | Free Tier | Role | Status |
+|---|---|---|---|
+| **Pinecone** | 1 index, 100K vectors — free forever | Vector database: stores 12 embeddings of portfolio content for semantic search | ✅ Active |
+| **Google Gemini API** (via AI Studio) | Generous free tier (rate-limited) | Two jobs: (1) `gemini-embedding-2` generates 768-dim embeddings, (2) `gemini-2.5-flash` LLM produces the chatbot answer | ✅ Active |
+| **LangChain.js** | Open source, free | Supporting utilities; core RAG pipeline uses `@google/generative-ai` and `@pinecone-database/pinecone` SDKs directly | ✅ Active |
 
-**Flow:**
+**Actual embedding model used:** `gemini-embedding-2` with `outputDimensionality: 768`  
+**Actual LLM used:** `gemini-2.5-flash`  
+> Note: `text-embedding-004` and `gemini-1.5-flash` are not available on the AI Studio free tier key — `gemini-embedding-2` and `gemini-2.5-flash` are the correct models.
+
+**Flow (implemented):**
 ```
 Visitor types question
         ↓
-LangChain.js embeds the question (Gemini Embeddings)
+@google/generative-ai embeds the question (gemini-embedding-2, 768 dims)
         ↓
-Pinecone finds the most relevant portfolio chunks
+Pinecone finds top-5 most relevant portfolio chunks
         ↓
-Gemini LLM generates answer from those chunks
+gemini-2.5-flash generates answer from those chunks + system prompt
         ↓
-Answer displayed in chat widget on the site
+Answer displayed in chat widget (bottom-right floating avatar)
 ```
 
-**New backend additions needed:**
-- `POST /api/v1/chat` — accepts visitor message, runs the LangChain chain, returns answer
-- A one-time ingestion script to embed and upsert portfolio content into Pinecone
+**Backend additions completed:**
+- `POST /api/v1/ps-portfolio/chat` — accepts visitor message, runs the RAG pipeline, returns answer
+- `scripts/ingest.js` — one-time ingestion script: fetches all 4 MongoDB collections + static bio/contact → embeds 12 chunks → upserts to Pinecone namespace `portfolio`
+
+**Frontend additions completed:**
+- `client/src/components/chatbot/Chatbot.js` — floating widget with robot avatar (bottom-right), slide-up chat panel, typing indicator, enter-to-send
+- `client/src/components/chatbot/Chatbot.css` — dark/light theme aware, pulsing online dot, typing bounce animation
+- Mounted in `App.js` as `<Chatbot />`
+
+**Pinecone index:** `ps-portfolio` — Dense, 768 dims, Cosine metric, Serverless (AWS us-east-1), namespace `portfolio`
 
 ---
+
+## Roadmap Goals
 
 ### Goal 2 — Admin CMS (Edit website without touching code)
 
@@ -140,30 +162,31 @@ admin            — username, hashed password                          ⬜ plan
 
 ---
 
-## Full Stack Map (Current + Planned)
+## Full Stack Map (Current)
 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                  React Frontend                     │
 │  Pages: Home, About, Skills, Projects,              │
 │         Education, Work, Contact                    │
-│  + Admin Dashboard (Goal 2)                         │
-│  + Chat Widget (Goal 1)                             │
+│  + Chat Widget ✅ (Chatbot.js — bottom-right)       │
+│  + Admin Dashboard (Goal 2 — planned)               │
 └────────────────────┬────────────────────────────────┘
                      │ HTTP / REST
 ┌────────────────────▼────────────────────────────────┐
 │               Express Backend                       │
+│  /api/v1/ps-portfolio/                              │
 │  Public routes  → GET portfolio content             │
-│  Protected routes → POST/PUT/DELETE (JWT guard)     │
-│  Chat route     → POST /api/v1/chat (LangChain)     │
+│  Chat route     → POST /chat (RAG pipeline) ✅      │
+│  Protected routes → POST/PUT/DELETE (JWT — planned) │
 └──────┬──────────────────────┬────────────────────────┘
        │                      │
 ┌──────▼──────┐      ┌────────▼───────────────────────┐
-│ MongoDB     │      │ LangChain.js Pipeline          │
-│ Atlas M0    │      │  Gemini Embeddings             │
-│ (CMS data)  │      │  → Pinecone (vector search)    │
-│  Free       │      │  → Gemini LLM (answer)         │
-└─────────────┘      │  All free tiers                │
+│ MongoDB     │      │ RAG Pipeline (chatController)  │
+│ Atlas M0    │      │  gemini-embedding-2 (768 dims)  │
+│ (CMS data)  │      │  → Pinecone ps-portfolio index  │
+│  Free ✅    │      │  → gemini-2.5-flash (answer)    │
+└─────────────┘      │  All free tiers ✅              │
                      └────────────────────────────────┘
 ```
 

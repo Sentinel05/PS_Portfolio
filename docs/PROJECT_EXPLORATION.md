@@ -47,7 +47,14 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 | `cors` | `^2.8.5` | Cross-origin requests |
 | `dotenv` | `^16.3.1` | Environment variable loading |
 | `concurrently` | `^9.2.1` | Run server + client together in dev |
-| `mongoose` | ^9.6.2 | MongoDB ODM — schemas + queries |
+| `mongoose` | `^9.6.2` | MongoDB ODM — schemas + queries |
+| `resend` | `^6.12.3` | Transactional email (sendEmailController) |
+| `@google/generative-ai` | (transitive) | Gemini SDK — embeddings + LLM |
+| `@pinecone-database/pinecone` | `^7.2.0` | Pinecone vector DB client |
+| `@langchain/core` | `^1.1.48` | LangChain core |
+| `@langchain/google-genai` | `^2.1.31` | LangChain Gemini integration |
+| `@langchain/pinecone` | `^1.0.3` | LangChain Pinecone integration |
+| `langchain` | `^1.4.2` | LangChain orchestration |
 
 ### Frontend (inside `client/`)
 | Package | Version | Purpose |
@@ -88,12 +95,14 @@ Portfolio/
 ├── data/
 │   └── seed.js                # Wipes + repopulates all 4 collections
 ├── controllers/
-│   └── portfolioController.js # sendEmail + 4 GET controllers
+│   ├── portfolioController.js # sendEmail (Resend) + 4 GET controllers
+│   └── chatController.js      # RAG chatbot: embed → Pinecone query → Gemini LLM
 ├── routes/
-│   └── portfolioRoutes.js     # POST /sendEmail + GET /educations /works /projects /skills
+│   └── portfolioRoutes.js     # POST /sendEmail + GET /educations /works /projects /skills + POST /chat
 ├── scripts/
 │   ├── dev.bat                # Windows shortcut: npm run dev (pushd to root)
-│   └── start.bat              # Windows shortcut: npm run build + npm start
+│   ├── start.bat              # Windows shortcut: npm run build + npm start
+│   └── ingest.js              # One-time ingestion: MongoDB → gemini-embedding-2 → Pinecone
 ├── docs/
 │   ├── PROJECT_EXPLORATION.md # ← this file
 │   ├── INTERVIEW_READINESS.md # Interview Q&A reference
@@ -118,17 +127,20 @@ Portfolio/
         │   ├── menus/
         │   │   ├── Menus.js     # Sidebar nav links (react-scroll Links)
         │   │   └── Menus.css
-        │   └── mobileNav/
-        │       ├── MobileNav.js # Hamburger nav for <768px
-        │       └── MobileNav.css
+        │   ├── mobileNav/
+        │   │   ├── MobileNav.js # Hamburger nav for <768px
+        │   │   └── MobileNav.css
+        │   └── chatbot/
+        │       ├── Chatbot.js   # Floating RAG chatbot widget (bottom-right avatar)
+        │       └── Chatbot.css
         ├── pages/
         │   ├── home/            # Sidebar profile panel (photo, typewriter, theme toggle)
         │   ├── about/           # Glassmorphism card + tech tags
-        │   ├── educations/      # VerticalTimeline — fetches /api/v1/potfolio/educations
-        │   ├── works/           # VerticalTimeline — fetches /api/v1/potfolio/works
-        │   ├── skills/          # CSS grid — fetches /api/v1/potfolio/skills
-        │   ├── projects/        # Card grid — fetches /api/v1/potfolio/projects
-        │   └── contact/         # Social links + EmailJS contact form
+        │   ├── educations/      # VerticalTimeline — fetches /api/v1/ps-portfolio/educations
+        │   ├── works/           # VerticalTimeline — fetches /api/v1/ps-portfolio/works
+        │   ├── skills/          # CSS grid — fetches /api/v1/ps-portfolio/skills
+        │   ├── projects/        # Card grid — fetches /api/v1/ps-portfolio/projects
+        │   └── contact/         # Social links + contact form (email via Resend backend)
         └── utils/
             └── SkillsList.js    # iconRegistry: { iconName → React component }
 ```
@@ -146,17 +158,18 @@ Browser
   │
   └── Production mode (npm start)
         └── Express :8080
-              ├── GET  /api/v1/potfolio/educations  ← MongoDB → JSON
-              ├── GET  /api/v1/potfolio/works        ← MongoDB → JSON
-              ├── GET  /api/v1/potfolio/projects     ← MongoDB → JSON
-              ├── GET  /api/v1/potfolio/skills       ← MongoDB → JSON
-              ├── POST /api/v1/potfolio/sendEmail    ← stub (email via EmailJS client-side)
+              ├── GET  /api/v1/ps-portfolio/educations  ← MongoDB → JSON
+              ├── GET  /api/v1/ps-portfolio/works        ← MongoDB → JSON
+              ├── GET  /api/v1/ps-portfolio/projects     ← MongoDB → JSON
+              ├── GET  /api/v1/ps-portfolio/skills       ← MongoDB → JSON
+              ├── POST /api/v1/ps-portfolio/sendEmail    ← Resend transactional email
+              ├── POST /api/v1/ps-portfolio/chat         ← RAG chatbot (Gemini + Pinecone)
               └── GET  *  → serves client/build/index.html (SPA fallback)
 ```
 
 **Email flow:**  
-Contact form → `@emailjs/browser` → EmailJS cloud → recipient's inbox.  
-The Express API endpoint (`/sendEmail`) is a **placeholder stub** — it returns 200 but does not send email. All real email sending happens client-side via EmailJS SDK.
+Contact form → Express `POST /api/v1/ps-portfolio/sendEmail` → Resend API → recipient's inbox.  
+Real transactional email is handled server-side via the **Resend** SDK using `RESEND_API_KEY`.
 
 **Theme flow:**  
 `ThemeContext` stores `"dark"` | `"light"` in React state (default `"dark"`).  
@@ -172,6 +185,7 @@ All colors are CSS custom properties — switching theme class instantly re-rend
 - Renders: `MobileNav` → `Layout` (sidebar) → `.main-content`
 - `.main-content` contains: Hero section → About → Educations → Works → Skills → Projects → Contact → Footer
 - Hero section has framer-motion entrance animation, Typewriter roles, "Get in Touch" smooth-scroll, "Download CV" link
+- `<Chatbot />` floating widget mounted after `<ScrollToTop />`
 
 ### Layout.js — Sidebar Shell
 - Manages `expanded` boolean state (default: `true`)
@@ -227,23 +241,38 @@ All page sections use framer-motion `whileInView` with `viewport={{ once: true }
 
 ### server.js
 ```
-Expres app
-  connectDB()                   # Mongoose connect to Atlas on startup
-  cors()                        # Allow all origins
-  express.json()                # Parse JSON bodies
-  express.static('./client/build')   # Serve React production build
-  /api/v1/potfolio/*            # API routes (note: typo "potfolio" in URL)
-  GET *                         # SPA fallback → index.html
+Express app
+  connectDB()                       # Mongoose connect to Atlas on startup
+  cors()                            # Allow all origins
+  express.json()                    # Parse JSON bodies
+  express.static('./client/build')  # Serve React production build
+  /api/v1/ps-portfolio/*            # API routes
+  GET *                             # SPA fallback → index.html
   PORT = process.env.PORT || 8080
 ```
-> **Note:** The API base path has a typo — `potfolio` (missing 'r'). Do not fix without updating all consumers.
 
 ### portfolioController.js
-- `sendEmailController` — stub, always returns `200 { success: true }`. Real email via `@emailjs/browser`.
+- `sendEmailController` — sends real transactional email via **Resend** SDK using `RESEND_API_KEY` and `GMAIL_USER` env vars.
 - `getEducationsController` — `Education.find().sort({ order: 1 })`
 - `getWorksController` — `Work.find().sort({ order: 1 })`
 - `getProjectsController` — `Project.find().sort({ order: 1 })`
 - `getSkillsController` — `Skill.find().sort({ order: 1 })`
+
+### chatController.js
+RAG pipeline (singleton clients initialized once per server process):
+1. Embeds visitor query with `gemini-embedding-2` (`outputDimensionality: 768`)
+2. Queries Pinecone index `ps-portfolio` namespace `portfolio` for top-5 matches
+3. Builds system prompt with retrieved context chunks
+4. Sends to `gemini-2.5-flash` via `startChat()` → returns answer text
+
+> **Model note:** `text-embedding-004` and `gemini-1.5-flash` return 404 on the free AI Studio key. Use `gemini-embedding-2` and `gemini-2.5-flash`.
+
+### scripts/ingest.js
+One-time ingestion (run with `npm run ingest`):
+1. Connects to MongoDB Atlas, fetches all 4 collections
+2. Builds 12 text chunks: 1 bio + 3 education + 3 work + 3 project + 1 skills + 1 contact
+3. Embeds each chunk via `gemini-embedding-2` (`outputDimensionality: 768`)
+4. Upserts to Pinecone with `{ records: [...] }` (note: not a bare array)
 
 ### portfolioRoutes.js
 | Method | Path | Handler |
@@ -253,6 +282,7 @@ Expres app
 | GET | `/works` | `getWorksController` |
 | GET | `/projects` | `getProjectsController` |
 | GET | `/skills` | `getSkillsController` |
+| POST | `/chat` | `chatController` |
 
 ---
 
@@ -290,11 +320,13 @@ Expres app
 ## 8. Third-Party Integrations
 
 ### EmailJS
-- **Service ID:** `service_6evilyb`
-- **Template ID:** `template_c64o3se`
-- **Public Key:** `XPlopKMKr2oWOtoHd`
-- Contact form fields: `from_name`, `to_name`, `from_email`, `message`
-- These are **public** credentials (safe to expose client-side per EmailJS model)
+> **EmailJS is no longer used for the contact form.** Email is now sent server-side via the **Resend** SDK (`RESEND_API_KEY` in `.env`). The `@emailjs/browser` package remains in `client/package.json` but is unused in the current codebase.
+
+### Resend (Contact Email)
+- Backend sends email via `POST /api/v1/ps-portfolio/sendEmail`
+- Uses `RESEND_API_KEY` and `GMAIL_USER` from `.env`
+- `from`: `"Portfolio Contact <onboarding@resend.dev>"`
+- `reply_to`: visitor's email address
 
 ### Social Links (Contact.js)
 | Platform | URL |
@@ -317,6 +349,7 @@ Run from the **root** (`e:\Coding\Portfolio`):
 | `npm run build` | `npm install --prefix client --legacy-peer-deps && npm run build --prefix client` | Installs client deps then creates CRA production build → `client/build/` |
 | `npm run server` | `node server.js` | Express only |
 | `npm run client` | `npm start --prefix client` | React dev server only |
+| `npm run ingest` | `node scripts/ingest.js` | One-time chatbot ingestion: MongoDB → Gemini embeddings → Pinecone |
 | `npm run install-all` | Install root + client deps | Use `--legacy-peer-deps` for client |
 
 ### Windows Batch Files
@@ -324,6 +357,7 @@ Run from the **root** (`e:\Coding\Portfolio`):
 |---|---|
 | `scripts/dev.bat` | `npm run dev` (with Node PATH fallback, pushd to project root) |
 | `scripts/start.bat` | `npm run build` then `npm start` |
+| `scripts/ingest.bat` | `npm run ingest` (chatbot ingestion — run once after setup or after content changes) |
 
 ---
 
@@ -333,6 +367,11 @@ Run from the **root** (`e:\Coding\Portfolio`):
 |---|---|---|
 | `PORT` | No | Express server port (default `8080`) |
 | `MONGO_URI` | **Yes** | MongoDB Atlas connection string |
+| `RESEND_API_KEY` | **Yes** | Resend API key for transactional email |
+| `GMAIL_USER` | **Yes** | Recipient email address for contact form messages |
+| `GEMINI_API_KEY` | **Yes** | Google AI Studio API key (free tier) — used for embeddings + LLM |
+| `PINECONE_API_KEY` | **Yes** | Pinecone API key |
+| `PINECONE_INDEX` | **Yes** | Pinecone index name (e.g. `ps-portfolio`, 768 dims, cosine, serverless) |
 
 Set in `.env` at the project root (gitignored). On Render, set via the **Environment** tab in the service dashboard — no changes to build/start commands are needed.
 
@@ -351,14 +390,16 @@ Set in `.env` at the project root (gitignored). On Render, set via the **Environ
 
 | Issue | Detail |
 |---|---|
-| API URL typo | Route is `/api/v1/potfolio/sendEmail` (missing 'r') — intentional legacy |
 | react-icons v5 breaking changes | `SiVisualstudiocode` was renamed to `SiVscodium`; always check v5 migration guide |
 | CRA install | `npm install --prefix client` requires `--legacy-peer-deps` to avoid peer dep conflicts |
 | Node not in PATH (Windows) | Node installed at `C:\Program Files\nodejs\`; added to user PATH via PowerShell. Use `scripts/dev.bat` as fallback |
 | Production build required for `npm start` | Express serves `client/build/` — if the folder doesn't exist, the frontend 404s |
-| EmailJS stub | Backend `/sendEmail` endpoint is a stub; do not rely on it for actual email |
+| Email via Resend | Backend `sendEmailController` uses Resend SDK. Requires `RESEND_API_KEY` and `GMAIL_USER` in `.env`. The `@emailjs/browser` package is still installed client-side but no longer used. |
 | Node.js DNS / c-ares (Windows) | `querySrv ECONNREFUSED` on MongoDB SRV lookup — Windows firewall blocks Node.js c-ares on port 53. Fix: `dns.setServers(["8.8.8.8", "8.8.4.4"])` added to `config/db.js` and `data/seed.js`. See [MONGODB_SETUP.md §9](MONGODB_SETUP.md#9-windows-dns--c-ares-issue-and-fix) |
 | URI password special chars | `@` in Atlas password breaks URI parsing. Must URL-encode as `%40`. See [MONGODB_SETUP.md §7](MONGODB_SETUP.md#7-url-encoding-special-characters-in-passwords) |
+| Gemini model names (API key specific) | `text-embedding-004` and `gemini-1.5-flash` return 404 on the free AI Studio tier. Use `gemini-embedding-2` (768 dims via `outputDimensionality`) and `gemini-2.5-flash` instead |
+| Pinecone upsert call signature | `index.upsert()` takes `{ records: [...] }` object — NOT a bare array. Passing an array directly throws `PineconeArgumentError: Must pass in at least 1 record` |
+| Chatbot ingestion must be re-run on content change | `npm run ingest` is a one-time script. If MongoDB data changes (new job, project, etc.), re-run it to refresh the Pinecone vectors |
 
 ---
 
@@ -369,6 +410,7 @@ Set in `.env` at the project root (gitignored). On Render, set via the **Environ
 | Full name | App.js, About.js, Home.js | Display |
 | Profile photo | `client/src/assets/images/cool-dp.jpg` | Image |
 | About photo | `client/src/assets/images/Priyanshu.jpg` | Image |
+| Chatbot avatar | `client/src/assets/images/chatbot-avatar.png` | Image |
 | Resume PDF | `client/src/assets/documents/Priyanshu_Sarkar.pdf` | Document |
 | WhatsApp number | Home.js, Contact.js | Link |
 | Gmail address | Contact.js | Link |

@@ -397,15 +397,16 @@ All collections have an `order` field (Number, default 0). All GET controllers s
 
 ## 13. API Endpoints
 
-All endpoints are mounted under `/api/v1/potfolio/` (note: intentional legacy typo — fixing it would break existing consumers).
+All endpoints are mounted under `/api/v1/ps-portfolio/`.
 
 | Method | Path | Handler | Auth |
 |---|---|---|---|
-| GET | `/api/v1/potfolio/educations` | `getEducationsController` | None (public) |
-| GET | `/api/v1/potfolio/works` | `getWorksController` | None (public) |
-| GET | `/api/v1/potfolio/projects` | `getProjectsController` | None (public) |
-| GET | `/api/v1/potfolio/skills` | `getSkillsController` | None (public) |
-| POST | `/api/v1/potfolio/sendEmail` | `sendEmailController` | None (stub) |
+| GET | `/api/v1/ps-portfolio/educations` | `getEducationsController` | None (public) |
+| GET | `/api/v1/ps-portfolio/works` | `getWorksController` | None (public) |
+| GET | `/api/v1/ps-portfolio/projects` | `getProjectsController` | None (public) |
+| GET | `/api/v1/ps-portfolio/skills` | `getSkillsController` | None (public) |
+| POST | `/api/v1/ps-portfolio/sendEmail` | `sendEmailController` | None (Resend) |
+| POST | `/api/v1/ps-portfolio/chat` | `chatController` | None (public) |
 
 **Response format (all GET endpoints):**
 
@@ -422,7 +423,7 @@ Each page component uses `useEffect` + `fetch`:
 
 ```js
 useEffect(() => {
-  fetch("/api/v1/potfolio/educations")
+  fetch("/api/v1/ps-portfolio/educations")
     .then(res => res.json())
     .then(json => { if (json.success) setEducations(json.data); })
     .catch(err => console.error("Failed to fetch educations:", err));
@@ -444,3 +445,4 @@ The CRA proxy (`"proxy": "http://localhost:8080"` in `client/package.json`) forw
 | Data not appearing on site | Seed not run | Run `node data/seed.js` from project root |
 | Site works locally but not on Render | `MONGO_URI` not set on Render | Render dashboard → Environment → add `MONGO_URI` |
 | Collections exist but are empty | Seed ran before cluster was ready | Re-run `node data/seed.js` |
+| Chatbot not answering / empty context | Ingestion not run | Run `npm run ingest` from project root (requires `GEMINI_API_KEY` + `PINECONE_API_KEY` + `PINECONE_INDEX` in `.env`) |
