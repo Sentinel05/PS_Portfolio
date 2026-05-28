@@ -24,8 +24,8 @@
 
 ## 1. Project Overview
 
-A **MERN-inspired** personal portfolio for **Priyanshu Sarkar** (Software Engineer at OpenText).  
-The app is a **single-page application (SPA)** with a fixed sidebar navigation, smooth scroll sections, dark/light theme toggle, and a contact form powered by EmailJS.
+A **MERN-stack** personal portfolio for **Priyanshu Sarkar** (Software Engineer at OpenText).  
+Features a **Welcome landing page** (Guest vs Admin role selection), a public **portfolio SPA** with smooth scroll navigation, dark/light theme toggle, Resend-backed contact form, a **RAG AI chatbot** (bottom-right floating widget), and a fully-functional **Admin CMS** (JWT-authenticated inline add/edit/delete for all content + visitor dashboard).
 
 | Item | Value |
 |---|---|
@@ -48,6 +48,8 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 | `dotenv` | `^16.3.1` | Environment variable loading |
 | `concurrently` | `^9.2.1` | Run server + client together in dev |
 | `mongoose` | `^9.6.2` | MongoDB ODM — schemas + queries |
+| `bcryptjs` | `^2.x` | Password hashing for admin account (cost 12) |
+| `jsonwebtoken` | `^9.x` | JWT signing (8h tokens) + verification middleware |
 | `resend` | `^6.12.3` | Transactional email (sendEmailController) |
 | `@google/generative-ai` | `^0.24.0` | Gemini SDK — `gemini-embedding-2` embeddings + `gemini-2.5-flash` LLM |
 | `@pinecone-database/pinecone` | `^7.2.0` | Pinecone vector DB client |
@@ -58,13 +60,14 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 | `react` | `^18.3.1` | UI library |
 | `react-dom` | `^18.3.1` | DOM renderer |
 | `react-scripts` | `5.0.1` | CRA build toolchain (webpack, babel) |
+| `react-router-dom` | `^6.x` | Client-side routing: /, /portfolio/*, /admin/login, /admin |
 | `framer-motion` | `^11.3.0` | Animations (replaces legacy react-reveal) |
 | `react-icons` | `^5.2.1` | Icon library (v5 — exports renamed) |
 | `react-scroll` | `^1.9.0` | Smooth scroll `<Link>` component |
 | `react-scroll-to-top` | `^3.0.0` | Back-to-top floating button |
 | `react-vertical-timeline-component` | `^3.6.0` | Education & Work timelines |
 | `typewriter-effect` | `^2.21.0` | Animated typewriter text |
-| `@emailjs/browser` | `^4.3.3` | Contact form email sending |
+| `@emailjs/browser` | `^4.3.3` | Installed but unused — email now server-side via Resend |
 | `web-vitals` | `^4.2.0` | Core Web Vitals reporting |
 
 ### CDN (loaded in `client/public/index.html`)
@@ -77,45 +80,55 @@ The app is a **single-page application (SPA)** with a fixed sidebar navigation, 
 
 ```
 Portfolio/
-├── server.js                  # Express entry point
+├── server.js                  # Express entry point; upserts admin creds from env on startup
 ├── package.json               # Root — backend deps + all npm scripts
-├── .env                       # (gitignored) PORT, MONGO_URI
+├── .env                       # (gitignored) PORT, MONGO_URI, JWT_SECRET, ADMIN_*, API keys
 ├── .gitignore                 # Ignores: node_modules, .env, client/build
 ├── config/
 │   └── db.js                  # Mongoose connect(), exits on failure
+├── middleware/
+│   └── auth.js                # JWT Bearer middleware — verifies token, attaches req.admin
 ├── models/
 │   ├── Education.js           # { date, title, school, location, grade, order }
 │   ├── Work.js                # { date, title, company, location, desc, order }
 │   ├── Project.js             # { imageKey, type, typeColor, tags, title, desc, link, order }
-│   └── Skill.js               # { name, iconName, order }
+│   ├── Skill.js               # { name, iconName, order }
+│   ├── Admin.js               # { username (unique), passwordHash }
+│   └── Visit.js               # { name, visitedAt }
 ├── data/
-│   └── seed.js                # Wipes + repopulates all 4 collections
+│   └── seed.js                # Wipes + repopulates all 4 portfolio collections
 ├── controllers/
 │   ├── portfolioController.js # sendEmail (Resend) + 4 GET controllers
-│   └── chatController.js      # RAG chatbot: embed → Pinecone query → Gemini LLM
+│   ├── chatController.js      # RAG chatbot: embed → Pinecone query → Gemini LLM
+│   ├── adminController.js     # Login: bcrypt compare → JWT sign (8h)
+│   └── crudController.js      # Generic createItem/updateItem/deleteItem for 4 collections
 ├── routes/
-│   └── portfolioRoutes.js     # POST /sendEmail + GET /educations /works /projects /skills + POST /chat
+│   ├── portfolioRoutes.js     # Public GET + protected CRUD + visit log routes
+│   └── adminRoutes.js         # POST /login → loginController
 ├── scripts/
 │   ├── dev.bat                # Windows shortcut: npm run dev (pushd to root)
 │   ├── start.bat              # Windows shortcut: npm run build + npm start
+│   ├── ingest.bat             # Windows shortcut: npm run ingest
 │   └── ingest.js              # One-time ingestion: MongoDB → gemini-embedding-2 → Pinecone
 ├── docs/
 │   ├── PROJECT_EXPLORATION.md # ← this file
 │   ├── INTERVIEW_READINESS.md # Interview Q&A reference
-│   ├── TECH_STACK.md          # Full stack breakdown (current + planned)
-│   └── MONGODB_SETUP.md       # Complete MongoDB Atlas setup guide
+│   ├── TECH_STACK.md          # Full stack breakdown
+│   ├── MONGODB_SETUP.md       # Complete MongoDB Atlas setup guide
+│   └── CHATBOT_SETUP.md       # RAG chatbot setup guide
 └── client/                    # CRA React app
     ├── package.json
     ├── .gitignore              # /build, /node_modules, .env.*
     ├── public/
     │   └── index.html             # Fonts + Bootstrap CDN links
     └── src/
-        ├── index.js           # React root render
+        ├── index.js           # React root: BrowserRouter → ThemeProvider → AuthProvider
         ├── index.css          # Global CSS variables + resets
-        ├── App.js             # Root component — hero section + page layout
-        ├── App.css            # Hero-specific styles
+        ├── App.js             # Routes: / | /portfolio/* | /admin/login | /admin
+        ├── App.css            # Hero-specific styles + portfolio-home-btn
         ├── context/
-        │   └── ThemeContext.js  # Dark/light theme state (default: dark)
+        │   ├── ThemeContext.js  # Dark/light theme state (default: dark)
+        │   └── AuthContext.js   # JWT: login(), logout(), token (localStorage admin_token)
         ├── components/
         │   ├── layout/
         │   │   ├── Layout.js    # Fixed sidebar shell; passes expanded state
@@ -126,17 +139,24 @@ Portfolio/
         │   ├── mobileNav/
         │   │   ├── MobileNav.js # Hamburger nav for <768px
         │   │   └── MobileNav.css
-        │   └── chatbot/
-        │       ├── Chatbot.js   # Floating RAG chatbot widget (bottom-right avatar)
-        │       └── Chatbot.css
+        │   ├── chatbot/
+        │   │   ├── Chatbot.js   # Floating RAG chatbot widget (bottom-right avatar)
+        │   │   └── Chatbot.css
+        │   └── ProtectedRoute.js  # Redirects to / if no JWT token
         ├── pages/
+        │   ├── welcome/         # Landing: Guest (name capture) vs Admin role selection
         │   ├── home/            # Sidebar profile panel (photo, typewriter, theme toggle)
         │   ├── about/           # Glassmorphism card + tech tags
         │   ├── educations/      # VerticalTimeline — fetches /api/v1/ps-portfolio/educations
         │   ├── works/           # VerticalTimeline — fetches /api/v1/ps-portfolio/works
         │   ├── skills/          # CSS grid — fetches /api/v1/ps-portfolio/skills
         │   ├── projects/        # Card grid — fetches /api/v1/ps-portfolio/projects
-        │   └── contact/         # Social links + contact form (email via Resend backend)
+        │   ├── contact/         # Social links + contact form (email via Resend backend)
+        │   └── admin/
+        │       ├── AdminLogin.js      # Login form → POST /api/v1/admin/login
+        │       ├── AdminLogin.css
+        │       ├── AdminPortfolio.js  # Admin portal: sidebar nav, 4 CRUD sections, visitor dashboard
+        │       └── AdminPortfolio.css
         └── utils/
             └── SkillsList.js    # iconRegistry: { iconName → React component }
 ```
@@ -160,6 +180,10 @@ Browser
               ├── GET  /api/v1/ps-portfolio/skills       ← MongoDB → JSON
               ├── POST /api/v1/ps-portfolio/sendEmail    ← Resend transactional email
               ├── POST /api/v1/ps-portfolio/chat         ← RAG chatbot (Gemini + Pinecone)
+              ├── POST /api/v1/ps-portfolio/visits       ← log guest name (public)
+              ├── GET  /api/v1/ps-portfolio/visits       ← visitor list (JWT protected)
+              ├── POST/PUT/DELETE /api/v1/ps-portfolio/:col/:id ← CRUD (JWT protected)
+              ├── POST /api/v1/admin/login               ← bcrypt + JWT sign
               └── GET  *  → serves client/build/index.html (SPA fallback)
 ```
 
@@ -177,10 +201,10 @@ All colors are CSS custom properties — switching theme class instantly re-rend
 ## 5. Frontend Deep-Dive
 
 ### App.js — Root Component
-- Reads theme from `ThemeContext`
-- Renders: `MobileNav` → `Layout` (sidebar) → `.main-content`
+- Uses `react-router-dom` v6 `<Routes>` / `<Route>` for client-side routing
+- Routes: `/ → Welcome` | `/portfolio/* → Portfolio` | `/admin/login → AdminLogin` | `/admin → ProtectedRoute(AdminPortfolio)`
+- `Portfolio` component: reads theme from `ThemeContext`, renders `MobileNav` → `Layout` (sidebar) → `.main-content`. Floating `← Home` button (`.portfolio-home-btn`) navigates back to `/`.
 - `.main-content` contains: Hero section → About → Educations → Works → Skills → Projects → Contact → Footer
-- Hero section has framer-motion entrance animation, Typewriter roles, "Get in Touch" smooth-scroll, "Download CV" link
 - `<Chatbot />` floating widget mounted after `<ScrollToTop />`
 
 ### Layout.js — Sidebar Shell
@@ -271,14 +295,24 @@ One-time ingestion (run with `npm run ingest`):
 4. Upserts to Pinecone with `{ records: [...] }` (note: not a bare array)
 
 ### portfolioRoutes.js
-| Method | Path | Handler |
-|---|---|---|
-| POST | `/sendEmail` | `sendEmailController` |
-| GET | `/educations` | `getEducationsController` |
-| GET | `/works` | `getWorksController` |
-| GET | `/projects` | `getProjectsController` |
-| GET | `/skills` | `getSkillsController` |
-| POST | `/chat` | `chatController` |
+| Method | Path | Handler | Auth |
+|---|---|---|---|
+| POST | `/sendEmail` | `sendEmailController` | None |
+| GET | `/educations` | `getEducationsController` | None |
+| GET | `/works` | `getWorksController` | None |
+| GET | `/projects` | `getProjectsController` | None |
+| GET | `/skills` | `getSkillsController` | None |
+| POST | `/chat` | `chatController` | None |
+| POST | `/visits` | inline | None — log guest visit |
+| GET | `/visits` | inline | JWT required |
+| POST | `/:col` | `createItem(col)` | JWT required |
+| PUT | `/:col/:id` | `updateItem(col)` | JWT required |
+| DELETE | `/:col/:id` | `deleteItem(col)` | JWT required |
+
+### adminRoutes.js
+| Method | Path | Handler | Auth |
+|---|---|---|---|
+| POST | `/login` | `loginController` | None — bcrypt + JWT sign |
 
 ---
 
@@ -363,6 +397,9 @@ Run from the **root** (`e:\Coding\Portfolio`):
 |---|---|---|
 | `PORT` | No | Express server port (default `8080`) |
 | `MONGO_URI` | **Yes** | MongoDB Atlas connection string |
+| `ADMIN_USERNAME` | **Yes** | Admin login username (synced to MongoDB on every start) |
+| `ADMIN_PASSWORD` | **Yes** | Admin login password (bcrypt-hashed before storing) |
+| `JWT_SECRET` | **Yes** | Secret for signing 8-hour JWT tokens |
 | `RESEND_API_KEY` | **Yes** | Resend API key for transactional email |
 | `GMAIL_USER` | **Yes** | Recipient email address for contact form messages |
 | `GEMINI_API_KEY` | **Yes** | Google AI Studio API key (free tier) — used for embeddings + LLM |
@@ -396,6 +433,9 @@ Set in `.env` at the project root (gitignored). On Render, set via the **Environ
 | Gemini model names (API key specific) | `text-embedding-004` and `gemini-1.5-flash` return 404 on the free AI Studio tier. Use `gemini-embedding-2` (768 dims via `outputDimensionality`) and `gemini-2.5-flash` instead |
 | Pinecone upsert call signature | `index.upsert()` takes `{ records: [...] }` object — NOT a bare array. Passing an array directly throws `PineconeArgumentError: Must pass in at least 1 record` |
 | Chatbot ingestion must be re-run on content change | `npm run ingest` is a one-time script. If MongoDB data changes (new job, project, etc.), re-run it to refresh the Pinecone vectors |
+| Admin login invalid after `.env` change | Old bcrypt hash still in MongoDB. Fix: just restart the server — `findOneAndUpdate` upsert in `server.js` syncs credentials from env vars on every startup |
+| webpack cache stale (Windows dev) | File changes not picked up by watcher after external tool edits. Fix: kill the dev server terminal entirely and restart `npm run dev` |
+| PowerShell script execution blocked | `npm.ps1` blocked by execution policy. Fix: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force` before running npm commands |
 
 ---
 

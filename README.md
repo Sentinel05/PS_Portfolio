@@ -1,16 +1,18 @@
 # PS Portfolio
 
-A full-stack personal portfolio website built with the MERN stack (MongoDB, Express.js, React.js, Node.js). Features a modern dark-theme UI with glassmorphism effects, framer-motion animations, and EmailJS-powered contact form.
+A full-stack personal portfolio website built with the MERN stack (MongoDB, Express.js, React.js, Node.js). Features a modern dark-theme UI with glassmorphism effects, framer-motion animations, Resend-powered contact form, a RAG-based AI chatbot, and a full Admin CMS (JWT-authenticated; inline add/edit/delete for all portfolio content).
 
 ## Tech Stack
 
 | Layer    | Technology                                      |
 |----------|-------------------------------------------------|
-| Frontend | React 18, framer-motion, react-icons, react-scroll, typewriter-effect |
-| Backend  | Node.js, Express.js, Mongoose                   |
+| Frontend | React 18, react-router-dom v6, framer-motion, react-icons, react-scroll, typewriter-effect |
+| Backend  | Node.js, Express.js, Mongoose, jsonwebtoken, bcryptjs |
 | Database | MongoDB Atlas (M0 free tier)                    |
+| Auth     | JWT (8-hour tokens, HS256) + bcryptjs (cost 12) |
 | Styling  | CSS custom properties (dark/light theme), Bootstrap 5 (CDN) |
-| Email    | EmailJS (`@emailjs/browser`)                    |
+| Email    | Resend SDK (`resend`) — server-side transactional email |
+| Chatbot  | Google Gemini (`gemini-embedding-2` + `gemini-2.5-flash`) + Pinecone RAG |
 | Deploy   | Render                                          |
 
 ## Live Demo
@@ -113,50 +115,68 @@ Then open [http://localhost:8080](http://localhost:8080).
 
 ```
 Portfolio/
-├── server.js               # Express entry point
+├── server.js               # Express entry point + admin credential sync on startup
 ├── package.json            # Root scripts & server deps
-├── .env                    # PORT + MONGO_URI (gitignored)
+├── .env                    # Secrets: MONGO_URI, JWT_SECRET, ADMIN_*, API keys (gitignored)
 ├── config/
-│   └── db.js               # Mongoose connection
+│   └── db.js               # Mongoose connection (Google DNS fix for Windows)
+├── middleware/
+│   └── auth.js             # JWT Bearer token middleware for protected routes
 ├── models/                 # Mongoose schemas
 │   ├── Education.js
 │   ├── Work.js
 │   ├── Project.js
-│   └── Skill.js
+│   ├── Skill.js
+│   ├── Admin.js            # Admin user: { username, passwordHash }
+│   └── Visit.js            # Guest visit log: { name, visitedAt }
 ├── data/
-│   └── seed.js             # One-time DB seeder
+│   └── seed.js             # One-time DB seeder for portfolio content
 ├── routes/
-│   └── portfolioRoutes.js  # API routes
+│   ├── portfolioRoutes.js  # Public GET + protected CRUD + visits
+│   └── adminRoutes.js      # POST /login → returns JWT
 ├── controllers/
-│   └── portfolioController.js
+│   ├── portfolioController.js  # 4 GET handlers + sendEmail (Resend)
+│   ├── chatController.js       # RAG chatbot pipeline
+│   ├── adminController.js      # Admin login: bcrypt compare + JWT sign
+│   └── crudController.js       # Generic POST/PUT/DELETE for all 4 collections
 ├── scripts/                # Windows batch file shortcuts
 │   ├── dev.bat
-│   └── start.bat
+│   ├── start.bat
+│   └── ingest.bat          # One-time chatbot ingestion shortcut
 ├── docs/                   # Reference documentation
+│   ├── CHATBOT_SETUP.md
 │   ├── INTERVIEW_READINESS.md
+│   ├── MONGODB_SETUP.md
 │   ├── PROJECT_EXPLORATION.md
 │   └── TECH_STACK.md
 └── client/                 # React app (Create React App)
     ├── package.json
     └── src/
-        ├── App.js
-        ├── index.css       # Global CSS variables & theming
+        ├── App.js           # Router: /, /portfolio/*, /admin/login, /admin
+        ├── index.css        # Global CSS variables & theming
         ├── components/
-        │   ├── layout/     # Sidebar layout
-        │   ├── menus/      # Sidebar navigation
-        │   └── mobileNav/  # Mobile bottom nav
-        ├── pages/
-        │   ├── home/       # Sidebar profile panel
-        │   ├── about/
-        │   ├── educations/ # Fetches from /api/v1/potfolio/educations
-        │   ├── works/      # Fetches from /api/v1/potfolio/works
-        │   ├── skills/     # Fetches from /api/v1/potfolio/skills
-        │   ├── projects/   # Fetches from /api/v1/potfolio/projects
-        │   └── contact/    # EmailJS contact form
+        │   ├── layout/      # Sidebar layout
+        │   ├── menus/       # Sidebar navigation
+        │   ├── mobileNav/   # Mobile bottom nav
+        │   ├── chatbot/     # Floating RAG chatbot widget
+        │   └── ProtectedRoute.js  # Redirects to / if no JWT
         ├── context/
-        │   └── ThemeContext.js   # Dark/light theme
+        │   ├── ThemeContext.js    # Dark/light theme
+        │   └── AuthContext.js     # JWT state: login(), logout(), token
+        ├── pages/
+        │   ├── welcome/     # Landing page — Guest vs Admin role selection
+        │   ├── home/        # Sidebar profile panel
+        │   ├── about/
+        │   ├── educations/  # Fetches from /api/v1/ps-portfolio/educations
+        │   ├── works/       # Fetches from /api/v1/ps-portfolio/works
+        │   ├── skills/      # Fetches from /api/v1/ps-portfolio/skills
+        │   ├── projects/    # Fetches from /api/v1/ps-portfolio/projects
+        │   ├── contact/     # Resend-backed contact form
+        │   └── admin/
+        │       ├── AdminLogin.js      # Login form → POST /api/v1/admin/login
+        │       └── AdminPortfolio.js  # Full admin portal (inline CRUD + dashboard)
         └── utils/
-            └── SkillsList.js     # Icon registry (iconName → component)
+            └── SkillsList.js          # iconRegistry (iconName → React component)
 ```
 
 ---
@@ -203,6 +223,20 @@ Create a `.env` file in the project root (already generated — fill in your val
 ```env
 PORT=8080
 MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority
+
+# Admin CMS credentials (synced to MongoDB on every server start)
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your-secure-password
+JWT_SECRET=change-this-to-a-long-random-secret
+
+# Email (Resend)
+RESEND_API_KEY=re_xxxxxxxxxxxx
+GMAIL_USER=your@email.com
+
+# Chatbot (RAG)
+GEMINI_API_KEY=AIza...
+PINECONE_API_KEY=pcsk_...
+PINECONE_INDEX=ps-portfolio
 ```
 
 After setting `MONGO_URI`, seed the database once before starting the server:
@@ -211,7 +245,15 @@ After setting `MONGO_URI`, seed the database once before starting the server:
 node data/seed.js
 ```
 
+Then run the one-time chatbot ingestion:
+
+```bash
+npm run ingest
+```
+
 > If you get a `querySrv ECONNREFUSED` error on Windows, see the [DNS fix in MONGODB_SETUP.md](docs/MONGODB_SETUP.md#9-windows-dns--c-ares-issue-and-fix).
+
+> **Admin credentials:** On every server start, `server.js` upserts the admin account from `ADMIN_USERNAME` / `ADMIN_PASSWORD` into MongoDB. To change credentials, update `.env` (and Render env vars) then restart the server.
 
 ---
 

@@ -1,70 +1,98 @@
-# Getting Started with Create React App
+# Portfolio — React Client
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The frontend for [Priyanshu Sarkar's portfolio](https://github.com/Sentinel05/PS_Portfolio). Built with Create React App (React 18.3.1).
+
+> **Note:** This folder is the `client/` subfolder of the monorepo. All `npm run` commands for the full stack (dev, build, start) should be run from the **root** of the monorepo, not here.
+
+---
+
+## Overview
+
+| Item | Value |
+|---|---|
+| Framework | Create React App (CRA) — `react-scripts 5.0.1` |
+| React version | 18.3.1 |
+| Dev port | `3000` |
+| API proxy | All `/api/` requests forwarded to `http://localhost:8080` |
+| Production build output | `client/build/` (served by Express) |
+
+---
+
+## Key Routes
+
+| Path | Component | Description |
+|---|---|---|
+| `/` | `Welcome` | Landing page — Guest (name capture) or Admin role selection |
+| `/portfolio/*` | `Portfolio` | Public portfolio SPA with sidebar nav |
+| `/admin/login` | `AdminLogin` | Admin login form |
+| `/admin` | `AdminPortfolio` | JWT-protected Admin CMS (CRUD + visitor dashboard) |
+
+---
 
 ## Available Scripts
 
-In the project directory, you can run:
+Run these from **inside the `client/` folder**:
 
 ### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Starts the React development server on port `3000`.  
+API calls to `/api/*` are proxied to `http://localhost:8080` via the `proxy` field in `package.json`.
 
 ### `npm run build`
+Creates an optimised production build in `client/build/`.  
+Express serves this folder in production.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### `npm test`
+Runs tests with Jest + React Testing Library in interactive watch mode.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Dev Setup (from monorepo root)
 
-### `npm run eject`
+```bash
+# Install client dependencies
+npm install --prefix client --legacy-peer-deps
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Start both Express + React dev server
+npm run dev
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+> `--legacy-peer-deps` is required because `react-scripts 5.0.1` has peer dependency conflicts with the latest `@testing-library` packages.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Environment
 
-## Learn More
+The client uses no `.env` — all secrets live in the root `.env` on the server side.  
+The API proxy (`"proxy": "http://localhost:8080"` in `package.json`) handles all backend calls in development.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Structure
 
-### Code Splitting
+```
+client/src/
+├── index.js          # React root: BrowserRouter → ThemeProvider → AuthProvider
+├── App.js            # Routes + Portfolio component
+├── context/
+│   ├── ThemeContext.js   # Dark/light theme state
+│   └── AuthContext.js    # JWT auth state (localStorage: admin_token)
+├── components/
+│   ├── layout/       # Fixed sidebar shell
+│   ├── menus/        # Sidebar nav links (react-scroll)
+│   ├── mobileNav/    # Hamburger nav (< 768px)
+│   ├── chatbot/      # Floating RAG chatbot widget
+│   └── ProtectedRoute.js
+├── pages/
+│   ├── welcome/      # Landing page (role selection + guest name capture)
+│   ├── home/         # Sidebar profile panel
+│   ├── about/
+│   ├── educations/
+│   ├── works/
+│   ├── skills/
+│   ├── projects/
+│   ├── contact/
+│   └── admin/        # AdminLogin + AdminPortfolio
+└── utils/
+    └── SkillsList.js  # iconName → React icon component registry
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

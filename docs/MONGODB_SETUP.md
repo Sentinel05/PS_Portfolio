@@ -389,6 +389,22 @@ All schemas are defined in the `models/` directory using Mongoose.
 
 > **Note on `iconName`:** React icon components cannot be stored in a database. The DB stores a string key. `SkillsList.js` exports `iconRegistry` — a flat object mapping key strings to React icon components. When adding a new skill, the icon must first be imported and added to `iconRegistry` in `SkillsList.js`, then the `iconName` string can be used in the DB.
 
+### `admin` — [models/Admin.js](../models/Admin.js)
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `username` | String | Yes | Unique; must match `ADMIN_USERNAME` env var |
+| `passwordHash` | String | Yes | bcrypt hash (cost 12) of `ADMIN_PASSWORD` env var |
+
+> **Important:** On every server start, `server.js` calls `Admin.findOneAndUpdate({}, { username, passwordHash }, { upsert: true })`. This means changing `ADMIN_USERNAME`/`ADMIN_PASSWORD` in `.env` (and on Render) then restarting the server is the only required step to update credentials — no manual DB edit needed.
+
+### `visits` — [models/Visit.js](../models/Visit.js)
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `name` | String | Yes | Guest's name, collected on the Welcome page before entering the portfolio |
+| `visitedAt` | Date | No | Auto-set to `Date.now` on creation |
+
 ### `order` field — sorting strategy
 
 All collections have an `order` field (Number, default 0). All GET controllers sort by `{ order: 1 }` (ascending). Lower `order` = appears first on the UI. The seed data uses `order: 1` for the newest/most prominent item so timelines display newest-first.
@@ -407,6 +423,12 @@ All endpoints are mounted under `/api/v1/ps-portfolio/`.
 | GET | `/api/v1/ps-portfolio/skills` | `getSkillsController` | None (public) |
 | POST | `/api/v1/ps-portfolio/sendEmail` | `sendEmailController` | None (Resend) |
 | POST | `/api/v1/ps-portfolio/chat` | `chatController` | None (public) |
+| POST | `/api/v1/ps-portfolio/visits` | inline | None — logs guest name + timestamp |
+| GET | `/api/v1/ps-portfolio/visits` | inline | **JWT required** — returns all visits |
+| POST | `/api/v1/ps-portfolio/:col` | `createItem(col)` | **JWT required** — add item to collection |
+| PUT | `/api/v1/ps-portfolio/:col/:id` | `updateItem(col)` | **JWT required** — update item by ID |
+| DELETE | `/api/v1/ps-portfolio/:col/:id` | `deleteItem(col)` | **JWT required** — delete item by ID |
+| POST | `/api/v1/admin/login` | `loginController` | None — bcrypt compare + JWT sign |
 
 **Response format (all GET endpoints):**
 
@@ -446,3 +468,5 @@ The CRA proxy (`"proxy": "http://localhost:8080"` in `client/package.json`) forw
 | Site works locally but not on Render | `MONGO_URI` not set on Render | Render dashboard → Environment → add `MONGO_URI` |
 | Collections exist but are empty | Seed ran before cluster was ready | Re-run `node data/seed.js` |
 | Chatbot not answering / empty context | Ingestion not run | Run `npm run ingest` from project root (requires `GEMINI_API_KEY` + `PINECONE_API_KEY` + `PINECONE_INDEX` in `.env`) |
+| Admin login returns "Invalid credentials" after `.env` change | Old admin doc in MongoDB still has old hash | Just restart the server — `server.js` upserts credentials from env vars on every startup via `findOneAndUpdate` |
+| Admin login returns "Invalid credentials" on Render | `ADMIN_USERNAME`/`ADMIN_PASSWORD`/`JWT_SECRET` not set in Render env | Render dashboard → Environment → add all three vars → Save → redeploy |

@@ -1,4 +1,4 @@
-# Tech Stack Info — MERN Portfolio
+﻿# Tech Stack Info — MERN Portfolio
 
 ---
 
@@ -11,13 +11,14 @@
 | `react` | ^18.3.1 | Core UI library |
 | `react-dom` | ^18.3.1 | DOM rendering |
 | `react-scripts` | 5.0.1 | CRA build toolchain (dev server, bundler, linter) |
+| `react-router-dom` | ^6.x | Client-side routing: /, /portfolio/*, /admin/login, /admin |
 | `react-scroll` | ^1.9.0 | Smooth scroll navigation (menu links → sections) |
 | `react-scroll-to-top` | ^3.0.0 | Floating scroll-to-top button |
 | `react-vertical-timeline-component` | ^3.6.0 | Education and Work Experience timeline UI |
 | `react-icons` | ^5.2.1 | Icon library used across all components |
 | `framer-motion` | ^11.3.0 | Scroll-triggered animations on section headings |
 | `typewriter-effect` | ^2.21.0 | Animated typewriter text on Home page |
-| `@emailjs/browser` | ^4.3.3 | Sends contact form emails directly from the browser without a backend mail server |
+| `@emailjs/browser` | ^4.3.3 | Installed but unused — email is now handled server-side via Resend |
 | `web-vitals` | ^4.2.0 | Core Web Vitals performance measurement |
 
 **Styling:** Plain CSS per component — no CSS framework (no Tailwind/Bootstrap). Theme managed via CSS custom properties through `ThemeContext.js` (light/dark mode).
@@ -33,11 +34,13 @@
 | `dotenv` | ^16.3.1 | Loads `.env` variables (port, secrets) |
 | `concurrently` | ^9.2.1 | Runs Express server and React dev server simultaneously with `npm run dev` |
 | `mongoose` | ^9.6.2 | MongoDB ODM — schemas, models, and queries |
+| `bcryptjs` | ^2.x | Password hashing for admin account (cost factor 12) |
+| `jsonwebtoken` | ^9.x | Signs 8-hour JWT on admin login; verified by auth middleware on protected routes |
 | `resend` | ^6.12.3 | Transactional email service — used by `sendEmailController` |
 | `@google/generative-ai` | ^0.24.0 | Google Gemini SDK — direct embeddings (`gemini-embedding-2`) + chat (`gemini-2.5-flash`) |
 | `@pinecone-database/pinecone` | ^7.2.0 | Pinecone vector DB client — upsert and query vectors |
 
-**Current API base:** `/api/v1/ps-portfolio` — six routes: `POST /sendEmail` (real email via Resend), four live GET endpoints (`/educations`, `/works`, `/projects`, `/skills`) querying MongoDB Atlas, and `POST /chat` powering the RAG chatbot.
+**Current API base:** `/api/v1/ps-portfolio` — public GET endpoints + protected POST/PUT/DELETE CRUD + `POST /chat` (RAG chatbot) + `POST /visits` (guest log) + `GET /visits` (admin only). Admin auth routes mounted at `/api/v1/admin` (`POST /login`).
 
 **Entry point:** `server.js` — Express app; connects to MongoDB Atlas on startup via Mongoose, serves the React production build as static files, and exposes the REST API.
 
@@ -123,38 +126,42 @@ Answer displayed in chat widget (bottom-right floating avatar)
 
 ## Roadmap Goals
 
-### Goal 2 — Admin CMS (Edit website without touching code)
+### Goal 2 — Admin CMS (Edit website without touching code) ✅ Complete
 
 **Phase 1 — Data layer: ✅ Complete**  
-MongoDB Atlas (M0 free cluster) is connected via Mongoose. All portfolio content is served by live GET endpoints and fetched dynamically by each React page component. The seed script (`data/seed.js`) populates all four collections with initial data.
+MongoDB Atlas (M0 free cluster) is connected via Mongoose. All portfolio content is served by live GET endpoints and fetched dynamically by each React page component.
 
-**Phase 2 — Admin auth and dashboard: ⬜ Remaining**  
-An admin UI to log in and update content through a UI, saved to MongoDB via protected REST APIs.
+**Phase 2 — Admin auth and dashboard: ✅ Complete**  
+Full JWT-authenticated admin CMS is live. Visitors land on a Welcome page and choose Guest or Admin. Guests must enter their name (logged as a visit). Admins log in with credentials stored in MongoDB (synced from env vars on every server start).
 
 | Tool | Free Tier | Status | Role |
 |---|---|---|---|
-| **MongoDB Atlas M0** | 512MB shared cluster — free forever | ✅ Active | Primary database — stores all portfolio content |
+| **MongoDB Atlas M0** | 512MB shared cluster — free forever | ✅ Active | Primary database — stores all portfolio content + admin account + visit log |
 | **Mongoose** | Open source, free | ✅ Active | ODM for Node.js — schemas and queries |
-| **jsonwebtoken (JWT)** | Open source, free | ⬜ Planned | Signs tokens on admin login; protects write/delete routes |
-| **bcryptjs** | Open source, free | ⬜ Planned | Hashes admin password before storing in MongoDB |
+| **jsonwebtoken (JWT)** | Open source, free | ✅ Active | Signs 8-hour tokens on admin login; auth middleware verifies on all write routes |
+| **bcryptjs** | Open source, free | ✅ Active | Hashes admin password (cost 12) before storing in MongoDB |
 
-**Active MongoDB collections (4 of 6):**
+**Active MongoDB collections (6 of 6):**
 ```
-education        — date, title, school, location, grade, order        ✅
-works            — date, title, company, location, desc, order         ✅
-projects         — imageKey, type, typeColor, tags, title, desc, link, order  ✅
-skills           — name, iconName, order                              ✅
-contact_messages — name, email, message, timestamp                    ⬜ planned
-admin            — username, hashed password                          ⬜ planned
+educations  — date, title, school, location, grade, order                     ✅
+works       — date, title, company, location, desc, order                      ✅
+projects    — imageKey, type, typeColor, tags, title, desc, link, order         ✅
+skills      — name, iconName, order                                             ✅
+admin       — username (unique), passwordHash                                   ✅
+visits      — name, visitedAt                                                   ✅
 ```
 
-**Remaining backend additions:**
-- `POST/PUT/DELETE /api/v1/<collection>` — protected write routes (JWT middleware)
-- `POST /api/v1/admin/login` — validates credentials, returns JWT
-
-**Remaining frontend additions:**
-- Admin login page (protected route, not in the public nav)
-- Admin dashboard with forms to add/edit/delete each content section
+**Admin portal features (all implemented):**
+- Welcome landing page for all visitors (`/`) — Guest vs Admin role selection
+- Guest flow: mandatory name capture → visit logged to `visits` collection → public portfolio
+- Guest portfolio has a floating “← Home” button to return to the Welcome page
+- Admin login at `/admin/login` — bcrypt compare + JWT sign (8h)
+- JWT stored in `localStorage` under key `admin_token`; `AuthContext` exposes `login()`/`logout()`
+- `ProtectedRoute` redirects unauthenticated visitors to `/`
+- Admin portal at `/admin`: portfolio-style view with fixed topbar, collapsible sidebar, 4 content sections
+- Each section: inline Add / Edit (pencil) / Delete (trash with confirm modal) per item
+- Dashboard section: total visits, unique visitors, last-7-days count, full visitor log table
+- Admin credentials always synced from `ADMIN_USERNAME`/`ADMIN_PASSWORD` env vars on server start (`findOneAndUpdate` upsert)
 
 ---
 
@@ -163,24 +170,29 @@ admin            — username, hashed password                          ⬜ plan
 ```
 ┌─────────────────────────────────────────────────────┐
 │                  React Frontend                     │
-│  Pages: Home, About, Skills, Projects,              │
-│         Education, Work, Contact                    │
+│  Routes: / (Welcome) | /portfolio/* (public)        │
+│          /admin/login | /admin (protected)          │
 │  + Chat Widget ✅ (Chatbot.js — bottom-right)       │
-│  + Admin Dashboard (Goal 2 — planned)               │
+│  + Admin CMS ✅ (AdminPortfolio.js)                 │
+│  + Visitor Dashboard ✅ (in AdminPortfolio)         │
 └────────────────────┬────────────────────────────────┘
                      │ HTTP / REST
 ┌────────────────────▼────────────────────────────────┐
 │               Express Backend                       │
 │  /api/v1/ps-portfolio/                              │
-│  Public routes  → GET portfolio content             │
-│  Chat route     → POST /chat (RAG pipeline) ✅      │
-│  Protected routes → POST/PUT/DELETE (JWT — planned) │
+│  Public GET    → portfolio content (4 collections)  │
+│  POST /sendEmail → Resend transactional email        │
+│  POST /chat    → RAG pipeline ✅                    │
+│  POST /visits  → log guest visit (public) ✅        │
+│  GET  /visits  → visitor list (admin JWT) ✅        │
+│  POST/PUT/DELETE /:col/:id → protected CRUD ✅      │
+│  /api/v1/admin/login → bcrypt + JWT sign ✅         │
 └──────┬──────────────────────┬────────────────────────┘
        │                      │
 ┌──────▼──────┐      ┌────────▼───────────────────────┐
 │ MongoDB     │      │ RAG Pipeline (chatController)  │
 │ Atlas M0    │      │  gemini-embedding-2 (768 dims)  │
-│ (CMS data)  │      │  → Pinecone ps-portfolio index  │
+│ 6 colls ✅  │      │  → Pinecone ps-portfolio index  │
 │  Free ✅    │      │  → gemini-2.5-flash (answer)    │
 └─────────────┘      │  All free tiers ✅              │
                      └────────────────────────────────┘
@@ -195,8 +207,8 @@ admin            — username, hashed password                          ⬜ plan
 | MongoDB Atlas | M0 Free Shared | $0 |
 | Pinecone | Free (1 index, 100K vectors) | $0 |
 | Google Gemini API | Free tier (AI Studio) | $0 |
-| LangChain.js | Open source | $0 |
 | jsonwebtoken + bcryptjs | Open source | $0 |
+| Resend | Free tier (100 emails/day) | $0 |
 | **Total** | | **$0** |
 
 > **Note:** Gemini's free tier has rate limits (requests per minute/day). For a personal portfolio with typical traffic these limits will never be hit. If the site scales significantly, Gemini's paid tier is pay-per-token and remains very cheap at low volume.

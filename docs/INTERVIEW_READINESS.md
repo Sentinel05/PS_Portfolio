@@ -6,7 +6,7 @@
 
 ## Quick Elevator Pitch
 
-> "I built a full-stack MERN portfolio using React 18, Node/Express, and MongoDB Atlas. The frontend is a single-page app with a collapsible sidebar, smooth-scroll navigation, dark/light theming powered by CSS custom properties, and framer-motion animations. The backend is an Express server connected to MongoDB Atlas — it serves all portfolio content (education, work history, projects, skills) via REST APIs and the React production build as static files. The contact form sends emails server-side via the Resend API. I also implemented a RAG-based AI chatbot (bottom-right floating widget) that uses Google Gemini embeddings and Pinecone vector search to answer visitor questions about my portfolio. I designed and implemented the entire project from scratch — architecture, UI/UX, data modeling, API layer, RAG pipeline, and git hygiene."
+> "I built a full-stack MERN portfolio using React 18, Node/Express, and MongoDB Atlas. The frontend is a single-page app with a Welcome landing page for role selection (guest or admin), a collapsible sidebar, smooth-scroll navigation, dark/light theming powered by CSS custom properties, and framer-motion animations. The backend is an Express server connected to MongoDB Atlas — it serves all portfolio content via REST APIs, handles JWT-authenticated admin login, and supports a full CRUD Admin CMS for managing all portfolio content directly from a UI. The contact form sends emails server-side via the Resend API, and I also implemented a RAG-based AI chatbot (bottom-right floating widget) that uses Google Gemini embeddings and Pinecone vector search to answer visitor questions about my portfolio. I designed and implemented the entire project from scratch — architecture, UI/UX, data modeling, API layer, auth, Admin CMS, RAG pipeline, and git hygiene."
 
 ---
 
@@ -31,7 +31,7 @@ A: This portfolio is a single page — all sections live on one HTML page and us
 ### Frontend
 
 **Q: Walk me through the component tree.**  
-A: The root is `App.js`. It renders a `MobileNav` (visible only on mobile), a `Layout` (fixed sidebar shell), and a `.main-content` div. The sidebar holds `Home` (profile panel) and `Menus` (navigation links). The main content has a hero section defined directly in App.js, followed by lazy-animated page sections: About, Educations, Works, Skills, Projects, Contact, and a Footer.
+A: `index.js` wraps everything in `BrowserRouter → ThemeProvider → AuthProvider`. `App.js` uses React Router v6 `<Routes>` to map: `/` → `Welcome` (role selection landing), `/portfolio/*` → `Portfolio` (the SPA), `/admin/login` → `AdminLogin`, `/admin` → `ProtectedRoute(AdminPortfolio)`. The `Portfolio` component renders `MobileNav` (mobile only), `Layout` (fixed sidebar with `Home` profile panel + `Menus` nav), and `.main-content` with all the portfolio sections. A floating `← Home` button lets guests return to the Welcome page without reloading.
 
 **Q: How does the dark/light theme work?**  
 A: I use a React Context (`ThemeContext`) that stores a `"dark"` or `"light"` string. App.js conditionally adds the `light-mode` class to the root div. All colors are defined as CSS custom properties on `:root` (dark defaults). The `.light-mode` class overrides those variables. Switching theme is instant — no JavaScript DOM manipulation beyond toggling a class. The sidebar always stays dark regardless of theme (its variables are not overridden in `.light-mode`).
@@ -53,7 +53,7 @@ A: I use a design-token approach with CSS custom properties defined in `index.cs
 ### Backend
 
 **Q: What does the Express server actually do?**  
-A: Four things: (1) connect to MongoDB Atlas on startup via Mongoose's `connectDB()` and serve portfolio content through GET endpoints, (2) serve static files from `client/build/` using `express.static`, (3) handle API routes under `/api/v1/ps-portfolio/` — four GET routes query MongoDB, one POST route sends email via Resend, and one POST route runs the RAG chatbot pipeline, (4) fall back to `index.html` for any unmatched GET request so React's client-side navigation works. CORS is enabled globally for development flexibility.
+A: Five things: (1) on startup, it upserts admin credentials from env vars into MongoDB so the login always reflects the current `.env`; (2) connects to MongoDB Atlas via Mongoose and serves portfolio content through public GET endpoints; (3) serves the `client/build/` static bundle in production via `express.static`; (4) exposes all API routes under `/api/v1/` — public endpoints for portfolio data, email, chatbot, and visit logging, plus JWT-protected CRUD routes and an admin login endpoint with bcrypt verification; (5) falls back to `index.html` for any unmatched GET so React Router navigation works on refresh. CORS is enabled globally for development flexibility.
 
 **Q: How does the contact form work end-to-end?**  
 A: The user fills in name, email, and message. On submit, the form data is sent to `POST /api/v1/ps-portfolio/sendEmail` on the Express backend. The controller uses the **Resend** SDK to send a transactional email to my Gmail. The visitor's email is set as `reply_to` so I can reply directly. No email data is exposed in the client — only the Resend API key lives in `.env` on the server.
@@ -101,7 +101,7 @@ A: All content (work history, education, projects, skills) is stored in **MongoD
 A: It uses a RAG (Retrieval-Augmented Generation) pattern. At setup time, `npm run ingest` fetches all MongoDB collections plus static bio/contact text, embeds each chunk using `gemini-embedding-2` (768-dimensional vectors), and upserts them into a Pinecone serverless index. At query time, `POST /api/v1/ps-portfolio/chat` embeds the visitor's question, runs a top-5 similarity search in Pinecone, retrieves the most relevant portfolio chunks, builds a grounded system prompt, and sends it to `gemini-2.5-flash` to generate the final answer. The answer is displayed in a floating chat widget (bottom-right) with the robot avatar.
 
 **Q: How would you scale this further?**
-A: The DB layer is already in place. Next step is admin authentication with JWT + bcryptjs so content can be updated through a UI without touching code. The chatbot can be extended with conversation history (multi-turn context) and re-ingestion automation whenever content changes.
+A: The core CMS is in place. I'd extend the chatbot with conversation history (multi-turn context) and automate re-ingestion whenever content changes. On the infrastructure side: a CI/CD pipeline (GitHub Actions → Render) for zero-touch deploys, and TypeScript migration on the frontend for type safety. At scale, the MongoDB Atlas free tier would need upgrading, and I'd add request-rate limiting and caching (Redis) on the API layer.
 
 **Q: Why not keep the data hardcoded?**
 A: Hardcoded data couples content to code — every update requires a code change, a build, and a redeploy. With MongoDB-backed APIs, content changes are a database write. This is the foundation for the planned admin CMS where I can update the portfolio from a UI without touching source code.
@@ -118,12 +118,11 @@ A: The CSS custom property system. By defining all design tokens in one place (`
 
 **Q: What would you improve if you had more time?**  
 A: 
-1. **Admin CMS panel** — authenticated admin UI to update portfolio content without touching code (JWT + bcryptjs already planned).
-2. **Chatbot** — RAG-based visitor Q&A using LangChain.js, Pinecone, and Gemini API.
-3. **Unit tests** — add React Testing Library tests for core components.
-4. **CI/CD pipeline** — GitHub Actions to auto-build and deploy to Render on push to main.
-5. **TypeScript** — migrate the frontend to TypeScript for type safety.
-6. **Accessibility (a11y)** — audit and improve ARIA roles, keyboard navigation, contrast ratios.
+1. **Unit tests** — add React Testing Library tests for core components and Jest tests for controllers.
+2. **CI/CD pipeline** — GitHub Actions to auto-build and deploy to Render on push to main.
+3. **TypeScript** — migrate the frontend to TypeScript for type safety.
+4. **Accessibility (a11y)** — audit and improve ARIA roles, keyboard navigation, contrast ratios.
+5. **Chatbot multi-turn memory** — persist conversation history per session so follow-up questions have context.
 
 **Q: How did you approach the responsive design?**  
 A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it's hidden and replaced by `MobileNav` — a hamburger menu that overlays the page. CSS media queries at the `768px` breakpoint handle the switch. The main content sections use CSS Grid (`auto-fill minmax`) for the skills and project cards, so they naturally reflow at any viewport width.
@@ -157,11 +156,16 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it'
 - **Concurrent rendering** (React 18)
 - **`whileInView` scroll-triggered animations** (framer-motion)
 - **Static serving** with Express SPA fallback
-- **EmailJS** client-side email without SMTP
+- **JWT** (JSON Web Token) — 8-hour signed tokens for stateless auth
+- **bcryptjs** — password hashing with cost factor 12
+- **Protected routes** — `ProtectedRoute` component redirects to `/` without a valid JWT
+- **Admin CMS** — inline add/edit/delete UI for all MongoDB collections
+- **Visitor analytics** — visit log + dashboard with unique visitor and 7-day stats
 - **CRA** (Create React App) with `react-scripts`
 - **`concurrently`** for parallel dev processes
 - **CSS cascade** for zero-JS theme switching
 - **Mongoose ODM** with MongoDB Atlas M0
-- **RAG** (Retrieval-Augmented Generation) — planned chatbot pattern
+- **RAG** (Retrieval-Augmented Generation) — chatbot with Gemini embeddings + Pinecone vector search
 - **Seed script** for initial DB population
 - **CRA proxy** for dev-mode API forwarding
+- **Resend** transactional email API (server-side, no client credentials exposed)
