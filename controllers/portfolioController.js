@@ -2,6 +2,7 @@ const Education = require("../models/Education");
 const Work = require("../models/Work");
 const Project = require("../models/Project");
 const Skill = require("../models/Skill");
+const Certification = require("../models/Certification");
 const { Resend } = require("resend");
 
 const sendEmailController = async (req, res) => {
@@ -78,10 +79,20 @@ const getSkillsController = async (req, res) => {
   }
 };
 
+const getCertificationsController = async (req, res) => {
+  try {
+    const data = await Certification.find().sort({ order: 1 });
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to fetch certifications", error });
+  }
+};
+
 module.exports = {
   sendEmailController,
   getEducationsController,
   getWorksController,
   getProjectsController,
   getSkillsController,
+  getCertificationsController,
 };

@@ -10,6 +10,7 @@ const Education = require("../models/Education");
 const Work = require("../models/Work");
 const Project = require("../models/Project");
 const Skill = require("../models/Skill");
+const Certification = require("../models/Certification");
 
 dotenv.config();
 
@@ -46,7 +47,7 @@ const works = [
     title: "Software Engineer",
     company: "OpenText",
     location: "Bengaluru, India",
-    desc: "Leading development of Windows Defender integration and complex enterprise customer incident resolution.",
+    desc: "Developing end-to-end Web UI workflows for the Malware Scan feature, integrating multiple antivirus engines (Microsoft Defender, ClamAV, Symantec) to secure virtual environment backup and restore operations. Contributed to UI architecture, API design, and end-to-end workflow development involving scan engine configuration, scan policy creation, and scan execution. Mentoring new engineers in Web UI development, providing technical direction and conducting code reviews.",
     order: 1,
   },
   {
@@ -54,7 +55,7 @@ const works = [
     title: "Associate Software Engineer",
     company: "OpenText",
     location: "Bengaluru, India",
-    desc: "Developed integrational features for SAP HANA, VMware and Documentum backups in Data Protector.",
+    desc: "Led end-to-end development of Web UI workflows for Restore integrations across SAP HANA, VMware, and Documentum. Integrated SAP HANA Store Key-based authentication into APIs and UI workflows. Built reusable UI components reducing development effort by 70%. Enabled Disk-only, Disk + Tape, and Point-in-Time Recovery workflows in MFC UI. Re-architected SAP HANA backup parameter workflow for cluster environments. Resolved critical STAT defects through root cause analysis.",
     order: 2,
   },
   {
@@ -62,7 +63,7 @@ const works = [
     title: "Software Engineer Intern",
     company: "Micro Focus",
     location: "Bengaluru, India",
-    desc: "Contributed to enterprise backup and recovery solutions, gaining hands-on experience with Data Protector.",
+    desc: "Developed POC Web UI workflow for Granular Recovery in Data Protector. Extended production support to Hyper-V and H3C CAS hypervisors. Built modular Angular frontend with Jest unit testing. Integrated frontend with REST APIs for VM disk mount/unmount workflows.",
     order: 3,
   },
 ];
@@ -101,27 +102,86 @@ const projects = [
 ];
 
 const skills = [
-  { name: "TypeScript", iconName: "SiTypescript", order: 1 },
-  { name: "JavaScript", iconName: "SiJavascript", order: 2 },
-  { name: "C++", iconName: "TbBrandCpp", order: 3 },
-  { name: "HTML", iconName: "TbHtml", order: 4 },
-  { name: "CSS", iconName: "BiSolidFileCss", order: 5 },
-  { name: "C", iconName: "TbBrandComedyCentral", order: 6 },
-  { name: "Java", iconName: "FaJava", order: 7 },
-  { name: "Python", iconName: "FaPython", order: 8 },
-  { name: "Angular", iconName: "FaAngular", order: 9 },
-  { name: "React", iconName: "FaReact", order: 10 },
-  { name: "SQL", iconName: "TbSql", order: 11 },
-  { name: "Jest", iconName: "SiJest", order: 12 },
-  { name: "Postman", iconName: "SiPostman", order: 13 },
-  { name: "RESTful APIs", iconName: "TbApi", order: 14 },
-  { name: "VS Code", iconName: "SiVscodium", order: 15 },
-  { name: "Jupyter Notebook", iconName: "SiJupyter", order: 16 },
-  { name: "Turbo C++", iconName: "GrDos", order: 17 },
-  { name: "SDN", iconName: "FaNetworkWired", order: 18 },
-  { name: "Mininet", iconName: "FaWifi", order: 19 },
-  { name: "Miniedit", iconName: "BsHddNetwork", order: 20 },
-  { name: "Wireshark", iconName: "SiWireshark", order: 21 },
+  // Languages
+  { name: "TypeScript",        iconName: "SiTypescript",        category: "Languages",              order: 1  },
+  { name: "JavaScript",        iconName: "SiJavascript",        category: "Languages",              order: 2  },
+  { name: "Java",              iconName: "FaJava",              category: "Languages",              order: 3  },
+  { name: "C++",               iconName: "TbBrandCpp",          category: "Languages",              order: 4  },
+  { name: "C",                 iconName: "SiC",                 category: "Languages",              order: 5  },
+  { name: "SQL",               iconName: "TbSql",               category: "Languages",              order: 6  },
+  { name: "Python",            iconName: "FaPython",            category: "Languages",              order: 7  },
+  { name: "Perl",              iconName: "SiPerl",              category: "Languages",              order: 8  },
+  // Frontend
+  { name: "HTML",              iconName: "TbHtml",              category: "Frontend",               order: 9  },
+  { name: "CSS",               iconName: "BiSolidFileCss",      category: "Frontend",               order: 10 },
+  { name: "LESS",              iconName: "SiLess",              category: "Frontend",               order: 11 },
+  // Frameworks & Libraries
+  { name: "Angular",           iconName: "FaAngular",           category: "Frameworks & Libraries", order: 12 },
+  { name: "React",             iconName: "FaReact",             category: "Frameworks & Libraries", order: 13 },
+  { name: "Spring Boot",       iconName: "SiSpringboot",        category: "Frameworks & Libraries", order: 14 },
+  { name: "Node.js",           iconName: "FaNodeJs",            category: "Frameworks & Libraries", order: 15 },
+  { name: "Express.js",        iconName: "SiExpress",           category: "Frameworks & Libraries", order: 16 },
+  { name: "Jest",              iconName: "SiJest",              category: "Frameworks & Libraries", order: 17 },
+  // Databases
+  { name: "PostgreSQL",        iconName: "SiPostgresql",        category: "Databases",              order: 18 },
+  { name: "MongoDB",           iconName: "SiMongodb",           category: "Databases",              order: 19 },
+  // DevOps
+  { name: "Docker",            iconName: "SiDocker",            category: "DevOps",                 order: 20 },
+  { name: "Kubernetes",        iconName: "SiKubernetes",        category: "DevOps",                 order: 21 },
+  // Tools
+  { name: "Git",               iconName: "SiGit",               category: "Tools",                  order: 22 },
+  { name: "VS Code",           iconName: "SiVscodium",          category: "Tools",                  order: 23 },
+  { name: "Visual Studio",     iconName: "TbBrandVisualStudio", category: "Tools",                  order: 24 },
+  { name: "Postman",           iconName: "SiPostman",           category: "Tools",                  order: 25 },
+  { name: "Swagger",           iconName: "SiSwagger",           category: "Tools",                  order: 26 },
+  { name: "Figma",             iconName: "SiFigma",             category: "Tools",                  order: 27 },
+  { name: "Jupyter Notebook",  iconName: "SiJupyter",           category: "Tools",                  order: 28 },
+  { name: "RESTful APIs",      iconName: "TbApi",               category: "Tools",                  order: 29 },
+];
+
+const certifications = [
+  {
+    title: "Software Architecture & Design of Modern Large Scale Systems",
+    issuer: "Udemy",
+    date: "May 2026",
+    link: "https://www.udemy.com/certificate/UC-ed2a6502-527c-471e-adf6-5dfd27b68ccf/",
+    order: 1,
+  },
+  {
+    title: "DESIGN RULES: Principles + Practices for Great UI Design",
+    issuer: "Udemy",
+    date: "Mar 2026",
+    link: "https://ude.my/UC-8904c408-9824-432c-a88a-9c0e459f7289",
+    order: 2,
+  },
+  {
+    title: "Docker & Kubernetes: The Practical Guide [2025 Edition]",
+    issuer: "Udemy",
+    date: "Apr 2025",
+    link: "https://www.udemy.com/certificate/UC-0eec8668-5363-4133-85cd-44f6410a3f16/",
+    order: 3,
+  },
+  {
+    title: "Java Programming: Arrays, Lists, and Structured Data",
+    issuer: "Coursera",
+    date: "Dec 2022",
+    link: "https://www.coursera.org/account/accomplishments/certificate/JURD3SRYQLZJ",
+    order: 4,
+  },
+  {
+    title: "Java Programming: Solving Problems with Software",
+    issuer: "Coursera",
+    date: "Nov 2022",
+    link: "https://www.coursera.org/account/accomplishments/certificate/3X5BVJUV9URX",
+    order: 5,
+  },
+  {
+    title: "Data Base Management System",
+    issuer: "NPTEL",
+    date: "Sept 2021",
+    link: "https://nptel.ac.in/noc/E_Certificate/NPTEL21CS58S2319169903001999",
+    order: 6,
+  },
 ];
 
 const seed = async () => {
@@ -133,12 +193,14 @@ const seed = async () => {
     await Work.deleteMany({});
     await Project.deleteMany({});
     await Skill.deleteMany({});
+    await Certification.deleteMany({});
     console.log("Cleared existing data");
 
     await Education.insertMany(educations);
     await Work.insertMany(works);
     await Project.insertMany(projects);
     await Skill.insertMany(skills);
+    await Certification.insertMany(certifications);
     console.log("Seed data inserted successfully");
 
     await mongoose.disconnect();

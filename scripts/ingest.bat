@@ -17,6 +17,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo Running chatbot ingestion script...
 echo   Fetches portfolio content from MongoDB
+echo   Collections: educations, works, projects, skills, certifications
 echo   Embeds using gemini-embedding-2 (768 dims)
 echo   Upserts to Pinecone index (namespace: portfolio)
 echo.

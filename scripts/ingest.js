@@ -23,12 +23,13 @@ const Education = require("../models/Education");
 const Work = require("../models/Work");
 const Project = require("../models/Project");
 const Skill = require("../models/Skill");
+const Certification = require("../models/Certification");
 
 /**
  * Build plain text chunks from all portfolio collections + static bio.
  * Returns array of { text, source, title } objects.
  */
-const buildChunks = (educations, works, projects, skills) => {
+const buildChunks = (educations, works, projects, skills, certifications) => {
   const chunks = [];
 
   // ── Static bio / about ──────────────────────────────────────────────────────
@@ -36,10 +37,10 @@ const buildChunks = (educations, works, projects, skills) => {
     text:
       "Priyanshu Sarkar is a Software Engineer at OpenText based in Bengaluru, India. " +
       "He develops and enhances integrational features for Data Protector — enabling " +
-      "enterprises to protect critical environments like SAP HANA, VMware, Documentum " +
-      "and Windows Defender. He is passionate about clean code, enterprise reliability, " +
-      "and impactful solutions. His core technologies include TypeScript, C++, Angular, " +
-      "React, and REST APIs.",
+      "enterprises to protect critical environments like SAP HANA, VMware, Documentum, " +
+      "and Windows Defender via Malware Scan. He is passionate about clean code, " +
+      "enterprise reliability, and impactful solutions. His core technologies include " +
+      "TypeScript, C++, Angular, React, Node.js, Spring Boot, Docker, Kubernetes, and REST APIs.",
     source: "about",
     title: "About Priyanshu",
   });
@@ -58,7 +59,7 @@ const buildChunks = (educations, works, projects, skills) => {
     chunks.push({
       text: `Work Experience: ${work.title} at ${work.company}, ${work.location} (${work.date}). ${work.desc}`,
       source: "work",
-      title: work.title,
+      title: `${work.title} at ${work.company}`,
     });
   });
 
@@ -78,6 +79,18 @@ const buildChunks = (educations, works, projects, skills) => {
     source: "skills",
     title: "Skills",
   });
+
+  // ── Certifications ────────────────────────────────────────────────────────
+  if (certifications.length > 0) {
+    const certList = certifications
+      .map((c) => `"${c.title}" from ${c.issuer} (${c.date})`)
+      .join("; ");
+    chunks.push({
+      text: `Priyanshu has earned the following certifications: ${certList}.`,
+      source: "certifications",
+      title: "Certifications",
+    });
+  }
 
   // ── Contact / social links ───────────────────────────────────────────────────
   chunks.push({
@@ -110,17 +123,18 @@ const ingest = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
 
-    const [educations, works, projects, skills] = await Promise.all([
+    const [educations, works, projects, skills, certifications] = await Promise.all([
       Education.find().sort({ order: 1 }),
       Work.find().sort({ order: 1 }),
       Project.find().sort({ order: 1 }),
       Skill.find().sort({ order: 1 }),
+      Certification.find().sort({ order: 1 }),
     ]);
     console.log(
-      `Fetched: ${educations.length} educations, ${works.length} works, ${projects.length} projects, ${skills.length} skills`
+      `Fetched: ${educations.length} educations, ${works.length} works, ${projects.length} projects, ${skills.length} skills, ${certifications.length} certifications`
     );
 
-    const chunks = buildChunks(educations, works, projects, skills);
+    const chunks = buildChunks(educations, works, projects, skills, certifications);
     console.log(`Built ${chunks.length} chunks for embedding`);
 
     console.log("Initializing Pinecone client...");

@@ -2,12 +2,14 @@ const Education = require("../models/Education");
 const Work = require("../models/Work");
 const Project = require("../models/Project");
 const Skill = require("../models/Skill");
+const Certification = require("../models/Certification");
 
 const modelMap = {
   educations: Education,
   works: Work,
   projects: Project,
   skills: Skill,
+  certifications: Certification,
 };
 
 const createItem = (collection) => async (req, res) => {

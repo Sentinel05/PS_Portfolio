@@ -7,6 +7,7 @@ import {
 } from "react-icons/fi";
 import { GiGraduateCap } from "react-icons/gi";
 import { MdWork, MdMilitaryTech, MdDashboard } from "react-icons/md";
+import { PiCertificateBold } from "react-icons/pi";
 import { IoConstruct } from "react-icons/io5";
 import { FcHome, FcAbout, FcContacts } from "react-icons/fc"; // eslint-disable-line no-unused-vars
 import Pic from "../../assets/images/cool-dp.jpg";
@@ -325,7 +326,8 @@ const WorksSection = ({ authFetch }) => {
 };
 
 // ── SKILLS SECTION ────────────────────────────────────────────────────────────
-const SKILL_BLANK = { name: "", iconName: "", order: 0 };
+const SKILL_CATEGORIES = ["Languages", "Frontend", "Frameworks & Libraries", "Databases", "DevOps", "Tools"];
+const SKILL_BLANK = { name: "", iconName: "", category: "", order: 0 };
 const iconNames = Object.keys(iconRegistry);
 
 const SkillsSection = ({ authFetch }) => {
@@ -407,6 +409,7 @@ const SkillsSection = ({ authFetch }) => {
           <div className="ap-form__grid ap-form__grid--3">
             <Field label="Skill Name" name="name" value={addForm.name} onChange={fc(setAddForm)} placeholder="e.g. TypeScript" />
             <Field label="Icon Name" name="iconName" value={addForm.iconName} onChange={fc(setAddForm)} as="select" options={iconNames} />
+            <Field label="Category" name="category" value={addForm.category} onChange={fc(setAddForm)} as="select" options={SKILL_CATEGORIES} />
             <Field label="Order" name="order" type="number" value={addForm.order} onChange={fc(setAddForm)} />
           </div>
           {addForm.iconName && (
@@ -418,38 +421,53 @@ const SkillsSection = ({ authFetch }) => {
         </form>
       )}
 
-      <div className="ap-skills-grid">
-        {items.length === 0 && <p className="ap-empty">No skills yet.</p>}
-        {items.map((item) =>
-          editId === item._id ? (
-            <form className="ap-form ap-form--skill" key={item._id} onSubmit={handleEdit}>
-              <Field label="Name" name="name" value={editForm.name} onChange={fc(setEditForm)} />
-              <Field label="Icon" name="iconName" value={editForm.iconName} onChange={fc(setEditForm)} as="select" options={iconNames} />
-              <Field label="Order" name="order" type="number" value={editForm.order} onChange={fc(setEditForm)} />
-              {editForm.iconName && <div className="ap-icon-preview"><SkillIcon iconName={editForm.iconName} /></div>}
-              <div className="ap-form__actions">
-                <button className="ap-btn ap-btn--primary ap-btn--xs" type="submit">Save</button>
-                <button className="ap-btn ap-btn--ghost ap-btn--xs" type="button" onClick={() => setEditId(null)}>Cancel</button>
-              </div>
-            </form>
-          ) : (
-            <div className="ap-skill-card glass-card" key={item._id}>
-              <SkillIcon iconName={item.iconName} />
-              <span className="ap-skill__name">{item.name}</span>
-              <div className="ap-skill-card__controls">
-                <button className="ap-icon-btn ap-icon-btn--edit ap-icon-btn--xs" title="Edit"
-                  onClick={() => { setEditId(item._id); setEditForm({ ...item }); setShowAdd(false); }}>
-                  <FiEdit2 />
-                </button>
-                <button className="ap-icon-btn ap-icon-btn--del ap-icon-btn--xs" title="Delete"
-                  onClick={() => setDeleteTarget(item._id)}>
-                  <FiTrash2 />
-                </button>
-              </div>
+      {items.length === 0 && <p className="ap-empty">No skills yet.</p>}
+      {(() => {
+        const categorised = SKILL_CATEGORIES.map((cat) => ({
+          cat,
+          skills: items.filter((s) => s.category === cat),
+        })).filter(({ skills }) => skills.length > 0);
+        const uncategorised = items.filter((s) => !s.category || !SKILL_CATEGORIES.includes(s.category));
+        if (uncategorised.length > 0) categorised.push({ cat: "Other", skills: uncategorised });
+
+        return categorised.map(({ cat, skills }) => (
+          <div key={cat} className="ap-skills-group">
+            <h3 className="ap-skills-group__title">{cat}</h3>
+            <div className="ap-skills-grid">
+              {skills.map((item) =>
+                editId === item._id ? (
+                  <form className="ap-form ap-form--skill" key={item._id} onSubmit={handleEdit}>
+                    <Field label="Name" name="name" value={editForm.name} onChange={fc(setEditForm)} />
+                    <Field label="Icon" name="iconName" value={editForm.iconName} onChange={fc(setEditForm)} as="select" options={iconNames} />
+                    <Field label="Category" name="category" value={editForm.category || ""} onChange={fc(setEditForm)} as="select" options={SKILL_CATEGORIES} />
+                    <Field label="Order" name="order" type="number" value={editForm.order} onChange={fc(setEditForm)} />
+                    {editForm.iconName && <div className="ap-icon-preview"><SkillIcon iconName={editForm.iconName} /></div>}
+                    <div className="ap-form__actions">
+                      <button className="ap-btn ap-btn--primary ap-btn--xs" type="submit">Save</button>
+                      <button className="ap-btn ap-btn--ghost ap-btn--xs" type="button" onClick={() => setEditId(null)}>Cancel</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="ap-skill-card glass-card" key={item._id}>
+                    <SkillIcon iconName={item.iconName} />
+                    <span className="ap-skill__name">{item.name}</span>
+                    <div className="ap-skill-card__controls">
+                      <button className="ap-icon-btn ap-icon-btn--edit ap-icon-btn--xs" title="Edit"
+                        onClick={() => { setEditId(item._id); setEditForm({ ...item }); setShowAdd(false); }}>
+                        <FiEdit2 />
+                      </button>
+                      <button className="ap-icon-btn ap-icon-btn--del ap-icon-btn--xs" title="Delete"
+                        onClick={() => setDeleteTarget(item._id)}>
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  </div>
+                )
+              )}
             </div>
-          )
-        )}
-      </div>
+          </div>
+        ));
+      })()}
     </section>
   );
 };
@@ -602,6 +620,135 @@ const ProjectsSection = ({ authFetch }) => {
   );
 };
 
+// ── CERTIFICATIONS SECTION ───────────────────────────────────────────────────
+const CERT_BLANK = { title: "", issuer: "", date: "", link: "", order: 0 };
+
+const CertificationsSection = ({ authFetch }) => {
+  const [items, setItems] = useState([]);
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState(CERT_BLANK);
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [msg, setMsg] = useState("");
+
+  const load = useCallback(async () => {
+    const res = await fetch("/api/v1/ps-portfolio/certifications");
+    const json = await res.json();
+    if (json.success) setItems(json.data);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const flash = (t) => { setMsg(t); setTimeout(() => setMsg(""), 3000); };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    const res = await authFetch("/api/v1/ps-portfolio/certifications", {
+      method: "POST",
+      body: JSON.stringify({ ...addForm, order: Number(addForm.order) }),
+    });
+    const json = await res.json();
+    if (json.success) { setAddForm(CERT_BLANK); setShowAdd(false); load(); flash("Certification added."); }
+    else flash(json.message || "Failed to add");
+  };
+
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    const res = await authFetch(`/api/v1/ps-portfolio/certifications/${editId}`, {
+      method: "PUT",
+      body: JSON.stringify({ ...editForm, order: Number(editForm.order) }),
+    });
+    const json = await res.json();
+    if (json.success) { setEditId(null); load(); flash("Certification updated."); }
+    else flash(json.message || "Failed to update");
+  };
+
+  const handleDelete = async () => {
+    const res = await authFetch(`/api/v1/ps-portfolio/certifications/${deleteTarget}`, { method: "DELETE" });
+    const json = await res.json();
+    setDeleteTarget(null);
+    if (json.success) { load(); flash("Deleted."); }
+  };
+
+  return (
+    <section className="ap-section" id="certifications-section">
+      {deleteTarget && (
+        <ConfirmModal message="Delete this certification?" onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
+      )}
+      <Flash msg={msg} />
+
+      <div className="ap-section__header">
+        <div className="ap-section__title-row">
+          <PiCertificateBold className="ap-section__icon ap-section__icon--purple" />
+          <h2 className="ap-section__title">Certifications</h2>
+          <hr className="ap-section__rule" />
+          <p className="ap-section__sub">Courses and certificates earned</p>
+        </div>
+        <button className="ap-btn ap-btn--add" onClick={() => { setShowAdd((p) => !p); setEditId(null); }}>
+          {showAdd ? <FiX /> : <FiPlus />}
+          {showAdd ? "Cancel" : "Add Certification"}
+        </button>
+      </div>
+
+      {showAdd && (
+        <form className="ap-form" onSubmit={handleAdd}>
+          <h3 className="ap-form__heading">New Certification</h3>
+          <div className="ap-form__grid">
+            <Field label="Title" name="title" value={addForm.title} onChange={fc(setAddForm)} placeholder="e.g. AWS Cloud Practitioner" />
+            <Field label="Issuer" name="issuer" value={addForm.issuer} onChange={fc(setAddForm)} placeholder="e.g. Udemy, Coursera, NPTEL" />
+            <Field label="Date" name="date" value={addForm.date} onChange={fc(setAddForm)} placeholder="e.g. May 2026" />
+            <Field label="Certificate Link" name="link" value={addForm.link} onChange={fc(setAddForm)} placeholder="https://…" />
+            <Field label="Order" name="order" type="number" value={addForm.order} onChange={fc(setAddForm)} />
+          </div>
+          <button className="ap-btn ap-btn--primary" type="submit">Save Certification</button>
+        </form>
+      )}
+
+      <div className="ap-list">
+        {items.length === 0 && <p className="ap-empty">No certifications yet.</p>}
+        {items.map((item) =>
+          editId === item._id ? (
+            <form className="ap-form ap-form--inline" key={item._id} onSubmit={handleEdit}>
+              <h3 className="ap-form__heading">Editing: {item.title}</h3>
+              <div className="ap-form__grid">
+                <Field label="Title" name="title" value={editForm.title} onChange={fc(setEditForm)} />
+                <Field label="Issuer" name="issuer" value={editForm.issuer} onChange={fc(setEditForm)} />
+                <Field label="Date" name="date" value={editForm.date} onChange={fc(setEditForm)} />
+                <Field label="Certificate Link" name="link" value={editForm.link} onChange={fc(setEditForm)} />
+                <Field label="Order" name="order" type="number" value={editForm.order} onChange={fc(setEditForm)} />
+              </div>
+              <div className="ap-form__actions">
+                <button className="ap-btn ap-btn--primary" type="submit">Save Changes</button>
+                <button className="ap-btn ap-btn--ghost" type="button" onClick={() => setEditId(null)}>Cancel</button>
+              </div>
+            </form>
+          ) : (
+            <div className="ap-card ap-card--cert" key={item._id}>
+              <div className="ap-card__controls">
+                <button className="ap-icon-btn ap-icon-btn--edit" title="Edit"
+                  onClick={() => { setEditId(item._id); setEditForm({ ...item }); setShowAdd(false); }}>
+                  <FiEdit2 />
+                </button>
+                <button className="ap-icon-btn ap-icon-btn--del" title="Delete"
+                  onClick={() => setDeleteTarget(item._id)}>
+                  <FiTrash2 />
+                </button>
+              </div>
+              <span className="ap-card__date">{item.date}</span>
+              <h3 className="ap-card__title">{item.title}</h3>
+              <p className="ap-card__meta">{item.issuer}</p>
+              <a className="ap-cert-link" href={item.link} target="_blank" rel="noreferrer">
+                <FiExternalLink size={13} /> View Certificate
+              </a>
+            </div>
+          )
+        )}
+      </div>
+    </section>
+  );
+};
+
 // ── DASHBOARD SECTION ─────────────────────────────────────────────────────────
 const DashboardSection = ({ authFetch }) => {
   const [visits, setVisits] = useState([]);
@@ -704,6 +851,7 @@ const navItems = [
   { id: "work-section", label: "Work", Icon: MdWork },
   { id: "skills-section", label: "Skills", Icon: MdMilitaryTech },
   { id: "projects-section", label: "Projects", Icon: IoConstruct },
+  { id: "certifications-section", label: "Certifications", Icon: PiCertificateBold },
 ];
 
 const AdminPortfolio = () => {
@@ -783,6 +931,7 @@ const AdminPortfolio = () => {
           <WorksSection authFetch={authFetch} />
           <SkillsSection authFetch={authFetch} />
           <ProjectsSection authFetch={authFetch} />
+          <CertificationsSection authFetch={authFetch} />
         </main>
       </div>
     </div>

@@ -7,7 +7,8 @@ import Projects from "./pages/projects/Projects";
 import Educations from "./pages/educations/Educations";
 import Works from "./pages/works/Works";
 import Contact from "./pages/contact/Contact";
-import ScrollToTop from "react-scroll-to-top";
+import Certifications from "./pages/certifications/Certifications";
+
 import { useTheme } from "./context/ThemeContext";
 import MobileNav from "./components/mobileNav/MobileNav";
 import Chatbot from "./components/chatbot/Chatbot";
@@ -84,6 +85,7 @@ const Portfolio = () => {
         <Educations />
         <Works />
         <Skills />
+        <Certifications />
         <Projects />
         <Contact />
         <motion.footer
@@ -95,16 +97,6 @@ const Portfolio = () => {
           Crafted by <span>Priyanshu Sarkar</span> &copy; {new Date().getFullYear()}
         </motion.footer>
       </div>
-      <ScrollToTop
-        smooth
-        color="#a78bfa"
-        style={{
-          backgroundColor: "var(--surface)",
-          border: "1px solid var(--border)",
-          borderRadius: "50%",
-          boxShadow: "0 4px 16px rgba(124,58,237,0.3)",
-        }}
-      />
       <Chatbot />
     </div>
   );

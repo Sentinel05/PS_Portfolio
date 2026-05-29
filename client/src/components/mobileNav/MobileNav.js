@@ -4,18 +4,20 @@ import { FcHome, FcAbout, FcBusiness, FcContacts } from "react-icons/fc";
 import { MdMilitaryTech } from "react-icons/md";
 import { GiGraduateCap } from "react-icons/gi";
 import { IoConstruct } from "react-icons/io5";
+import { PiCertificateBold } from "react-icons/pi";
 import { Link } from "react-scroll";
 import { HiMenuAlt3, HiX } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navItems = [
-  { to: "home", label: "Home", Icon: FcHome },
-  { to: "about", label: "About", Icon: FcAbout },
-  { to: "education", label: "Education", Icon: GiGraduateCap },
-  { to: "work", label: "Work Experience", Icon: FcBusiness },
-  { to: "skill", label: "Skills", Icon: MdMilitaryTech },
-  { to: "project", label: "Projects", Icon: IoConstruct },
-  { to: "contact", label: "Contact", Icon: FcContacts },
+  { to: "home",          label: "Home",           Icon: FcHome            },
+  { to: "about",         label: "About",          Icon: FcAbout           },
+  { to: "education",     label: "Education",      Icon: GiGraduateCap     },
+  { to: "work",          label: "Work Experience",Icon: FcBusiness        },
+  { to: "skill",         label: "Skills",         Icon: MdMilitaryTech    },
+  { to: "certification", label: "Certifications", Icon: PiCertificateBold },
+  { to: "project",       label: "Projects",       Icon: IoConstruct       },
+  { to: "contact",       label: "Contact",        Icon: FcContacts        },
 ];
 
 const MobileNav = () => {

@@ -5,6 +5,7 @@ const {
   getWorksController,
   getProjectsController,
   getSkillsController,
+  getCertificationsController,
 } = require("../controllers/portfolioController");
 const { chatController } = require("../controllers/chatController");
 const { createItem, updateItem, deleteItem } = require("../controllers/crudController");
@@ -20,6 +21,7 @@ router.get("/educations", getEducationsController);
 router.get("/works", getWorksController);
 router.get("/projects", getProjectsController);
 router.get("/skills", getSkillsController);
+router.get("/certifications", getCertificationsController);
 router.post("/chat", chatController);
 
 // Guest visit tracking — public log, protected read
@@ -46,7 +48,7 @@ router.get("/visits", authMiddleware, async (req, res) => {
 });
 
 // Protected CRUD routes (admin only)
-const collections = ["educations", "works", "projects", "skills"];
+const collections = ["educations", "works", "projects", "skills", "certifications"];
 collections.forEach((col) => {
   router.post(`/${col}`, authMiddleware, createItem(col));
   router.put(`/${col}/:id`, authMiddleware, updateItem(col));
