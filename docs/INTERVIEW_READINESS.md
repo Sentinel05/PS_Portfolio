@@ -98,10 +98,10 @@ A: `concurrently` runs multiple npm scripts in parallel in a single terminal wit
 A: All content (work history, education, projects, skills) is stored in **MongoDB Atlas** (free M0 cluster). Each collection has a Mongoose schema. The Express backend exposes public GET endpoints (`/api/v1/ps-portfolio/educations`, `/works`, `/projects`, `/skills`) that query MongoDB sorted by an `order` field. React page components use `useEffect` + `fetch` to load this data on mount instead of hardcoding arrays.
 
 **Q: How does the chatbot work?**
-A: It uses a RAG (Retrieval-Augmented Generation) pattern. At setup time, `npm run ingest` fetches all MongoDB collections plus static bio/contact text, embeds each chunk using `gemini-embedding-2` (768-dimensional vectors), and upserts them into a Pinecone serverless index. At query time, `POST /api/v1/ps-portfolio/chat` embeds the visitor's question, runs a top-5 similarity search in Pinecone, retrieves the most relevant portfolio chunks, builds a grounded system prompt, and sends it to `gemini-2.5-flash` to generate the final answer. The answer is displayed in a floating chat widget (bottom-right) with the robot avatar.
+A: It uses a RAG (Retrieval-Augmented Generation) pattern. At setup time, `npm run ingest` fetches all MongoDB collections plus static bio/contact text, embeds each chunk using `gemini-embedding-2` (768-dimensional vectors), and upserts them into a Pinecone serverless index (13 vectors total). At query time, `POST /api/v1/ps-portfolio/chat` embeds the visitor's question, runs a top-8 similarity search in Pinecone, filters out low-confidence matches (score < 0.45), retrieves the most relevant portfolio chunks, injects the last 6 turns of conversation history, builds a grounded system prompt, and sends it to `gemini-2.5-flash` to generate the final answer. The answer is displayed in a floating chat widget — a full-body figure with a speech bubble in idle state that morphs into a small avatar when the chat opens. Bot responses support **bold**, `inline code`, and bullet-list markdown.
 
 **Q: How would you scale this further?**
-A: The core CMS is in place. I'd extend the chatbot with conversation history (multi-turn context) and automate re-ingestion whenever content changes. On the infrastructure side: a CI/CD pipeline (GitHub Actions → Render) for zero-touch deploys, and TypeScript migration on the frontend for type safety. At scale, the MongoDB Atlas free tier would need upgrading, and I'd add request-rate limiting and caching (Redis) on the API layer.
+A: The core CMS is in place. The chatbot already has multi-turn history (last 6 turns), score filtering, and markdown rendering. Next steps: automate re-ingestion via a webhook whenever admin content changes. On the infrastructure side: a CI/CD pipeline (GitHub Actions → Render) for zero-touch deploys, and TypeScript migration on the frontend for type safety. At scale, the MongoDB Atlas free tier would need upgrading, and I’d add request-rate limiting and caching (Redis) on the API layer.
 
 **Q: Why not keep the data hardcoded?**
 A: Hardcoded data couples content to code — every update requires a code change, a build, and a redeploy. With MongoDB-backed APIs, content changes are a database write. This is the foundation for the planned admin CMS where I can update the portfolio from a UI without touching source code.
@@ -122,7 +122,7 @@ A:
 2. **CI/CD pipeline** — GitHub Actions to auto-build and deploy to Render on push to main.
 3. **TypeScript** — migrate the frontend to TypeScript for type safety.
 4. **Accessibility (a11y)** — audit and improve ARIA roles, keyboard navigation, contrast ratios.
-5. **Chatbot multi-turn memory** — persist conversation history per session so follow-up questions have context.
+5. **Automated re-ingestion** — trigger `npm run ingest` via webhook whenever admin CMS content changes, keeping Pinecone vectors always in sync.
 
 **Q: How did you approach the responsive design?**  
 A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it's hidden and replaced by `MobileNav` — a hamburger menu that overlays the page. CSS media queries at the `768px` breakpoint handle the switch. The main content sections use CSS Grid (`auto-fill minmax`) for the skills and project cards, so they naturally reflow at any viewport width.
@@ -140,7 +140,8 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it'
 | Dev frontend port | 3000 |
 | Sidebar expanded width | 240px |
 | Sidebar collapsed width | 72px |
-| Number of skills listed | 21 |
+| Number of skills listed | 29 (grouped into 6 categories: Languages, Frontend, Frameworks & Libraries, Databases, DevOps, Tools) |
+| Number of certifications listed | 6 |
 | Number of projects listed | 3 |
 | Work history entries | 3 (Intern at Micro Focus → ASE at OpenText → SE at OpenText) |
 | Education entries | 3 (10th, 12th, B.E.) |

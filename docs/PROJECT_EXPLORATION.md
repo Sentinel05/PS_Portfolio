@@ -64,7 +64,7 @@ Features a **Welcome landing page** (Guest vs Admin role selection), a public **
 | `framer-motion` | `^11.3.0` | Animations (replaces legacy react-reveal) |
 | `react-icons` | `^5.2.1` | Icon library (v5 — exports renamed) |
 | `react-scroll` | `^1.9.0` | Smooth scroll `<Link>` component |
-| `react-scroll-to-top` | `^3.0.0` | Back-to-top floating button |
+
 | `react-vertical-timeline-component` | `^3.6.0` | Education & Work timelines |
 | `typewriter-effect` | `^2.21.0` | Animated typewriter text |
 | `@emailjs/browser` | `^4.3.3` | Installed but unused — email now server-side via Resend |
@@ -92,11 +92,12 @@ Portfolio/
 │   ├── Education.js           # { date, title, school, location, grade, order }
 │   ├── Work.js                # { date, title, company, location, desc, order }
 │   ├── Project.js             # { imageKey, type, typeColor, tags, title, desc, link, order }
-│   ├── Skill.js               # { name, iconName, order }
+│   ├── Skill.js               # { name, iconName, category, order }
+│   ├── Certification.js       # { title, issuer, date, link, order }
 │   ├── Admin.js               # { username (unique), passwordHash }
 │   └── Visit.js               # { name, visitedAt }
 ├── data/
-│   └── seed.js                # Wipes + repopulates all 4 portfolio collections
+│   └── seed.js                # Wipes + repopulates all 6 portfolio collections
 ├── controllers/
 │   ├── portfolioController.js # sendEmail (Resend) + 4 GET controllers
 │   ├── chatController.js      # RAG chatbot: embed → Pinecone query → Gemini LLM
@@ -149,13 +150,14 @@ Portfolio/
         │   ├── about/           # Glassmorphism card + tech tags
         │   ├── educations/      # VerticalTimeline — fetches /api/v1/ps-portfolio/educations
         │   ├── works/           # VerticalTimeline — fetches /api/v1/ps-portfolio/works
-        │   ├── skills/          # CSS grid — fetches /api/v1/ps-portfolio/skills
+        │   ├── skills/          # Grouped by category — fetches /api/v1/ps-portfolio/skills
+        │   ├── certifications/  # Card grid — fetches /api/v1/ps-portfolio/certifications
         │   ├── projects/        # Card grid — fetches /api/v1/ps-portfolio/projects
         │   ├── contact/         # Social links + contact form (email via Resend backend)
         │   └── admin/
         │       ├── AdminLogin.js      # Login form → POST /api/v1/admin/login
         │       ├── AdminLogin.css
-        │       ├── AdminPortfolio.js  # Admin portal: sidebar nav, 4 CRUD sections, visitor dashboard
+        │       ├── AdminPortfolio.js  # Admin portal: sidebar nav, 6 CRUD sections (edu/work/skills/certs/projects/dashboard), visitor dashboard
         │       └── AdminPortfolio.css
         └── utils/
             └── SkillsList.js    # iconRegistry: { iconName → React component }
@@ -178,6 +180,7 @@ Browser
               ├── GET  /api/v1/ps-portfolio/works        ← MongoDB → JSON
               ├── GET  /api/v1/ps-portfolio/projects     ← MongoDB → JSON
               ├── GET  /api/v1/ps-portfolio/skills       ← MongoDB → JSON
+              ├── GET  /api/v1/ps-portfolio/certifications ← MongoDB → JSON
               ├── POST /api/v1/ps-portfolio/sendEmail    ← Resend transactional email
               ├── POST /api/v1/ps-portfolio/chat         ← RAG chatbot (Gemini + Pinecone)
               ├── POST /api/v1/ps-portfolio/visits       ← log guest name (public)
@@ -204,8 +207,8 @@ All colors are CSS custom properties — switching theme class instantly re-rend
 - Uses `react-router-dom` v6 `<Routes>` / `<Route>` for client-side routing
 - Routes: `/ → Welcome` | `/portfolio/* → Portfolio` | `/admin/login → AdminLogin` | `/admin → ProtectedRoute(AdminPortfolio)`
 - `Portfolio` component: reads theme from `ThemeContext`, renders `MobileNav` → `Layout` (sidebar) → `.main-content`. Floating `← Home` button (`.portfolio-home-btn`) navigates back to `/`.
-- `.main-content` contains: Hero section → About → Educations → Works → Skills → Projects → Contact → Footer
-- `<Chatbot />` floating widget mounted after `<ScrollToTop />`
+- `.main-content` contains: Hero section → About → Educations → Works → Skills → Certifications → Projects → Contact → Footer
+- `<Chatbot />` floating widget mounted at the bottom of the Portfolio component
 
 ### Layout.js — Sidebar Shell
 - Manages `expanded` boolean state (default: `true`)
@@ -216,13 +219,14 @@ All colors are CSS custom properties — switching theme class instantly re-rend
 ### Menus.js — Navigation
 ```js
 const navItems = [
-  { to: "home", label: "Home", Icon: ... },
-  { to: "about", label: "About", Icon: ... },
-  { to: "education", label: "Education", Icon: ... },
-  { to: "work", label: "Work", Icon: ... },
-  { to: "skills", label: "Skills", Icon: ... },
-  { to: "project", label: "Projects", Icon: ... },
-  { to: "contact", label: "Contact", Icon: ... },
+  { to: "home",          label: "Home",           Icon: ... },
+  { to: "about",         label: "About",          Icon: ... },
+  { to: "education",     label: "Education",      Icon: ... },
+  { to: "work",          label: "Work",           Icon: ... },
+  { to: "skill",         label: "Skills",         Icon: ... },
+  { to: "certification", label: "Certifications", Icon: ... },
+  { to: "project",       label: "Projects",       Icon: ... },
+  { to: "contact",       label: "Contact",        Icon: ... },
 ];
 ```
 Uses `react-scroll <Link>` with `smooth`, `offset`, `duration` props.
@@ -234,8 +238,10 @@ const [theme, setTheme] = useState("dark");
 ```
 Exposes `[theme, setTheme]` via `useTheme()` hook.
 
-### Skills — SkillsList.js
-`iconRegistry` object that maps icon name strings to React icon components, e.g. `{ SiTypescript: SiTypescript, ... }`. Used by `Skills.js` to look up the correct icon after fetching skill data (which stores `iconName` strings) from MongoDB.
+### Skills — SkillsList.js & Skills.js
+`iconRegistry` object that maps icon name strings to React icon components. Used by `Skills.js` to look up the correct icon after fetching skill data from MongoDB.
+
+`Skills.js` groups skills into 6 categories (Languages, Frontend, Frameworks & Libraries, Databases, DevOps, Tools) sorted in a fixed display order. Each group has an uppercase section label. Skills without a recognised category fall into an “Other” group.
 
 ### Projects Data
 | Project | Type | Stack | GitHub |
@@ -277,20 +283,22 @@ Express app
 - `getWorksController` — `Work.find().sort({ order: 1 })`
 - `getProjectsController` — `Project.find().sort({ order: 1 })`
 - `getSkillsController` — `Skill.find().sort({ order: 1 })`
+- `getCertificationsController` — `Certification.find().sort({ order: 1 })`
 
 ### chatController.js
 RAG pipeline (singleton clients initialized once per server process):
 1. Embeds visitor query with `gemini-embedding-2` (`outputDimensionality: 768`)
-2. Queries Pinecone index `ps-portfolio` namespace `portfolio` for top-5 matches
-3. Builds system prompt with retrieved context chunks
-4. Sends to `gemini-2.5-flash` via `startChat()` → returns answer text
+2. Queries Pinecone index `ps-portfolio` namespace `portfolio` for top-8 matches; filters out scores below 0.45
+3. Injects up to 6 prior conversation turns from `req.body.history` into Gemini chat
+4. Builds system prompt with retrieved context chunks
+5. Sends to `gemini-2.5-flash` via `startChat()` with history → returns answer text; bot response rendered as markdown in UI
 
 > **Model note:** `text-embedding-004` and `gemini-1.5-flash` return 404 on the free AI Studio key. Use `gemini-embedding-2` and `gemini-2.5-flash`.
 
 ### scripts/ingest.js
 One-time ingestion (run with `npm run ingest`):
-1. Connects to MongoDB Atlas, fetches all 4 collections
-2. Builds 12 text chunks: 1 bio + 3 education + 3 work + 3 project + 1 skills + 1 contact
+1. Connects to MongoDB Atlas, fetches all 6 collections
+2. Builds 13 text chunks: 1 bio + 3 education + 3 work + 3 project + 1 skills + 1 certifications + 1 contact
 3. Embeds each chunk via `gemini-embedding-2` (`outputDimensionality: 768`)
 4. Upserts to Pinecone with `{ records: [...] }` (note: not a bare array)
 
@@ -302,6 +310,7 @@ One-time ingestion (run with `npm run ingest`):
 | GET | `/works` | `getWorksController` | None |
 | GET | `/projects` | `getProjectsController` | None |
 | GET | `/skills` | `getSkillsController` | None |
+| GET | `/certifications` | `getCertificationsController` | None |
 | POST | `/chat` | `chatController` | None |
 | POST | `/visits` | inline | None — log guest visit |
 | GET | `/visits` | inline | JWT required |
@@ -379,6 +388,7 @@ Run from the **root** (`e:\Coding\Portfolio`):
 | `npm run build` | `npm install --prefix client --legacy-peer-deps && npm run build --prefix client` | Installs client deps then creates CRA production build → `client/build/` |
 | `npm run server` | `node server.js` | Express only |
 | `npm run client` | `npm start --prefix client` | React dev server only |
+| `npm run seed` | `node data/seed.js` | Wipes + repopulates all 6 MongoDB collections |
 | `npm run ingest` | `node scripts/ingest.js` | One-time chatbot ingestion: MongoDB → Gemini embeddings → Pinecone |
 | `npm run install-all` | Install root + client deps | Use `--legacy-peer-deps` for client |
 
@@ -387,6 +397,7 @@ Run from the **root** (`e:\Coding\Portfolio`):
 |---|---|
 | `scripts/dev.bat` | `npm run dev` (with Node PATH fallback, pushd to project root) |
 | `scripts/start.bat` | `npm run build` then `npm start` |
+| `scripts/seed.bat` | `npm run seed` (re-seeds all 6 MongoDB collections) |
 | `scripts/ingest.bat` | `npm run ingest` (chatbot ingestion — run once after setup or after content changes) |
 
 ---

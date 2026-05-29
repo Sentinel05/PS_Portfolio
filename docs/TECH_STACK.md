@@ -13,7 +13,6 @@
 | `react-scripts` | 5.0.1 | CRA build toolchain (dev server, bundler, linter) |
 | `react-router-dom` | ^6.x | Client-side routing: /, /portfolio/*, /admin/login, /admin |
 | `react-scroll` | ^1.9.0 | Smooth scroll navigation (menu links → sections) |
-| `react-scroll-to-top` | ^3.0.0 | Floating scroll-to-top button |
 | `react-vertical-timeline-component` | ^3.6.0 | Education and Work Experience timeline UI |
 | `react-icons` | ^5.2.1 | Icon library used across all components |
 | `framer-motion` | ^11.3.0 | Scroll-triggered animations on section headings |
@@ -104,23 +103,23 @@ Visitor types question
         ↓
 @google/generative-ai embeds the question (gemini-embedding-2, 768 dims)
         ↓
-Pinecone finds top-5 most relevant portfolio chunks
+Pinecone finds top-8 most relevant portfolio chunks (score ≥ 0.45 filtered)
         ↓
-gemini-2.5-flash generates answer from those chunks + system prompt
+gemini-2.5-flash generates answer from those chunks + system prompt + last 6 turns of history
         ↓
-Answer displayed in chat widget (bottom-right floating avatar)
+Answer displayed in chat widget (bottom-right floating figure, markdown rendered)
 ```
 
 **Backend additions completed:**
-- `POST /api/v1/ps-portfolio/chat` — accepts visitor message, runs the RAG pipeline, returns answer
-- `scripts/ingest.js` — one-time ingestion script: fetches all 4 MongoDB collections + static bio/contact → embeds 12 chunks → upserts to Pinecone namespace `portfolio`
+- `POST /api/v1/ps-portfolio/chat` — accepts visitor message + history, runs the RAG pipeline, returns answer
+- `scripts/ingest.js` — one-time ingestion script: fetches all 6 MongoDB collections + static bio/contact → embeds 13 chunks → upserts to Pinecone namespace `portfolio`
 
 **Frontend additions completed:**
-- `client/src/components/chatbot/Chatbot.js` — floating widget with robot avatar (bottom-right), slide-up chat panel, typing indicator, enter-to-send
-- `client/src/components/chatbot/Chatbot.css` — dark/light theme aware, pulsing online dot, typing bounce animation
+- `client/src/components/chatbot/Chatbot.js` — floating figure widget (bottom-right); idle state shows full-body figure with speech bubble “Need any help? 👋”, morphs into small avatar when chat opens; multi-turn history sent with each message; markdown rendering for bot responses
+- `client/src/components/chatbot/Chatbot.css` — figure-float animation, glow-pulse ambient effect, spring transitions for figure↔avatar morph
 - Mounted in `App.js` as `<Chatbot />`
 
-**Pinecone index:** `ps-portfolio` — Dense, 768 dims, Cosine metric, Serverless (AWS us-east-1), namespace `portfolio`
+**Pinecone index:** `ps-portfolio` — Dense, 768 dims, Cosine metric, Serverless (AWS us-east-1), namespace `portfolio`, **13 vectors**
 
 ---
 
@@ -141,14 +140,15 @@ Full JWT-authenticated admin CMS is live. Visitors land on a Welcome page and ch
 | **jsonwebtoken (JWT)** | Open source, free | ✅ Active | Signs 8-hour tokens on admin login; auth middleware verifies on all write routes |
 | **bcryptjs** | Open source, free | ✅ Active | Hashes admin password (cost 12) before storing in MongoDB |
 
-**Active MongoDB collections (6 of 6):**
+**Active MongoDB collections (8 of 8):**
 ```
-educations  — date, title, school, location, grade, order                     ✅
-works       — date, title, company, location, desc, order                      ✅
-projects    — imageKey, type, typeColor, tags, title, desc, link, order         ✅
-skills      — name, iconName, order                                             ✅
-admin       — username (unique), passwordHash                                   ✅
-visits      — name, visitedAt                                                   ✅
+educations     — date, title, school, location, grade, order                       ✅
+works          — date, title, company, location, desc, order                        ✅
+projects       — imageKey, type, typeColor, tags, title, desc, link, order           ✅
+skills         — name, iconName, category, order                                     ✅
+certifications — title, issuer, date, link, order                                    ✅
+admin          — username (unique), passwordHash                                      ✅
+visits         — name, visitedAt                                                      ✅
 ```
 
 **Admin portal features (all implemented):**
@@ -158,8 +158,10 @@ visits      — name, visitedAt                                                 
 - Admin login at `/admin/login` — bcrypt compare + JWT sign (8h)
 - JWT stored in `localStorage` under key `admin_token`; `AuthContext` exposes `login()`/`logout()`
 - `ProtectedRoute` redirects unauthenticated visitors to `/`
-- Admin portal at `/admin`: portfolio-style view with fixed topbar, collapsible sidebar, 4 content sections
+- Admin portal at `/admin`: portfolio-style view with fixed topbar, collapsible sidebar, 6 content sections
 - Each section: inline Add / Edit (pencil) / Delete (trash with confirm modal) per item
+- Skills section groups cards by category (Languages, Frontend, Frameworks & Libraries, Databases, DevOps, Tools)
+- Certifications section: full CRUD with title, issuer, date, link fields
 - Dashboard section: total visits, unique visitors, last-7-days count, full visitor log table
 - Admin credentials always synced from `ADMIN_USERNAME`/`ADMIN_PASSWORD` env vars on server start (`findOneAndUpdate` upsert)
 

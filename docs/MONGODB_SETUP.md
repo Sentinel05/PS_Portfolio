@@ -286,6 +286,8 @@ The seed script (`data/seed.js`) populates all 4 collections with the initial po
 
 ```bash
 node data/seed.js
+# or
+npm run seed
 ```
 
 **What it does (in order):**
@@ -293,8 +295,8 @@ node data/seed.js
 1. Loads `.env` via `dotenv.config()`
 2. Sets Google DNS via `dns.setServers()`
 3. Connects to MongoDB Atlas via `mongoose.connect(process.env.MONGO_URI)`
-4. Deletes all documents from `educations`, `works`, `projects`, `skills` (`deleteMany({})`)
-5. Inserts seed data into all 4 collections (`insertMany(...)`)
+4. Deletes all documents from `educations`, `works`, `projects`, `skills`, `certifications` (`deleteMany({})`)
+5. Inserts seed data into all 5 portfolio collections (`insertMany(...)`)
 6. Disconnects and exits with code `0`
 
 **Expected output:**
@@ -385,9 +387,20 @@ All schemas are defined in the `models/` directory using Mongoose.
 |---|---|---|---|
 | `name` | String | Yes | Display name (e.g. `"TypeScript"`) |
 | `iconName` | String | Yes | Key in `iconRegistry` (e.g. `"SiTypescript"`) |
-| `order` | Number | No | Sort order |
+| `category` | String | No | Group label — one of: Languages, Frontend, Frameworks & Libraries, Databases, DevOps, Tools |
+| `order` | Number | No | Sort order (ascending) |
 
 > **Note on `iconName`:** React icon components cannot be stored in a database. The DB stores a string key. `SkillsList.js` exports `iconRegistry` — a flat object mapping key strings to React icon components. When adding a new skill, the icon must first be imported and added to `iconRegistry` in `SkillsList.js`, then the `iconName` string can be used in the DB.
+
+### `certifications` — [models/Certification.js](../models/Certification.js)
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `title` | String | Yes | Certificate / course name |
+| `issuer` | String | Yes | Issuing platform (e.g. Udemy, Coursera, NPTEL) |
+| `date` | String | Yes | Completion date (e.g. `"May 2026"`) |
+| `link` | String | Yes | URL to verify / view the certificate |
+| `order` | Number | No | Sort order (ascending) |
 
 ### `admin` — [models/Admin.js](../models/Admin.js)
 

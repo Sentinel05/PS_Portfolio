@@ -12,7 +12,7 @@ A full-stack personal portfolio website built with the MERN stack (MongoDB, Expr
 | Auth     | JWT (8-hour tokens, HS256) + bcryptjs (cost 12) |
 | Styling  | CSS custom properties (dark/light theme), Bootstrap 5 (CDN) |
 | Email    | Resend SDK (`resend`) — server-side transactional email |
-| Chatbot  | Google Gemini (`gemini-embedding-2` + `gemini-2.5-flash`) + Pinecone RAG |
+| Chatbot  | Google Gemini (`gemini-embedding-2` + `gemini-2.5-flash`) + Pinecone RAG — multi-turn history, score filtering, markdown rendering |
 | Deploy   | Render                                          |
 
 ## Live Demo
@@ -126,22 +126,24 @@ Portfolio/
 │   ├── Education.js
 │   ├── Work.js
 │   ├── Project.js
-│   ├── Skill.js
+│   ├── Skill.js            # { name, iconName, category, order }
+│   ├── Certification.js    # { title, issuer, date, link, order }
 │   ├── Admin.js            # Admin user: { username, passwordHash }
 │   └── Visit.js            # Guest visit log: { name, visitedAt }
 ├── data/
-│   └── seed.js             # One-time DB seeder for portfolio content
+│   └── seed.js             # Wipes + repopulates all 6 portfolio collections
 ├── routes/
 │   ├── portfolioRoutes.js  # Public GET + protected CRUD + visits
 │   └── adminRoutes.js      # POST /login → returns JWT
 ├── controllers/
-│   ├── portfolioController.js  # 4 GET handlers + sendEmail (Resend)
-│   ├── chatController.js       # RAG chatbot pipeline
+│   ├── portfolioController.js  # GET handlers for all collections + sendEmail (Resend)
+│   ├── chatController.js       # RAG chatbot pipeline (multi-turn, score filtering, markdown)
 │   ├── adminController.js      # Admin login: bcrypt compare + JWT sign
-│   └── crudController.js       # Generic POST/PUT/DELETE for all 4 collections
+│   └── crudController.js       # Generic POST/PUT/DELETE for all 6 collections
 ├── scripts/                # Windows batch file shortcuts
 │   ├── dev.bat
 │   ├── start.bat
+│   ├── seed.bat            # Shortcut for npm run seed
 │   └── ingest.bat          # One-time chatbot ingestion shortcut
 ├── docs/                   # Reference documentation
 │   ├── CHATBOT_SETUP.md
@@ -169,7 +171,8 @@ Portfolio/
         │   ├── about/
         │   ├── educations/  # Fetches from /api/v1/ps-portfolio/educations
         │   ├── works/       # Fetches from /api/v1/ps-portfolio/works
-        │   ├── skills/      # Fetches from /api/v1/ps-portfolio/skills
+        │   ├── skills/      # Grouped by category; fetches /api/v1/ps-portfolio/skills
+        │   ├── certifications/ # Fetches /api/v1/ps-portfolio/certifications
         │   ├── projects/    # Fetches from /api/v1/ps-portfolio/projects
         │   ├── contact/     # Resend-backed contact form
         │   └── admin/
@@ -193,6 +196,8 @@ Run from the **project root**:
 | `npm run client`       | Start React dev server only                               |
 | `npm run build`        | Build the React client for production                     |
 | `npm run install-all`  | Install root and client dependencies                      |
+| `npm run seed`         | Wipe and re-seed all 6 MongoDB collections                |
+| `npm run ingest`       | Embed portfolio content into Pinecone (run after seed)    |
 
 Run from the **`client/` directory**:
 

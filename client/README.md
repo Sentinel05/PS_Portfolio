@@ -78,9 +78,9 @@ client/src/
 │   └── AuthContext.js    # JWT auth state (localStorage: admin_token)
 ├── components/
 │   ├── layout/       # Fixed sidebar shell
-│   ├── menus/        # Sidebar nav links (react-scroll)
+│   ├── menus/        # Sidebar nav links (react-scroll); includes Certifications nav item
 │   ├── mobileNav/    # Hamburger nav (< 768px)
-│   ├── chatbot/      # Floating RAG chatbot widget
+│   ├── chatbot/      # Floating RAG chatbot widget (figure ↔ avatar dual-state, multi-turn history, markdown)
 │   └── ProtectedRoute.js
 ├── pages/
 │   ├── welcome/      # Landing page (role selection + guest name capture)
@@ -88,10 +88,11 @@ client/src/
 │   ├── about/
 │   ├── educations/
 │   ├── works/
-│   ├── skills/
+│   ├── skills/       # Grouped by category (Languages, Frontend, Frameworks & Libraries, Databases, DevOps, Tools)
+│   ├── certifications/ # Certificate cards with external link; color-coded by issuer
 │   ├── projects/
 │   ├── contact/
-│   └── admin/        # AdminLogin + AdminPortfolio
+│   └── admin/        # AdminLogin + AdminPortfolio (CRUD for all 6 collections + visitor dashboard)
 └── utils/
     └── SkillsList.js  # iconName → React icon component registry
 ```
