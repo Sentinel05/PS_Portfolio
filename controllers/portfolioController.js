@@ -2,7 +2,7 @@ const Education = require("../models/Education");
 const Work = require("../models/Work");
 const Project = require("../models/Project");
 const Skill = require("../models/Skill");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
 const sendEmailController = async (req, res) => {
   try {
@@ -12,32 +12,21 @@ const sendEmailController = async (req, res) => {
       return res.status(400).send({ success: false, message: "All fields are required." });
     }
 
-    console.log("[sendEmail] GMAIL_USER:", process.env.GMAIL_USER);
-    console.log("[sendEmail] GMAIL_PASS set:", !!process.env.GMAIL_PASS);
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-      },
-    });
-
-    await transporter.verify();
-    console.log("[sendEmail] Transporter verified OK");
-
-    const info = await transporter.sendMail({
-      from: `"Portfolio Contact Form" <${process.env.GMAIL_USER}>`,
-      to: process.env.GMAIL_USER,
+    const { error } = await resend.emails.send({
+      from: "Portfolio Contact <onboarding@resend.dev>",
+      to: [process.env.GMAIL_USER],
       replyTo: from_email,
       subject: `New message from ${from_name} via Portfolio`,
       text: `Name: ${from_name}\nEmail: ${from_email}\n\nMessage:\n${message}`,
       html: `<p><strong>Name:</strong> ${from_name}</p><p><strong>Email:</strong> <a href="mailto:${from_email}">${from_email}</a></p><p><strong>Message:</strong></p><p>${message}</p>`,
     });
 
-    console.log("[sendEmail] Message sent, messageId:", info.messageId);
-    console.log("[sendEmail] Accepted:", info.accepted);
-    console.log("[sendEmail] Rejected:", info.rejected);
+    if (error) {
+      console.log("[sendEmail] Resend error:", error);
+      return res.status(500).send({ success: false, message: "Send email API error", error: error.message });
+    }
 
     return res.status(200).send({
       success: true,
