@@ -840,6 +840,250 @@
   border: 1px solid var(--ap-border);
 }
 
+/* ── Visitor stat card extra colors ──────────────────────────────────────── */
+.ap-dash-stat--orange { border-color: rgba(249, 115, 22, 0.3); }
+.ap-dash-stat--pink   { border-color: rgba(236, 72, 153, 0.3); }
+.ap-dash-stat--orange .ap-dash-stat__icon { color: var(--ap-orange); }
+.ap-dash-stat--pink   .ap-dash-stat__icon { color: #ec4899; }
+
+/* ── Dashboard layout: no longer a two-col body, each block is full-width ── */
+.ap-dash-body { display: contents; } /* neutralise old rule safely */
+
+/* ── Content count cards ─────────────────────────────────────────────────── */
+.ap-dash-content-counts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.ap-dash-count-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: 12px;
+  padding: 1rem 0.75rem;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.ap-dash-count-card--cyan   { border-color: rgba(6,  182, 212, 0.25); }
+.ap-dash-count-card--purple { border-color: rgba(124, 58, 237, 0.25); }
+.ap-dash-count-card--green  { border-color: rgba(16, 185, 129, 0.25); }
+.ap-dash-count-card--orange { border-color: rgba(249, 115,  22, 0.25); }
+.ap-dash-count-card--pink   { border-color: rgba(236,  72, 153, 0.25); }
+
+.ap-dash-count-card__icon { font-size: 1.6rem; }
+.ap-dash-count-card--cyan   .ap-dash-count-card__icon { color: var(--ap-cyan); }
+.ap-dash-count-card--purple .ap-dash-count-card__icon { color: var(--ap-purple-l); }
+.ap-dash-count-card--green  .ap-dash-count-card__icon { color: var(--ap-green); }
+.ap-dash-count-card--orange .ap-dash-count-card__icon { color: var(--ap-orange); }
+.ap-dash-count-card--pink   .ap-dash-count-card__icon { color: #ec4899; }
+
+.ap-dash-count-card__num {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--ap-text);
+  line-height: 1;
+}
+.ap-dash-count-card__label {
+  font-size: 0.7rem;
+  color: var(--ap-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Three-column charts row ─────────────────────────────────────────────── */
+.ap-dash-charts-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+/* ── Chart wrap (card) ───────────────────────────────────────────────────── */
+.ap-dash-chart-wrap {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+.ap-dash-chart-wrap--full {
+  margin-top: 1rem;
+}
+
+/* ── Chart label ─────────────────────────────────────────────────────────── */
+.ap-dash-chart-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ap-cyan);
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── SVG ─────────────────────────────────────────────────────────────────── */
+.ap-dash-svg {
+  display: block;
+  overflow: visible;
+}
+
+/* ── Top repeaters list ──────────────────────────────────────────────────── */
+.ap-dash-repeaters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.ap-dash-repeater {
+  display: grid;
+  grid-template-columns: 22px 1fr 70px 28px;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ap-dash-repeater__rank {
+  font-size: 0.73rem;
+  color: var(--ap-faint);
+  font-weight: 700;
+}
+.ap-dash-repeater__name {
+  font-size: 0.83rem;
+  color: var(--ap-text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ap-dash-repeater__bar-wrap {
+  height: 6px;
+  background: rgba(110, 100, 230, 0.12);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.ap-dash-repeater__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #a78bfa, #ec4899);
+  border-radius: 99px;
+  min-width: 4px;
+}
+.ap-dash-repeater__count {
+  font-size: 0.8rem;
+  color: var(--ap-purple-l);
+  font-weight: 700;
+  text-align: right;
+}
+
+/* ── Standalone table panel ──────────────────────────────────────────────── */
+.ap-dash-table-panel {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ap-dash-filter {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  color: var(--ap-text);
+  font-size: 0.88rem;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.ap-dash-filter:focus {
+  border-color: var(--ap-cyan);
+}
+
+.ap-dash-filter::placeholder {
+  color: var(--ap-faint);
+}
+
+.ap-dash-table__th-num {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ap-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ap-border);
+  width: 42px;
+}
+
+.ap-dash-table__th-sort {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ap-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ap-border);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ap-dash-table__th-sort:hover {
+  color: var(--ap-cyan);
+}
+
+.ap-sort-arrow {
+  margin-left: 0.3rem;
+  opacity: 0.3;
+  font-size: 0.75rem;
+}
+
+.ap-sort-arrow--on {
+  opacity: 1;
+  color: var(--ap-cyan);
+}
+
+.ap-dash-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.ap-dash-page-info {
+  font-size: 0.82rem;
+  color: var(--ap-faint);
+}
+
+@media (max-width: 1100px) {
+  .ap-dash-charts-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .ap-dash-charts-row {
+    grid-template-columns: 1fr;
+  }
+  .ap-dash-content-counts {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .ap-dash-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .ap-dash-content-counts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ap-dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .ap-dash-table {
   width: 100%;
   border-collapse: collapse;

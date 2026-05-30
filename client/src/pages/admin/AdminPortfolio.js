@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+﻿﻿import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { iconRegistry } from "../../utils/SkillsList";
@@ -13,7 +13,7 @@ import { FcHome, FcAbout, FcContacts } from "react-icons/fc"; // eslint-disable-
 import Pic from "../../assets/images/cool-dp.jpg";
 import "./AdminPortfolio.css";
 
-// ── Auth fetch helper ─────────────────────────────────────────────────────────
+// â”€â”€ Auth fetch helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const useApi = (token) =>
   useCallback(
     (url, opts = {}) =>
@@ -28,7 +28,7 @@ const useApi = (token) =>
     [token]
   );
 
-// ── Confirm modal ─────────────────────────────────────────────────────────────
+// â”€â”€ Confirm modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ConfirmModal = ({ message, onConfirm, onCancel }) => (
   <div className="ap-overlay">
     <div className="ap-modal">
@@ -41,11 +41,11 @@ const ConfirmModal = ({ message, onConfirm, onCancel }) => (
   </div>
 );
 
-// ── Flash banner ──────────────────────────────────────────────────────────────
+// â”€â”€ Flash banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const Flash = ({ msg }) =>
   msg ? <div className="ap-flash"><FiCheck /> {msg}</div> : null;
 
-// ── Generic field ─────────────────────────────────────────────────────────────
+// â”€â”€ Generic field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const Field = ({ label, name, value, onChange, type = "text", as, options, placeholder }) => (
   <div className="ap-field">
     <label className="ap-field__label">{label}</label>
@@ -54,7 +54,7 @@ const Field = ({ label, name, value, onChange, type = "text", as, options, place
         rows={3} placeholder={placeholder} />
     ) : as === "select" ? (
       <select className="ap-field__input" name={name} value={value} onChange={onChange}>
-        <option value="">— select icon —</option>
+        <option value="">â€” select icon â€”</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
     ) : (
@@ -64,10 +64,10 @@ const Field = ({ label, name, value, onChange, type = "text", as, options, place
   </div>
 );
 
-// ── fc helper ─────────────────────────────────────────────────────────────────
+// â”€â”€ fc helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const fc = (setter) => (e) => setter((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-// ── EDUCATION SECTION ─────────────────────────────────────────────────────────
+// â”€â”€ EDUCATION SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const EDU_BLANK = { date: "", title: "", school: "", location: "", grade: "", order: 0 };
 
 const EducationsSection = ({ authFetch }) => {
@@ -142,7 +142,7 @@ const EducationsSection = ({ authFetch }) => {
         <form className="ap-form" onSubmit={handleAdd}>
           <h3 className="ap-form__heading">New Education Entry</h3>
           <div className="ap-form__grid">
-            <Field label="Date / Period" name="date" value={addForm.date} onChange={fc(setAddForm)} placeholder="e.g. 2019 – 2023" />
+            <Field label="Date / Period" name="date" value={addForm.date} onChange={fc(setAddForm)} placeholder="e.g. 2019 â€“ 2023" />
             <Field label="Degree / Title" name="title" value={addForm.title} onChange={fc(setAddForm)} placeholder="e.g. B.E. in ECE" />
             <Field label="School" name="school" value={addForm.school} onChange={fc(setAddForm)} placeholder="Institution name" />
             <Field label="Location" name="location" value={addForm.location} onChange={fc(setAddForm)} placeholder="City, Country" />
@@ -186,7 +186,7 @@ const EducationsSection = ({ authFetch }) => {
               </div>
               <span className="ap-card__date">{item.date}</span>
               <h3 className="ap-card__title">{item.title}</h3>
-              <p className="ap-card__meta">{item.school} · {item.location}</p>
+              <p className="ap-card__meta">{item.school} Â· {item.location}</p>
               <span className="ap-card__grade">{item.grade}</span>
             </div>
           )
@@ -196,7 +196,7 @@ const EducationsSection = ({ authFetch }) => {
   );
 };
 
-// ── WORK SECTION ──────────────────────────────────────────────────────────────
+// â”€â”€ WORK SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const WORK_BLANK = { date: "", title: "", company: "", location: "", desc: "", order: 0 };
 
 const WorksSection = ({ authFetch }) => {
@@ -271,13 +271,13 @@ const WorksSection = ({ authFetch }) => {
         <form className="ap-form" onSubmit={handleAdd}>
           <h3 className="ap-form__heading">New Work Entry</h3>
           <div className="ap-form__grid">
-            <Field label="Date / Period" name="date" value={addForm.date} onChange={fc(setAddForm)} placeholder="e.g. 2023 – Present" />
+            <Field label="Date / Period" name="date" value={addForm.date} onChange={fc(setAddForm)} placeholder="e.g. 2023 â€“ Present" />
             <Field label="Job Title" name="title" value={addForm.title} onChange={fc(setAddForm)} placeholder="e.g. Software Engineer" />
             <Field label="Company" name="company" value={addForm.company} onChange={fc(setAddForm)} placeholder="Company name" />
             <Field label="Location" name="location" value={addForm.location} onChange={fc(setAddForm)} placeholder="City, Country" />
             <Field label="Order" name="order" type="number" value={addForm.order} onChange={fc(setAddForm)} />
           </div>
-          <Field label="Description" name="desc" value={addForm.desc} onChange={fc(setAddForm)} as="textarea" placeholder="Role description…" />
+          <Field label="Description" name="desc" value={addForm.desc} onChange={fc(setAddForm)} as="textarea" placeholder="Role descriptionâ€¦" />
           <button className="ap-btn ap-btn--primary" type="submit">Save Work Entry</button>
         </form>
       )}
@@ -315,7 +315,7 @@ const WorksSection = ({ authFetch }) => {
               </div>
               <span className="ap-card__date">{item.date}</span>
               <h3 className="ap-card__title">{item.title}</h3>
-              <p className="ap-card__meta">{item.company} · {item.location}</p>
+              <p className="ap-card__meta">{item.company} Â· {item.location}</p>
               <p className="ap-card__desc">{item.desc}</p>
             </div>
           )
@@ -325,7 +325,7 @@ const WorksSection = ({ authFetch }) => {
   );
 };
 
-// ── SKILLS SECTION ────────────────────────────────────────────────────────────
+// â”€â”€ SKILLS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const SKILL_CATEGORIES = ["Languages", "Frontend", "Frameworks & Libraries", "Databases", "DevOps", "Tools"];
 const SKILL_BLANK = { name: "", iconName: "", category: "", order: 0 };
 const iconNames = Object.keys(iconRegistry);
@@ -472,7 +472,7 @@ const SkillsSection = ({ authFetch }) => {
   );
 };
 
-// ── PROJECTS SECTION ──────────────────────────────────────────────────────────
+// â”€â”€ PROJECTS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PROJ_BLANK = { imageKey: "", type: "", typeColor: "#7c3aed", tags: "", title: "", desc: "", link: "", order: 0 };
 
 const ProjectsSection = ({ authFetch }) => {
@@ -538,11 +538,11 @@ const ProjectsSection = ({ authFetch }) => {
         <Field label="Type Label" name="type" value={form.type} onChange={fc(setForm)} placeholder="e.g. Full Stack" />
         <Field label="Badge Color" name="typeColor" type="color" value={form.typeColor} onChange={fc(setForm)} />
         <Field label="Image Key" name="imageKey" value={form.imageKey} onChange={fc(setForm)} placeholder="e.g. Portfolio (matches imageMap)" />
-        <Field label="GitHub / Link" name="link" value={form.link} onChange={fc(setForm)} placeholder="https://github.com/…" />
+        <Field label="GitHub / Link" name="link" value={form.link} onChange={fc(setForm)} placeholder="https://github.com/â€¦" />
         <Field label="Order" name="order" type="number" value={form.order} onChange={fc(setForm)} />
       </div>
       <Field label="Tags (comma-separated)" name="tags" value={form.tags} onChange={fc(setForm)} placeholder="React, Node.js, MongoDB" />
-      <Field label="Description" name="desc" value={form.desc} onChange={fc(setForm)} as="textarea" placeholder="Short project description…" />
+      <Field label="Description" name="desc" value={form.desc} onChange={fc(setForm)} as="textarea" placeholder="Short project descriptionâ€¦" />
       <div className="ap-form__actions">
         <button className="ap-btn ap-btn--primary" type="submit">{submitLabel}</button>
         {onCancel && <button className="ap-btn ap-btn--ghost" type="button" onClick={onCancel}>Cancel</button>}
@@ -620,7 +620,7 @@ const ProjectsSection = ({ authFetch }) => {
   );
 };
 
-// ── CERTIFICATIONS SECTION ───────────────────────────────────────────────────
+// â”€â”€ CERTIFICATIONS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const CERT_BLANK = { title: "", issuer: "", date: "", link: "", order: 0 };
 
 const CertificationsSection = ({ authFetch }) => {
@@ -698,7 +698,7 @@ const CertificationsSection = ({ authFetch }) => {
             <Field label="Title" name="title" value={addForm.title} onChange={fc(setAddForm)} placeholder="e.g. AWS Cloud Practitioner" />
             <Field label="Issuer" name="issuer" value={addForm.issuer} onChange={fc(setAddForm)} placeholder="e.g. Udemy, Coursera, NPTEL" />
             <Field label="Date" name="date" value={addForm.date} onChange={fc(setAddForm)} placeholder="e.g. May 2026" />
-            <Field label="Certificate Link" name="link" value={addForm.link} onChange={fc(setAddForm)} placeholder="https://…" />
+            <Field label="Certificate Link" name="link" value={addForm.link} onChange={fc(setAddForm)} placeholder="https://â€¦" />
             <Field label="Order" name="order" type="number" value={addForm.order} onChange={fc(setAddForm)} />
           </div>
           <button className="ap-btn ap-btn--primary" type="submit">Save Certification</button>
@@ -749,27 +749,173 @@ const CertificationsSection = ({ authFetch }) => {
   );
 };
 
-// ── DASHBOARD SECTION ─────────────────────────────────────────────────────────
+// â”€â”€ DASHBOARD SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const VIS_PAGE_SIZE = 10;
+
+// Reusable SVG bar chart
+const BarChart = ({ buckets, maxVal, gradId, gradFrom, gradTo, skipEvery = 1, height = 200 }) => {
+  const CW = 420, CH = height;
+  const P = { t: 20, r: 12, b: 38, l: 32 };
+  const pw = CW - P.l - P.r;
+  const ph = CH - P.t - P.b;
+  const bw = Math.max(pw / buckets.length - 4, 5);
+  return (
+    <svg viewBox={`0 0 ${CW} ${CH}`} width="100%" className="ap-dash-svg">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={gradFrom} />
+          <stop offset="100%" stopColor={gradTo} stopOpacity="0.7" />
+        </linearGradient>
+      </defs>
+      {[0, 0.5, 1].map((f) => {
+        const y = P.t + ph * (1 - f);
+        return (
+          <g key={f}>
+            <line x1={P.l} x2={CW - P.r} y1={y} y2={y} stroke="rgba(110,100,230,0.15)" strokeDasharray="4,3" />
+            <text x={P.l - 5} y={y + 4} textAnchor="end" fontSize="9" fill="#475569">
+              {Math.round(maxVal * f)}
+            </text>
+          </g>
+        );
+      })}
+      {buckets.map(({ label, count }, i) => {
+        const x = P.l + i * (pw / buckets.length) + (pw / buckets.length - bw) / 2;
+        const barH = Math.max((count / maxVal) * ph, count > 0 ? 3 : 0);
+        const y = P.t + ph - barH;
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width={bw} height={barH || 2} rx="3"
+              fill={count > 0 ? `url(#${gradId})` : "rgba(110,100,230,0.08)"} />
+            {count > 0 && (
+              <text x={x + bw / 2} y={y - 3} textAnchor="middle" fontSize="8" fill={gradFrom}>{count}</text>
+            )}
+            {i % skipEvery === 0 && (
+              <text x={x + bw / 2} y={CH - 5} textAnchor="middle" fontSize="8" fill="#475569">{label}</text>
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+};
+
 const DashboardSection = ({ authFetch }) => {
   const [visits, setVisits] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [contentCounts, setContentCounts] = useState(null);
+  const [filter, setFilter] = useState("");
+  const [sortKey, setSortKey] = useState("visitedAt");
+  const [sortDir, setSortDir] = useState("desc");
+  const [page, setPage] = useState(1);
 
   const load = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await authFetch("/api/v1/ps-portfolio/visits");
-      const json = await res.json();
-      if (json.success) { setVisits(json.data); setTotal(json.total); }
+      const [visRes, eduRes, workRes, projRes, skillRes, certRes] = await Promise.all([
+        authFetch("/api/v1/ps-portfolio/visits"),
+        fetch("/api/v1/ps-portfolio/educations"),
+        fetch("/api/v1/ps-portfolio/works"),
+        fetch("/api/v1/ps-portfolio/projects"),
+        fetch("/api/v1/ps-portfolio/skills"),
+        fetch("/api/v1/ps-portfolio/certifications"),
+      ]);
+      const [visJson, eduJson, workJson, projJson, skillJson, certJson] = await Promise.all([
+        visRes.json(), eduRes.json(), workRes.json(), projRes.json(), skillRes.json(), certRes.json(),
+      ]);
+      if (visJson.success) { setVisits(visJson.data); setTotal(visJson.total); }
+      setContentCounts({
+        projects: projJson.success ? projJson.data.length : 0,
+        skills: skillJson.success ? skillJson.data.length : 0,
+        certifications: certJson.success ? certJson.data.length : 0,
+        works: workJson.success ? workJson.data.length : 0,
+        educations: eduJson.success ? eduJson.data.length : 0,
+      });
     } catch (_) {}
     setLoading(false);
   }, [authFetch]);
 
   useEffect(() => { load(); }, [load]);
 
-  const fmt = (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+  const fmt = (iso) => new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+
+  // â”€â”€ Derived visitor stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const nameCounts = {};
+  visits.forEach((v) => {
+    const k = v.name.toLowerCase();
+    nameCounts[k] = (nameCounts[k] || 0) + 1;
+  });
+  const uniqueCount = Object.keys(nameCounts).length;
+  const returningCount = Object.values(nameCounts).filter((c) => c > 1).length;
+  const newCount = uniqueCount - returningCount;
+  const last7 = visits.filter((v) => {
+    const since = new Date(); since.setDate(since.getDate() - 7);
+    return new Date(v.visitedAt) >= since;
+  }).length;
+
+  // Top 5 repeaters
+  const topRepeaters = Object.entries(nameCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // Peak hour (0-23)
+  const hourCounts = Array(24).fill(0);
+  visits.forEach((v) => { hourCounts[new Date(v.visitedAt).getHours()]++; });
+  const maxHour = Math.max(...hourCounts, 1);
+  const hourBuckets = hourCounts.map((count, h) => ({ label: `${h}h`, count }));
+
+  // Day of week (Sun=0â€¦Sat=6)
+  const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayCounts = Array(7).fill(0);
+  visits.forEach((v) => { dayCounts[new Date(v.visitedAt).getDay()]++; });
+  const maxDay = Math.max(...dayCounts, 1);
+  const dowBuckets = dayCounts.map((count, d) => ({ label: DAY_NAMES[d], count }));
+
+  // Daily buckets (14 days)
+  const DAY_MS = 86400000;
+  const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
+  const dayBuckets = Array.from({ length: 14 }, (_, i) => {
+    const start = new Date(+todayEnd - (13 - i) * DAY_MS); start.setHours(0, 0, 0, 0);
+    const end   = new Date(start); end.setHours(23, 59, 59, 999);
+    const label = start.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+    const count = visits.filter((v) => { const d = new Date(v.visitedAt); return d >= start && d <= end; }).length;
+    return { label, count };
+  });
+  const maxDay14 = Math.max(...dayBuckets.map((b) => b.count), 1);
+
+  // Monthly buckets (6 months)
+  const monthBuckets = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - (5 - i));
+    const year = d.getFullYear(), month = d.getMonth();
+    const label = d.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
+    const count = visits.filter((v) => {
+      const vd = new Date(v.visitedAt);
+      return vd.getFullYear() === year && vd.getMonth() === month;
+    }).length;
+    return { label, count };
+  });
+  const maxMonth = Math.max(...monthBuckets.map((b) => b.count), 1);
+
+  // â”€â”€ Filter + sort + paginate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const filtered = visits.filter((v) => v.name.toLowerCase().includes(filter.toLowerCase()));
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortKey === "name") return sortDir === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+    const da = new Date(a.visitedAt), db = new Date(b.visitedAt);
+    return sortDir === "asc" ? da - db : db - da;
+  });
+  const totalPages = Math.max(1, Math.ceil(sorted.length / VIS_PAGE_SIZE));
+  const curPage   = Math.min(page, totalPages);
+  const pageData  = sorted.slice((curPage - 1) * VIS_PAGE_SIZE, curPage * VIS_PAGE_SIZE);
+
+  const toggleSort = (key) => {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(key); setSortDir("asc"); }
+    setPage(1);
   };
+  const SortArrow = ({ col }) =>
+    sortKey !== col
+      ? <span className="ap-sort-arrow">â†•</span>
+      : <span className="ap-sort-arrow ap-sort-arrow--on">{sortDir === "asc" ? "â†‘" : "â†“"}</span>;
 
   return (
     <section className="ap-section" id="dashboard-section">
@@ -783,68 +929,148 @@ const DashboardSection = ({ authFetch }) => {
         <button className="ap-btn ap-btn--ghost ap-btn--sm" onClick={load}>Refresh</button>
       </div>
 
-      {/* Stat cards */}
+      {/* â”€â”€ Visitor stat cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="ap-dash-stats">
-        <div className="ap-dash-stat ap-dash-stat--cyan">
-          <FiUsers className="ap-dash-stat__icon" />
-          <div>
-            <p className="ap-dash-stat__num">{loading ? "…" : total}</p>
-            <p className="ap-dash-stat__label">Total Visits</p>
+        {[
+          { label: "Total Visits",    num: total,          color: "cyan"   },
+          { label: "Unique Visitors", num: uniqueCount,    color: "purple" },
+          { label: "Last 7 Days",     num: last7,          color: "green"  },
+          { label: "Returning",       num: returningCount, color: "orange" },
+          { label: "First-time",      num: newCount,       color: "pink"   },
+        ].map(({ label, num, color }) => (
+          <div key={label} className={`ap-dash-stat ap-dash-stat--${color}`}>
+            <FiUsers className="ap-dash-stat__icon" />
+            <div>
+              <p className="ap-dash-stat__num">{loading ? "â€¦" : num}</p>
+              <p className="ap-dash-stat__label">{label}</p>
+            </div>
           </div>
+        ))}
+      </div>
+
+      {/* â”€â”€ Content count cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="ap-dash-content-counts">
+        {[
+          { label: "Projects",       key: "projects",       Icon: IoConstruct,    color: "cyan"   },
+          { label: "Skills",         key: "skills",         Icon: MdMilitaryTech, color: "purple" },
+          { label: "Certifications", key: "certifications", Icon: PiCertificateBold, color: "green" },
+          { label: "Work Entries",   key: "works",          Icon: MdWork,         color: "orange" },
+          { label: "Educations",     key: "educations",     Icon: GiGraduateCap,  color: "pink"   },
+        ].map(({ label, key, Icon, color }) => (
+          <div key={key} className={`ap-dash-count-card ap-dash-count-card--${color}`}>
+            <Icon className="ap-dash-count-card__icon" />
+            <span className="ap-dash-count-card__num">{contentCounts ? contentCounts[key] : "â€¦"}</span>
+            <span className="ap-dash-count-card__label">{label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* â”€â”€ Charts row (3 columns) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="ap-dash-charts-row">
+        {/* Daily chart */}
+        <div className="ap-dash-chart-wrap">
+          <p className="ap-dash-chart-label">Daily Visits Â· last 14 days</p>
+          <BarChart buckets={dayBuckets} maxVal={maxDay14} gradId="apvg-daily"
+            gradFrom="#06b6d4" gradTo="#7c3aed" skipEvery={2} />
         </div>
-        <div className="ap-dash-stat ap-dash-stat--purple">
-          <FiUsers className="ap-dash-stat__icon" />
-          <div>
-            <p className="ap-dash-stat__num">{loading ? "…" : new Set(visits.map((v) => v.name.toLowerCase())).size}</p>
-            <p className="ap-dash-stat__label">Unique Visitors</p>
-          </div>
+
+        {/* Monthly chart */}
+        <div className="ap-dash-chart-wrap">
+          <p className="ap-dash-chart-label">Monthly Trend Â· last 6 months</p>
+          <BarChart buckets={monthBuckets} maxVal={maxMonth} gradId="apvg-monthly"
+            gradFrom="#a78bfa" gradTo="#ec4899" skipEvery={1} />
         </div>
-        <div className="ap-dash-stat ap-dash-stat--green">
-          <FiUsers className="ap-dash-stat__icon" />
-          <div>
-            <p className="ap-dash-stat__num">
-              {loading ? "…" : visits.filter((v) => {
-                const since = new Date(); since.setDate(since.getDate() - 7);
-                return new Date(v.visitedAt) >= since;
-              }).length}
-            </p>
-            <p className="ap-dash-stat__label">Last 7 Days</p>
-          </div>
+
+        {/* Insights panel: top repeaters + peak hour */}
+        <div className="ap-dash-chart-wrap">
+          <p className="ap-dash-chart-label">Top Returning Visitors</p>
+          {topRepeaters.length === 0 ? (
+            <p className="ap-dash-empty" style={{ marginTop: "0.75rem" }}>No repeat visitors yet.</p>
+          ) : (
+            <div className="ap-dash-repeaters">
+              {topRepeaters.map(([name, count], i) => (
+                <div key={name} className="ap-dash-repeater">
+                  <span className="ap-dash-repeater__rank">#{i + 1}</span>
+                  <span className="ap-dash-repeater__name">
+                    {name.charAt(0).toUpperCase() + name.slice(1)}
+                  </span>
+                  <div className="ap-dash-repeater__bar-wrap">
+                    <div className="ap-dash-repeater__bar"
+                      style={{ width: `${(count / topRepeaters[0][1]) * 100}%` }} />
+                  </div>
+                  <span className="ap-dash-repeater__count">{count}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <p className="ap-dash-chart-label" style={{ marginTop: "1.25rem" }}>Peak Visit Hours</p>
+          <BarChart buckets={hourBuckets} maxVal={maxHour} gradId="apvg-hour"
+            gradFrom="#10b981" gradTo="#06b6d4" skipEvery={6} height={130} />
         </div>
       </div>
 
-      {/* Visitor table */}
-      {loading ? (
-        <p className="ap-dash-empty">Loading…</p>
-      ) : visits.length === 0 ? (
-        <p className="ap-dash-empty">No guest visits recorded yet.</p>
-      ) : (
-        <div className="ap-dash-table-wrap">
-          <table className="ap-dash-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Visited At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visits.map((v, i) => (
-                <tr key={v._id}>
-                  <td className="ap-dash-table__num">{i + 1}</td>
-                  <td className="ap-dash-table__name">{v.name}</td>
-                  <td className="ap-dash-table__time">{fmt(v.visitedAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* â”€â”€ Day of week â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="ap-dash-chart-wrap ap-dash-chart-wrap--full">
+        <p className="ap-dash-chart-label">Visits by Day of Week</p>
+        <BarChart buckets={dowBuckets} maxVal={maxDay} gradId="apvg-dow"
+          gradFrom="#f97316" gradTo="#ec4899" skipEvery={1} height={150} />
+      </div>
+
+      {/* â”€â”€ Visitor table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="ap-dash-table-panel">
+        <input
+          className="ap-dash-filter"
+          placeholder="Filter by nameâ€¦"
+          value={filter}
+          onChange={(e) => { setFilter(e.target.value); setPage(1); }}
+        />
+
+        {loading ? (
+          <p className="ap-dash-empty">Loadingâ€¦</p>
+        ) : visits.length === 0 ? (
+          <p className="ap-dash-empty">No guest visits recorded yet.</p>
+        ) : (
+          <>
+            <div className="ap-dash-table-wrap">
+              <table className="ap-dash-table">
+                <thead>
+                  <tr>
+                    <th className="ap-dash-table__th-num">#</th>
+                    <th className="ap-dash-table__th-sort" onClick={() => toggleSort("name")}>
+                      Name <SortArrow col="name" />
+                    </th>
+                    <th className="ap-dash-table__th-sort" onClick={() => toggleSort("visitedAt")}>
+                      Visited At <SortArrow col="visitedAt" />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageData.map((v, idx) => (
+                    <tr key={v._id}>
+                      <td className="ap-dash-table__num">{(curPage - 1) * VIS_PAGE_SIZE + idx + 1}</td>
+                      <td className="ap-dash-table__name">{v.name}</td>
+                      <td className="ap-dash-table__time">{fmt(v.visitedAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="ap-dash-pagination">
+              <button className="ap-btn ap-btn--ghost ap-btn--sm"
+                disabled={curPage === 1} onClick={() => setPage((p) => p - 1)}>Prev</button>
+              <span className="ap-dash-page-info">Page {curPage} of {totalPages}</span>
+              <button className="ap-btn ap-btn--ghost ap-btn--sm"
+                disabled={curPage === totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
+            </div>
+          </>
+        )}
+      </div>
     </section>
   );
 };
 
-// ── MAIN ADMIN PORTFOLIO ──────────────────────────────────────────────────────
+// â”€â”€ MAIN ADMIN PORTFOLIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const navItems = [
   { id: "dashboard-section", label: "Dashboard", Icon: MdDashboard },
   { id: "edu-section", label: "Education", Icon: GiGraduateCap },
@@ -869,13 +1095,13 @@ const AdminPortfolio = () => {
 
   return (
     <div className="ap-root">
-      {/* ── Top admin bar ── */}
+      {/* â”€â”€ Top admin bar â”€â”€ */}
       <header className="ap-topbar">
         <div className="ap-topbar__left">
           <button className="ap-topbar__burger" onClick={() => setSidebarOpen((p) => !p)} aria-label="Toggle nav">
-            ☰
+            â˜°
           </button>
-          <span className="ap-topbar__badge">⚙ Admin Mode</span>
+          <span className="ap-topbar__badge">âš™ Admin Mode</span>
         </div>
         <div className="ap-topbar__right">
           <a href="/portfolio" target="_blank" rel="noreferrer" className="ap-btn ap-btn--ghost ap-btn--sm">
@@ -891,7 +1117,7 @@ const AdminPortfolio = () => {
       {sidebarOpen && <div className="ap-sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
 
       <div className="ap-layout">
-        {/* ── Sidebar ── */}
+        {/* â”€â”€ Sidebar â”€â”€ */}
         <aside className={`ap-sidebar ${sidebarOpen ? "ap-sidebar--open" : ""}`}>
           <div className="ap-sidebar__profile">
             <img src={Pic} alt="Priyanshu" className="ap-sidebar__pic" />
@@ -924,7 +1150,7 @@ const AdminPortfolio = () => {
           </div>
         </aside>
 
-        {/* ── Main content ── */}
+        {/* â”€â”€ Main content â”€â”€ */}
         <main className="ap-main">
           <DashboardSection authFetch={authFetch} />
           <EducationsSection authFetch={authFetch} />

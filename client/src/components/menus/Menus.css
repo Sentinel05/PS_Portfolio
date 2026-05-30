@@ -46,3 +46,19 @@
   overflow: hidden;
   display: inline-block;
 }
+
+/* ── Light mode nav ── */
+.light-mode .nav-item {
+  color: #475569;
+}
+
+.light-mode .nav-item:hover {
+  background: rgba(124, 58, 237, 0.08);
+  color: #7c3aed;
+}
+
+.light-mode .nav-item--active {
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed !important;
+  border-left-color: #7c3aed;
+}

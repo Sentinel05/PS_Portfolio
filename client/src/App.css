@@ -61,10 +61,42 @@
 }
 
 .light-mode .hero__name {
-  background: linear-gradient(135deg, #0f172a 30%, #7c3aed 100%);
+  background: linear-gradient(135deg, #1e1b4b 30%, #7c3aed 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.light-mode .hero__glow--1 {
+  background: rgba(124, 58, 237, 0.12);
+}
+
+.light-mode .hero__glow--2 {
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.light-mode .hero__btn--outline {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(124, 58, 237, 0.06);
+}
+
+.light-mode .hero__btn--outline:hover {
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--accent);
+}
+
+.light-mode .portfolio-home-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #7c3aed;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.12);
+}
+
+.light-mode .portfolio-home-btn:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.5);
+  color: #6d28d9;
 }
 
 .hero__typewriter {

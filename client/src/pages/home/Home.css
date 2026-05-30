@@ -110,3 +110,22 @@
 .theme-toggle:hover {
   background: rgba(124, 58, 237, 0.25);
 }
+
+/* ── Light mode sidebar overrides ── */
+.light-mode .sidebar-profile {
+  border-bottom-color: rgba(124, 58, 237, 0.12);
+}
+
+.light-mode .profile-name {
+  color: #1e1b4b;
+}
+
+.light-mode .theme-toggle {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.2);
+  color: #7c3aed;
+}
+
+.light-mode .theme-toggle:hover {
+  background: rgba(124, 58, 237, 0.18);
+}
