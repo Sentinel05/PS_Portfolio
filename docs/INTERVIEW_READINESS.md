@@ -6,7 +6,7 @@
 
 ## Quick Elevator Pitch
 
-> "I built a full-stack MERN portfolio using React 18, Node/Express, and MongoDB Atlas. The frontend is a single-page app with a Welcome landing page for role selection (guest or admin), a collapsible sidebar, smooth-scroll navigation, dark/light theming powered by CSS custom properties, and framer-motion animations. The backend is an Express server connected to MongoDB Atlas — it serves all portfolio content via REST APIs, handles JWT-authenticated admin login, and supports a full CRUD Admin CMS for managing all portfolio content directly from a UI. The contact form sends emails server-side via the Resend API, and I also implemented a RAG-based AI chatbot (bottom-right floating widget) that uses Google Gemini embeddings and Pinecone vector search to answer visitor questions about my portfolio. I designed and implemented the entire project from scratch — architecture, UI/UX, data modeling, API layer, auth, Admin CMS, RAG pipeline, and git hygiene."
+> "I built a full-stack MERN portfolio using React 18, Node/Express, and MongoDB Atlas. The frontend is a single-page app with a Welcome landing page for role selection (guest or admin), a collapsible sidebar, smooth-scroll navigation, auto-detecting dark/light theme powered by CSS custom properties (light 6am–6pm, dark otherwise with manual override), and framer-motion animations. The backend is an Express server connected to MongoDB Atlas — it serves all portfolio content via REST APIs, handles JWT-authenticated admin login, and supports a full CRUD Admin CMS for managing all portfolio content directly from a UI. The contact form sends emails server-side via the Resend API, and I also implemented a RAG-based AI chatbot (bottom-right floating widget) that uses Google Gemini embeddings and Pinecone vector search to answer visitor questions about my portfolio. The admin portal also includes a comprehensive analytics dashboard with visitor stats, content counts, interactive SVG bar charts (daily, monthly, day-of-week, peak hours), top returning visitors, and a filterable, sortable, paginated visitor log. I designed and implemented the entire project from scratch — architecture, UI/UX, data modeling, API layer, auth, Admin CMS, analytics dashboard, RAG pipeline, and git hygiene."
 
 ---
 
@@ -34,7 +34,7 @@ A: This portfolio is a single page — all sections live on one HTML page and us
 A: `index.js` wraps everything in `BrowserRouter → ThemeProvider → AuthProvider`. `App.js` uses React Router v6 `<Routes>` to map: `/` → `Welcome` (role selection landing), `/portfolio/*` → `Portfolio` (the SPA), `/admin/login` → `AdminLogin`, `/admin` → `ProtectedRoute(AdminPortfolio)`. The `Portfolio` component renders `MobileNav` (mobile only), `Layout` (fixed sidebar with `Home` profile panel + `Menus` nav), and `.main-content` with all the portfolio sections. A floating `← Home` button lets guests return to the Welcome page without reloading.
 
 **Q: How does the dark/light theme work?**  
-A: I use a React Context (`ThemeContext`) that stores a `"dark"` or `"light"` string. App.js conditionally adds the `light-mode` class to the root div. All colors are defined as CSS custom properties on `:root` (dark defaults). The `.light-mode` class overrides those variables. Switching theme is instant — no JavaScript DOM manipulation beyond toggling a class. The sidebar always stays dark regardless of theme (its variables are not overridden in `.light-mode`).
+A: I use a React Context (`ThemeContext`) that stores a `"dark"` or `"light"` string. The theme **auto-initialises** based on the time of day: if it's 6 am to 6 pm, the initial theme is light; outside those hours it's dark. The user can still toggle manually via the sun/moon icon in the sidebar. `App.js` conditionally adds the `light-mode` class to the root div. All colors are defined as CSS custom properties on `:root` (dark defaults). The `.light-mode` class overrides those variables — including switching the sidebar to a white background with purple accents. Switching theme is instant: no JavaScript DOM manipulation beyond toggling a class.
 
 **Q: Why framer-motion instead of CSS animations?**  
 A: framer-motion gives declarative, React-aware animations. `whileInView` with `viewport={{ once: true }}` means an element only animates once when it scrolls into view — you don't need `IntersectionObserver` boilerplate. `whileHover` on project cards provides instant interactive feedback. It also replaces `react-reveal` which was abandoned and incompatible with React 18.
@@ -46,7 +46,7 @@ A: `Layout.js` holds an `expanded` boolean in local state. A toggle button swaps
 A: The main breaking change was `react-reveal` being incompatible with React 18's concurrent rendering. I replaced it with framer-motion 11, which has full React 18 support. I also updated react-icons from v4 to v5, which required fixing renamed exports (e.g., `SiVisualstudiocode` → `SiVscodium`).
 
 **Q: What is the CSS architecture?**  
-A: I use a design-token approach with CSS custom properties defined in `index.css`. Variables cover colors, spacing, sidebar dimensions, shadows, and gradients. Component-level CSS files (e.g., `Layout.css`, `Projects.css`) reference these tokens. This makes theming and design changes a single-point update. No CSS preprocessor (Sass/Less) — vanilla CSS with custom properties is sufficient and keeps the build lighter.
+A: I use a design-token approach with CSS custom properties defined in `index.css`. Variables cover colors, spacing, sidebar dimensions, shadows, and gradients. Component-level CSS files (e.g., `Layout.css`, `Projects.css`) reference these tokens. This makes theming and design changes a single-point update. In light mode, the sidebar switches to a white background with purple accents — the full `.light-mode` override is applied consistently across sidebar, nav, hero section, and buttons. No CSS preprocessor (Sass/Less) — vanilla CSS with custom properties is sufficient and keeps the build lighter.
 
 ---
 
@@ -95,7 +95,7 @@ A: `concurrently` runs multiple npm scripts in parallel in a single terminal wit
 ### Data & Content
 
 **Q: Where is the portfolio data stored?**
-A: All content (work history, education, projects, skills) is stored in **MongoDB Atlas** (free M0 cluster). Each collection has a Mongoose schema. The Express backend exposes public GET endpoints (`/api/v1/ps-portfolio/educations`, `/works`, `/projects`, `/skills`) that query MongoDB sorted by an `order` field. React page components use `useEffect` + `fetch` to load this data on mount instead of hardcoding arrays.
+A: All content (work history, education, projects, skills, certifications) is stored in **MongoDB Atlas** (free M0 cluster). Each collection has a Mongoose schema. The Express backend exposes public GET endpoints (`/api/v1/ps-portfolio/educations`, `/works`, `/projects`, `/skills`, `/certifications`) that query MongoDB sorted by an `order` field. React page components use `useEffect` + `fetch` to load this data on mount instead of hardcoding arrays. The certifications page additionally sorts results by date (newest first) on the client side after fetching.
 
 **Q: How does the chatbot work?**
 A: It uses a RAG (Retrieval-Augmented Generation) pattern. At setup time, `npm run ingest` fetches all MongoDB collections plus static bio/contact text, embeds each chunk using `gemini-embedding-2` (768-dimensional vectors), and upserts them into a Pinecone serverless index (13 vectors total). At query time, `POST /api/v1/ps-portfolio/chat` embeds the visitor's question, runs a top-8 similarity search in Pinecone, filters out low-confidence matches (score < 0.45), retrieves the most relevant portfolio chunks, injects the last 6 turns of conversation history, builds a grounded system prompt, and sends it to `gemini-2.5-flash` to generate the final answer. The answer is displayed in a floating chat widget — a full-body figure with a speech bubble in idle state that morphs into a small avatar when the chat opens. Bot responses support **bold**, `inline code`, and bullet-list markdown.
@@ -114,7 +114,7 @@ A: Hardcoded data couples content to code — every update requires a code chang
 A: The dependency upgrade. `react-reveal` was incompatible with React 18 — I had to evaluate alternatives, choose framer-motion, and rewrite every animation across 10+ components while keeping the UX consistent. react-icons v5 also had breaking renames that required tracking down each icon individually.
 
 **Q: What design decisions are you proud of?**  
-A: The CSS custom property system. By defining all design tokens in one place (`:root` in index.css), the entire dark/light theme switch is a single CSS class toggle — no JavaScript-driven style injection. It's performant, maintainable, and makes future redesigns a configuration change rather than a codebase-wide find-and-replace.
+A: Two in particular. First, the CSS custom property system. By defining all design tokens in one place (`:root` in index.css), the entire dark/light theme switch is a single CSS class toggle — no JavaScript-driven style injection. It's performant, maintainable, and makes future redesigns a configuration change rather than a codebase-wide find-and-replace. Second, the analytics dashboard. Rather than just showing a raw visitor table, I built a full SVG chart suite (daily, monthly, day-of-week, peak hours) using only React state and SVG primitives — no third-party chart library. This keeps the bundle lean while delivering interactive, gradient-styled visuals.
 
 **Q: What would you improve if you had more time?**  
 A: 
@@ -140,11 +140,17 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it'
 | Dev frontend port | 3000 |
 | Sidebar expanded width | 240px |
 | Sidebar collapsed width | 72px |
+| Light mode hours | 6 am – 6 pm (auto-detected on load) |
+| Sidebar in light mode | White background (`#ffffff`) with purple accents |
 | Number of skills listed | 29 (grouped into 6 categories: Languages, Frontend, Frameworks & Libraries, Databases, DevOps, Tools) |
-| Number of certifications listed | 6 |
+| Number of certifications listed | 6 (sorted newest-first on the public page) |
 | Number of projects listed | 3 |
 | Work history entries | 3 (Intern at Micro Focus → ASE at OpenText → SE at OpenText) |
 | Education entries | 3 (10th, 12th, B.E.) |
+| MongoDB collections | 7 (educations, works, projects, skills, certifications, admin, visits) |
+| Admin dashboard charts | 4 SVG charts: daily (14d), monthly (6mo), peak hours (0–23h), day-of-week |
+| Visitor table pagination | 10 rows/page, filter by name, sort by name or date |
+| Pinecone vectors | 13 (1 bio + 3 edu + 3 work + 3 project + 1 skills + 1 certs + 1 contact) |
 
 ---
 

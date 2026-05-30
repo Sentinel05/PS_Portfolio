@@ -6,11 +6,11 @@ A full-stack personal portfolio website built with the MERN stack (MongoDB, Expr
 
 | Layer    | Technology                                      |
 |----------|-------------------------------------------------|
-| Frontend | React 18, react-router-dom v6, framer-motion, react-icons, react-scroll, typewriter-effect |
+| Frontend | React 18, react-router-dom v7, framer-motion, react-icons, react-scroll, typewriter-effect |
 | Backend  | Node.js, Express.js, Mongoose, jsonwebtoken, bcryptjs |
 | Database | MongoDB Atlas (M0 free tier)                    |
 | Auth     | JWT (8-hour tokens, HS256) + bcryptjs (cost 12) |
-| Styling  | CSS custom properties (dark/light theme), Bootstrap 5 (CDN) |
+| Styling  | CSS custom properties (auto dark/light theme), Bootstrap 5 (CDN) |
 | Email    | Resend SDK (`resend`) — server-side transactional email |
 | Chatbot  | Google Gemini (`gemini-embedding-2` + `gemini-2.5-flash`) + Pinecone RAG — multi-turn history, score filtering, markdown rendering |
 | Deploy   | Render                                          |
@@ -163,7 +163,7 @@ Portfolio/
         │   ├── chatbot/     # Floating RAG chatbot widget
         │   └── ProtectedRoute.js  # Redirects to / if no JWT
         ├── context/
-        │   ├── ThemeContext.js    # Dark/light theme
+        │   ├── ThemeContext.js    # Auto dark/light theme (time-based init + manual toggle)
         │   └── AuthContext.js     # JWT state: login(), logout(), token
         ├── pages/
         │   ├── welcome/     # Landing page — Guest vs Admin role selection
@@ -177,7 +177,8 @@ Portfolio/
         │   ├── contact/     # Resend-backed contact form
         │   └── admin/
         │       ├── AdminLogin.js      # Login form → POST /api/v1/admin/login
-        │       └── AdminPortfolio.js  # Full admin portal (inline CRUD + dashboard)
+        │       ├── AdminPortfolio.js  # Full admin portal (inline CRUD + analytics dashboard)
+        │       └── AdminDashboard.js  # Tab-based CMS for Educations/Works/Projects/Skills
         └── utils/
             └── SkillsList.js          # iconRegistry (iconName → React component)
 ```

@@ -20,7 +20,7 @@
 | `@emailjs/browser` | ^4.3.3 | Installed but unused — email is now handled server-side via Resend |
 | `web-vitals` | ^4.2.0 | Core Web Vitals performance measurement |
 
-**Styling:** Plain CSS per component — no CSS framework (no Tailwind/Bootstrap). Theme managed via CSS custom properties through `ThemeContext.js` (light/dark mode).
+**Styling:** Plain CSS per component — no CSS framework (no Tailwind/Bootstrap). Theme managed via CSS custom properties through `ThemeContext.js`. Theme **auto-initialises based on time of day** (6 am–6 pm → light mode; 6 pm–6 am → dark mode) and can also be toggled manually via the sun/moon button in the sidebar.
 
 ---
 
@@ -59,12 +59,14 @@ Portfolio/
 │   ├── Project.js         # Mongoose schema — project entries
 │   └── Skill.js           # Mongoose schema — skill entries
 ├── data/
-│   └── seed.js            # Wipes + repopulates all 4 collections
+│   └── seed.js            # Wipes + repopulates all 6 collections (educations, works, projects, skills, certifications, and admin stays from env)
 ├── routes/
-│   └── portfolioRoutes.js # API route definitions (includes /chat)
+│   └── portfolioRoutes.js # API route definitions (includes /chat, /visits)
 ├── controllers/
-│   ├── portfolioController.js  # Route handler logic (4 GET + sendEmail via Resend)
+│   ├── portfolioController.js  # Route handler logic (5 GET + sendEmail via Resend)
 │   └── chatController.js       # RAG chatbot: embed → Pinecone query → Gemini LLM
+│   └── adminController.js      # Admin login: bcrypt compare + JWT sign
+│   └── crudController.js       # Generic POST/PUT/DELETE for all 5 portfolio collections
 ├── scripts/
 │   ├── dev.bat            # Windows shortcut: npm run dev
 │   ├── start.bat          # Windows shortcut: build + start
@@ -74,7 +76,7 @@ Portfolio/
     └── src/
         ├── pages/         # One folder per page section
         ├── components/    # Layout, Menus, MobileNav, Chatbot
-        ├── context/       # ThemeContext (light/dark)
+        ├── context/       # ThemeContext (auto time-based dark/light), AuthContext (JWT)
         └── utils/         # SkillsList.js (iconRegistry map)
 ```
 
@@ -162,7 +164,16 @@ visits         — name, visitedAt                                              
 - Each section: inline Add / Edit (pencil) / Delete (trash with confirm modal) per item
 - Skills section groups cards by category (Languages, Frontend, Frameworks & Libraries, Databases, DevOps, Tools)
 - Certifications section: full CRUD with title, issuer, date, link fields
-- Dashboard section: total visits, unique visitors, last-7-days count, full visitor log table
+- **Certifications public page**: auto-sorts by date (newest first) after fetching from the API
+- **Analytics Dashboard** (`DashboardSection` in `AdminPortfolio.js`):
+  - **5 visitor stat cards**: Total Visits, Unique Visitors, Last 7 Days, Returning visitors, First-time visitors
+  - **Content count cards**: live counts for Projects, Skills, Certifications, Work entries, Educations
+  - **Daily bar chart**: visits per day for the last 14 days (SVG, cyan→purple gradient)
+  - **Monthly trend chart**: visits per month for the last 6 months (SVG, purple→pink)
+  - **Top 5 returning visitors** panel with proportional bar indicators
+  - **Peak visit hours chart**: SVG bar chart across hours 0–23 (green→cyan)
+  - **Day-of-week chart**: SVG full-width, visits by day Mon–Sun (orange→pink)
+  - **Visitor table**: filter by name, click-to-sort Name/Date, paginated 10 rows/page (Prev/Next)
 - Admin credentials always synced from `ADMIN_USERNAME`/`ADMIN_PASSWORD` env vars on server start (`findOneAndUpdate` upsert)
 
 ---

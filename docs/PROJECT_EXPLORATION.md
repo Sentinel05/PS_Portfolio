@@ -128,7 +128,7 @@ Portfolio/
         ├── App.js             # Routes: / | /portfolio/* | /admin/login | /admin
         ├── App.css            # Hero-specific styles + portfolio-home-btn
         ├── context/
-        │   ├── ThemeContext.js  # Dark/light theme state (default: dark)
+        │   ├── ThemeContext.js  # Auto dark/light based on time (6am–6pm=light) + manual toggle
         │   └── AuthContext.js   # JWT: login(), logout(), token (localStorage admin_token)
         ├── components/
         │   ├── layout/
@@ -157,8 +157,10 @@ Portfolio/
         │   └── admin/
         │       ├── AdminLogin.js      # Login form → POST /api/v1/admin/login
         │       ├── AdminLogin.css
-        │       ├── AdminPortfolio.js  # Admin portal: sidebar nav, 6 CRUD sections (edu/work/skills/certs/projects/dashboard), visitor dashboard
-        │       └── AdminPortfolio.css
+        │       ├── AdminPortfolio.js  # Admin portal: sidebar nav, 6 CRUD sections + full analytics dashboard
+        │       ├── AdminPortfolio.css
+        │       ├── AdminDashboard.js  # Tab-based CMS (Educations/Works/Projects/Skills tabs) at /admin
+        │       └── AdminDashboard.css
         └── utils/
             └── SkillsList.js    # iconRegistry: { iconName → React component }
 ```
@@ -195,7 +197,7 @@ Contact form → Express `POST /api/v1/ps-portfolio/sendEmail` → Resend API �
 Real transactional email is handled server-side via the **Resend** SDK using `RESEND_API_KEY`.
 
 **Theme flow:**  
-`ThemeContext` stores `"dark"` | `"light"` in React state (default `"dark"`).  
+`ThemeContext` **auto-initialises** based on the current hour: 6 am–6 pm → `"light"`, 6 pm–6 am → `"dark"`. The user can also toggle manually via the sun/moon icon in the sidebar.  
 `App.js` applies `className="app-root light-mode"` conditionally.  
 All colors are CSS custom properties — switching theme class instantly re-renders the entire UI via CSS cascade.
 
@@ -233,8 +235,12 @@ Uses `react-scroll <Link>` with `smooth`, `offset`, `duration` props.
 
 ### ThemeContext.js
 ```js
-// Default theme
-const [theme, setTheme] = useState("dark");
+// Initialise based on time of day; user can also toggle manually
+const getInitialTheme = () => {
+  const hour = new Date().getHours();
+  return hour >= 6 && hour < 18 ? "light" : "dark";
+};
+const [theme, setTheme] = useState(getInitialTheme);
 ```
 Exposes `[theme, setTheme]` via `useTheme()` hook.
 
@@ -336,7 +342,8 @@ One-time ingestion (run with `npm run ingest`):
 | `--accent` | `#7c3aed` | `#7c3aed` | Primary purple |
 | `--accent3` | `#06b6d4` | `#0284c7` | Cyan (work timeline) |
 | `--text` | `#e2e8f0` | `#0f172a` | Body text |
-| `--sidebar-bg` | `#060c18` | `#060c18` | Always dark sidebar |
+| `--sidebar-bg` | `#060c18` | `#ffffff` | Sidebar background (light mode is white) |
+| `--hero-bg` | dark indigo gradient | light indigo/white gradient | Hero section background |
 | `--sidebar-width` | 240px | — | Expanded sidebar |
 | `--sidebar-collapsed` | 72px | — | Collapsed sidebar |
 
