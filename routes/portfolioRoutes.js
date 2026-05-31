@@ -1,4 +1,5 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const {
   sendEmailController,
   getEducationsController,
@@ -15,14 +16,31 @@ const Visit = require("../models/Visit");
 //router object
 const router = express.Router();
 
+// Rate limiters
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000,       // 1 minute window
+  max: 10,                   // 10 messages per minute per IP
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many messages. Please wait a moment before trying again." },
+});
+
+const emailLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 5,                    // 5 emails per hour per IP
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many contact requests. Please try again later." },
+});
+
 // Public routes
-router.post("/sendEmail", sendEmailController);
+router.post("/sendEmail", emailLimiter, sendEmailController);
 router.get("/educations", getEducationsController);
 router.get("/works", getWorksController);
 router.get("/projects", getProjectsController);
 router.get("/skills", getSkillsController);
 router.get("/certifications", getCertificationsController);
-router.post("/chat", chatController);
+router.post("/chat", chatLimiter, chatController);
 
 // Guest visit tracking — public log, protected read
 const geoLookup = (ip) =>

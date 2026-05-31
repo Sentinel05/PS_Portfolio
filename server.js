@@ -30,6 +30,7 @@ connectDB().then(async () => {
 const app = express();
 
 //middlewares
+app.set("trust proxy", 1); // trust first proxy (Render, etc.) for accurate IP rate limiting
 app.use(cors());
 app.use(express.json());
 

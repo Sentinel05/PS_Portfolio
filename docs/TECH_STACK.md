@@ -232,8 +232,8 @@ visits         — name, visitedAt                                              
 
 ### Quick Wins
 
-#### Goal 3 — API Rate Limiting ⬜ Planned
-Add `express-rate-limit` middleware to throttle `/chat` and `/sendEmail` endpoints. Currently these routes have no throttling, making them easy to abuse. Should be implemented before deploying to production.
+#### Goal 3 — API Rate Limiting ✅ Complete
+`express-rate-limit` middleware is applied directly on the two abuse-prone routes in `portfolioRoutes.js`. `/chat` is limited to **10 requests per minute per IP**; `/sendEmail` is limited to **5 requests per hour per IP**. Both return a clear JSON error message on `429`. `app.set("trust proxy", 1)` is set in `server.js` so Render's reverse proxy forwards the real client IP correctly.
 
 #### Goal 4 — SEO & Open Graph Meta Tags ⬜ Planned
 Add `<title>`, `<meta name="description">`, and Open Graph tags (`og:title`, `og:description`, `og:image`) to `client/public/index.html` so the portfolio shows rich link previews when shared on LinkedIn, WhatsApp, Twitter, etc.
