@@ -251,8 +251,8 @@ Deploy the production build to Render (or similar). The `start.bat` / build pipe
 #### Goal 7 — GitHub Actions CI ⬜ Planned
 Add a GitHub Actions workflow that runs `npm run build` on every push to `main`, catching broken builds before they ship.
 
-#### Goal 8 — Auto-Ingest from Admin CMS ⬜ Planned
-Currently `npm run ingest` must be run manually after editing portfolio content. Add a protected admin endpoint (`POST /api/v1/admin/ingest`) that triggers `ingest.js` server-side, and wire a button in the Admin portal to call it.
+#### Goal 8 — Auto-Ingest from Admin CMS ✅ Complete
+`npm run ingest` still works as a standalone script. A protected `POST /api/v1/ps-portfolio/admin/ingest` endpoint now triggers the same pipeline server-side (JWT-authenticated via `authMiddleware`). The core logic lives in `scripts/ingest.js` as `runIngestPipeline()` (exported), called by `adminController.ingestController`. A **Re-Ingest** button in the Admin topbar calls this endpoint — it shows a spinning icon while running, turns green on success, and red on failure (auto-resets after 4 s).
 
 #### Goal 9 — Dynamic Resume Generation ⬜ Planned
 Instead of a static PDF, generate a live resume from current MongoDB data on demand. Options: `pdfkit` (pure Node.js) or Puppeteer screenshot of a `/resume` route. Would always reflect the latest content without re-uploading a PDF.

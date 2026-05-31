@@ -38,7 +38,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "./client/build")));
 
 //routes
-app.use("/api/v1/admin", require("./routes/adminRoutes"));
+app.use("/api/v1/ps-portfolio/admin", require("./routes/adminRoutes"));
 app.use("/api/v1/ps-portfolio", require("./routes/portfolioRoutes"));
 
 app.get("*", function (req, res) {

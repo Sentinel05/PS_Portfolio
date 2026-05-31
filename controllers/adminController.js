@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
+const { runIngestPipeline } = require("../scripts/ingest");
 
 const loginController = async (req, res) => {
   try {
@@ -31,4 +32,13 @@ const loginController = async (req, res) => {
   }
 };
 
-module.exports = { loginController };
+const ingestController = async (req, res) => {
+  try {
+    const result = await runIngestPipeline();
+    return res.status(200).json({ success: true, chunksIngested: result.chunksIngested });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Ingestion failed", error: err.message });
+  }
+};
+
+module.exports = { loginController, ingestController };

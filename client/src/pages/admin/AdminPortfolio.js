@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from "react";
+﻿import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { iconRegistry } from "../../utils/SkillsList";
 import {
-  FiEdit2, FiTrash2, FiPlus, FiX, FiLogOut, FiExternalLink, FiCheck, FiUsers,
+  FiEdit2, FiTrash2, FiPlus, FiX, FiLogOut, FiExternalLink, FiCheck, FiUsers, FiRefreshCw,
 } from "react-icons/fi";
 import { GiGraduateCap } from "react-icons/gi";
 import { MdWork, MdMilitaryTech, MdDashboard } from "react-icons/md";
@@ -1161,6 +1161,26 @@ const AdminPortfolio = () => {
 
   const handleLogout = () => { logout(); navigate("/"); };
 
+  const [ingestStatus, setIngestStatus] = useState("idle"); // idle | loading | success | error
+
+  const handleIngest = async () => {
+    setIngestStatus("loading");
+    try {
+      const res = await authFetch("/api/v1/ps-portfolio/admin/ingest", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setIngestStatus("success");
+        setTimeout(() => setIngestStatus("idle"), 4000);
+      } else {
+        setIngestStatus("error");
+        setTimeout(() => setIngestStatus("idle"), 4000);
+      }
+    } catch {
+      setIngestStatus("error");
+      setTimeout(() => setIngestStatus("idle"), 4000);
+    }
+  };
+
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     setSidebarOpen(false);
@@ -1180,6 +1200,19 @@ const AdminPortfolio = () => {
           <a href="/portfolio" target="_blank" rel="noreferrer" className="ap-btn ap-btn--ghost ap-btn--sm">
             View Public Site <FiExternalLink size={13} />
           </a>
+          <button
+            className={`ap-btn ap-btn--sm ${
+              ingestStatus === "success" ? "ap-btn--success"
+              : ingestStatus === "error" ? "ap-btn--danger"
+              : "ap-btn--ghost"
+            }`}
+            onClick={handleIngest}
+            disabled={ingestStatus === "loading"}
+            title="Re-embed portfolio content into Pinecone for the chatbot"
+          >
+            <FiRefreshCw size={13} className={ingestStatus === "loading" ? "ap-spin" : ""} />
+            {ingestStatus === "loading" ? " Ingesting…" : ingestStatus === "success" ? " Ingested!" : ingestStatus === "error" ? " Failed" : " Re-Ingest"}
+          </button>
           <button className="ap-btn ap-btn--danger ap-btn--sm" onClick={handleLogout}>
             <FiLogOut size={14} /> Logout
           </button>

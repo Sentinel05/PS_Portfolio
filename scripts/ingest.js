@@ -292,7 +292,7 @@ const buildChunks = (educations, works, projects, skills, certifications) => {
       "POST /:col — creates a new item in the specified collection; " +
       "PUT /:col/:id — updates an item by ID in the specified collection; " +
       "DELETE /:col/:id — deletes an item by ID. " +
-      "Admin auth route (separate base path /api/v1/admin/): " +
+      "Admin auth route (separate base path /api/v1/ps-portfolio/admin/): " +
       "POST /login — verifies admin credentials with bcrypt and returns an 8-hour JWT.",
     source: "architecture",
     title: "API Endpoints",
@@ -411,67 +411,74 @@ const embedText = async (embeddingModel, text) => {
   return result.embedding.values;
 };
 
-const ingest = async () => {
-  try {
-    console.log("Connecting to MongoDB...");
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to MongoDB");
+/**
+ * Core ingestion pipeline — assumes Mongoose is already connected.
+ * Safe to call from within the Express server (no connect/disconnect/process.exit).
+ * Returns { chunksIngested: number }
+ */
+const runIngestPipeline = async () => {
+  const [educations, works, projects, skills, certifications] = await Promise.all([
+    Education.find().sort({ order: 1 }),
+    Work.find().sort({ order: 1 }),
+    Project.find().sort({ order: 1 }),
+    Skill.find().sort({ order: 1 }),
+    Certification.find().sort({ order: 1 }),
+  ]);
+  console.log(
+    `[Ingest] Fetched: ${educations.length} educations, ${works.length} works, ${projects.length} projects, ${skills.length} skills, ${certifications.length} certifications`
+  );
 
-    const [educations, works, projects, skills, certifications] = await Promise.all([
-      Education.find().sort({ order: 1 }),
-      Work.find().sort({ order: 1 }),
-      Project.find().sort({ order: 1 }),
-      Skill.find().sort({ order: 1 }),
-      Certification.find().sort({ order: 1 }),
-    ]);
-    console.log(
-      `Fetched: ${educations.length} educations, ${works.length} works, ${projects.length} projects, ${skills.length} skills, ${certifications.length} certifications`
-    );
+  const chunks = buildChunks(educations, works, projects, skills, certifications);
+  console.log(`[Ingest] Built ${chunks.length} chunks for embedding`);
 
-    const chunks = buildChunks(educations, works, projects, skills, certifications);
-    console.log(`Built ${chunks.length} chunks for embedding`);
+  const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
+  const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX);
 
-    console.log("Initializing Pinecone client...");
-    const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-    const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX);
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  const embeddingModel = genAI.getGenerativeModel({ model: "gemini-embedding-2" });
 
-    console.log("Initializing Google Gemini embedding model (gemini-embedding-2, 768 dims)...");
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const embeddingModel = genAI.getGenerativeModel({ model: "gemini-embedding-2" });
+  const BATCH_SIZE = 5;
+  let totalUpserted = 0;
 
-    console.log("Embedding and upserting chunks into Pinecone namespace 'portfolio'...");
-    const BATCH_SIZE = 5;
-    let totalUpserted = 0;
-
-    for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
-      const batch = chunks.slice(i, i + BATCH_SIZE);
-
-      const records = [];
-      for (let j = 0; j < batch.length; j++) {
-        const values = await embedText(embeddingModel, batch[j].text);
-        records.push({
-          id: `doc-${i + j}`,
-          values,
-          metadata: {
-            text: batch[j].text,
-            source: batch[j].source,
-            title: batch[j].title,
-          },
-        });
-      }
-
-      await pineconeIndex.namespace("portfolio").upsert({ records });
-      totalUpserted += records.length;
-      console.log(`  Upserted batch ${Math.floor(i / BATCH_SIZE) + 1}: ${records.length} vectors (total: ${totalUpserted})`);
+  for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+    const batch = chunks.slice(i, i + BATCH_SIZE);
+    const records = [];
+    for (let j = 0; j < batch.length; j++) {
+      const values = await embedText(embeddingModel, batch[j].text);
+      records.push({
+        id: `doc-${i + j}`,
+        values,
+        metadata: {
+          text: batch[j].text,
+          source: batch[j].source,
+          title: batch[j].title,
+        },
+      });
     }
-
-    console.log("\n✅ Ingestion complete! All portfolio content embedded into Pinecone.");
-    await mongoose.disconnect();
-    process.exit(0);
-  } catch (error) {
-    console.error("Ingestion error:", error);
-    process.exit(1);
+    await pineconeIndex.namespace("portfolio").upsert({ records });
+    totalUpserted += records.length;
+    console.log(`[Ingest]   Upserted batch ${Math.floor(i / BATCH_SIZE) + 1}: ${records.length} vectors (total: ${totalUpserted})`);
   }
+
+  console.log(`[Ingest] ✅ Complete — ${totalUpserted} vectors upserted into Pinecone.`);
+  return { chunksIngested: totalUpserted };
 };
 
-ingest();
+module.exports = { runIngestPipeline };
+
+// ── Standalone runner (npm run ingest) ──────────────────────────────────────
+if (require.main === module) {
+  (async () => {
+    try {
+      console.log("Connecting to MongoDB...");
+      await mongoose.connect(process.env.MONGO_URI);
+      console.log("Connected to MongoDB");
+      await runIngestPipeline();
+      await mongoose.disconnect();
+      process.exit(0);
+    } catch (error) {
+      console.error("Ingestion error:", error);
+      process.exit(1);
+    }
+  })();
+}
