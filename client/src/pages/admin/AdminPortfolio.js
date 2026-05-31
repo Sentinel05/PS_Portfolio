@@ -11,6 +11,7 @@ import { PiCertificateBold } from "react-icons/pi";
 import { IoConstruct } from "react-icons/io5";
 import { FcHome, FcAbout, FcContacts } from "react-icons/fc"; // eslint-disable-line no-unused-vars
 import Pic from "../../assets/images/cool-dp.jpg";
+import VisitorMap from "../../components/visitorMap/VisitorMap";
 import "./AdminPortfolio.css";
 
 // ── Auth fetch helper ─────────────────────────────────────────────────────────
@@ -1016,6 +1017,20 @@ const DashboardSection = ({ authFetch }) => {
         <BarChart buckets={dowBuckets} maxVal={maxDay} gradId="apvg-dow"
           gradFrom="#f97316" gradTo="#ec4899" skipEvery={1} height={150} />
       </div>
+
+      {/* ── World map ───────────────────────────────────────────────────────── */}
+      {visits.some((v) => v.countryCode) && (
+        <div className="ap-dash-chart-wrap ap-dash-chart-wrap--full">
+          <p className="ap-dash-chart-label">Visitor World Map</p>
+          <p className="ap-dash-chart-sub">Hover a highlighted country to see who visited from there</p>
+          <VisitorMap visits={visits} />
+          <div className="vmap-legend">
+            <span className="vmap-legend__label">Fewer</span>
+            <div className="vmap-legend__bar" />
+            <span className="vmap-legend__label">More</span>
+          </div>
+        </div>
+      )}
 
       {/* ── Visitor table ────────────────────────────────────────────────────── */}
       

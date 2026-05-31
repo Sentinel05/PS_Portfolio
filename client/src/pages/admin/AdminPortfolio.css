@@ -919,9 +919,37 @@
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--ap-cyan);
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.35rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.ap-dash-chart-sub {
+  font-size: 0.71rem;
+  color: #475569;
+  margin: 0 0 0.75rem;
+}
+
+/* ── World map legend ────────────────────────────────────────────────────── */
+.vmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.25rem 0;
+}
+
+.vmap-legend__label {
+  font-size: 0.68rem;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.vmap-legend__bar {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #6366f1, #06b6d4);
+  opacity: 0.65;
 }
 
 /* ── SVG ─────────────────────────────────────────────────────────────────── */

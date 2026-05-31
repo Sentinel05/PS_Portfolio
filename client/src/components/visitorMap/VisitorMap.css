@@ -1,0 +1,62 @@
+.vmap {
+  position: relative;
+  background: rgba(8, 16, 32, 0.6);
+  border-radius: 12px;
+  overflow: visible;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+/* Legend strip below the map */
+.vmap__legend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem 0.75rem;
+  font-size: 0.7rem;
+  color: #475569;
+}
+
+.vmap__legend-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #6366f1, #06b6d4);
+  opacity: 0.7;
+}
+
+/* Tooltip — fixed so it follows cursor regardless of scroll */
+.vmap__tooltip {
+  position: fixed;
+  background: rgba(10, 20, 45, 0.97);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+  pointer-events: none;
+  z-index: 9999;
+  min-width: 130px;
+  max-width: 220px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.vmap__tip-country {
+  margin: 0 0 0.2rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #06b6d4;
+  letter-spacing: 0.01em;
+}
+
+.vmap__tip-count {
+  margin: 0 0 0.25rem;
+  font-size: 0.73rem;
+  color: #a78bfa;
+}
+
+.vmap__tip-visitors {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  word-break: break-word;
+  line-height: 1.4;
+}
