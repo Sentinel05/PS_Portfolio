@@ -109,6 +109,7 @@
 @media (max-width: 768px) {
   .certifications {
     padding: 3rem 1.25rem;
+    overflow-x: hidden;
   }
 
   .cert__grid {

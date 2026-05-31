@@ -154,6 +154,7 @@
 @media (max-width: 768px) {
   .contact {
     padding: 3rem 1.25rem;
+    overflow-x: hidden;
   }
 
   .contact__layout {
