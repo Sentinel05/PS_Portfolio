@@ -164,3 +164,97 @@ body {
     margin-left: 0 !important;
   }
 }
+
+/* ── Skeleton loaders ── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface)   25%,
+    var(--surface-2) 50%,
+    var(--surface)   75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ── Timeline skeleton (Education / Work) ── */
+.skel-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.skel-timeline-item {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.skel-timeline-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skel-timeline-card {
+  flex: 1;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.skel-line           { height: 13px; border-radius: 4px; }
+.skel-line--title    { width: 58%; }
+.skel-line--sub      { width: 38%; }
+.skel-line--body     { width: 100%; }
+.skel-line--body-sm  { width: 82%; }
+.skel-line--short    { width: 22%; height: 22px; border-radius: 20px; }
+
+/* ── Skill skeleton ── */
+.skel-label { height: 13px; width: 90px; margin-bottom: 0.5rem; border-radius: 4px; }
+
+.skel-skill-card { height: 86px; border-radius: 12px; }
+
+/* ── Certification skeleton ── */
+.skel-cert-card {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1.1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.skel-cert-icon           { width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0; }
+.skel-cert-body           { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.skel-line--cert-title    { height: 13px; width: 78%; }
+.skel-line--cert-sub      { height: 11px; width: 42%; }
+
+/* ── Project skeleton ── */
+.skel-project-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.skel-project-img  { height: 200px; border-radius: 0; }
+.skel-project-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.65rem; }
+.skel-line--proj-tags  { height: 20px; width: 55%; border-radius: 20px; }
+.skel-line--proj-title { height: 15px; width: 68%; }
+.skel-line--proj-desc1 { height: 12px; width: 100%; }
+.skel-line--proj-desc2 { height: 12px; width: 80%; }

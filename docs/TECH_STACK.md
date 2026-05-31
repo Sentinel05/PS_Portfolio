@@ -225,3 +225,63 @@ visits         — name, visitedAt                                              
 | **Total** | | **$0** |
 
 > **Note:** Gemini's free tier has rate limits (requests per minute/day). For a personal portfolio with typical traffic these limits will never be hit. If the site scales significantly, Gemini's paid tier is pay-per-token and remains very cheap at low volume.
+
+---
+
+## Future Goals / Backlog
+
+### Quick Wins
+
+#### Goal 3 — API Rate Limiting ⬜ Planned
+Add `express-rate-limit` middleware to throttle `/chat` and `/sendEmail` endpoints. Currently these routes have no throttling, making them easy to abuse. Should be implemented before deploying to production.
+
+#### Goal 4 — SEO & Open Graph Meta Tags ⬜ Planned
+Add `<title>`, `<meta name="description">`, and Open Graph tags (`og:title`, `og:description`, `og:image`) to `client/public/index.html` so the portfolio shows rich link previews when shared on LinkedIn, WhatsApp, Twitter, etc.
+
+#### Goal 5 — Custom Favicon ⬜ Planned
+Replace the default Create React App favicon with a custom branded one in `client/public/`.
+
+---
+
+### Medium Effort
+
+#### Goal 6 — Deployment to Render ⬜ Planned
+Deploy the production build to Render (or similar). The `start.bat` / build pipeline is already in place. A live public URL is required for the portfolio to have real-world impact.
+
+#### Goal 7 — GitHub Actions CI ⬜ Planned
+Add a GitHub Actions workflow that runs `npm run build` on every push to `main`, catching broken builds before they ship.
+
+#### Goal 8 — Auto-Ingest from Admin CMS ⬜ Planned
+Currently `npm run ingest` must be run manually after editing portfolio content. Add a protected admin endpoint (`POST /api/v1/admin/ingest`) that triggers `ingest.js` server-side, and wire a button in the Admin portal to call it.
+
+#### Goal 9 — Dynamic Resume Generation ⬜ Planned
+Instead of a static PDF, generate a live resume from current MongoDB data on demand. Options: `pdfkit` (pure Node.js) or Puppeteer screenshot of a `/resume` route. Would always reflect the latest content without re-uploading a PDF.
+
+---
+
+### Feature Additions
+
+#### Goal 10 — Blog / Articles Section ⬜ Planned
+Add a `Post` MongoDB collection (`title`, `body` in Markdown, `tags`, `publishedAt`, `order`). Render posts as a new `/blog` route in the public portfolio. Significant SEO value and gives the chatbot more content to discuss.
+
+#### Goal 11 — Project Image Uploads ⬜ Planned
+Projects currently use an `imageKey` string mapped to local assets. Add an admin upload flow that stores images on Cloudinary or AWS S3 and saves the URL in the `Project` document, enabling richer project cards without manual asset management.
+
+#### Goal 12 — Chatbot Conversation Reset Button ⬜ Planned
+Add a "Clear chat" / reset button to the chatbot panel UI. Currently there is no way to clear the conversation history without refreshing the page.
+
+#### Goal 13 — Visitor Geolocation in Analytics ⬜ Planned
+On guest visit log, capture approximate country/city from the request IP using a free IP geolocation API. Store geo data in the `Visit` document and display a world map or country breakdown chart in the Admin analytics dashboard.
+
+---
+
+### Polish
+
+#### Goal 14 — Accessibility Audit ✅ Complete
+Audited all interactive elements: `ConfirmModal` in the admin portal now has `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, Escape-key dismiss, backdrop-click dismiss, and auto-focuses the Cancel button on open. All `Field` form inputs now have `id` attributes matched to their `<label htmlFor>`. The chatbot figure button already had `role="button"`, `tabIndex`, `aria-label`, and an `onKeyDown` Enter handler. Added `focus-visible` outline styles to the 404 back button.
+
+#### Goal 15 — Custom 404 Page ✅ Complete
+Added `client/src/pages/notFound/NotFound.js` with a styled 404 component (gradient "404" heading, title, description, Back to Home button). `App.js` `<Route path="*">` now renders `<NotFound />` instead of silently falling back to `<Welcome />`.
+
+#### Goal 16 — Loading Skeletons ✅ Complete
+All five data-fetching section pages (Educations, Works, Skills, Certifications, Projects) now have a `loading` state (initialised `true`, cleared in `.finally()`). While loading, each renders shimmer skeleton placeholders that mirror the real content shape. Shared shimmer animation (`skeleton-shimmer` keyframe) and all skeleton utility classes live in `index.css`.

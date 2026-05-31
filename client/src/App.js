@@ -19,6 +19,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminPortfolio from "./pages/admin/AdminPortfolio";
 import Welcome from "./pages/welcome/Welcome";
 import ProtectedRoute from "./components/ProtectedRoute";
+import NotFound from "./pages/notFound/NotFound";
 
 // ── Public portfolio page ─────────────────────────────────────────────────────
 const Portfolio = () => {
@@ -125,8 +126,8 @@ function App() {
         }
       />
 
-      {/* Fallback — redirect unknown paths to landing */}
-      <Route path="*" element={<Welcome />} />
+      {/* Fallback — dedicated 404 page for unknown paths */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

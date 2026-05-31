@@ -14,12 +14,14 @@ const defaultColor = { bg: "rgba(124,58,237,0.12)", border: "rgba(124,58,237,0.3
 
 const Certifications = () => {
   const [certs, setCerts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/v1/ps-portfolio/certifications")
       .then((res) => res.json())
       .then((json) => { if (json.success) setCerts(json.data); })
-      .catch((err) => console.error("Failed to fetch certifications:", err));
+      .catch((err) => console.error("Failed to fetch certifications:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -35,44 +37,58 @@ const Certifications = () => {
         <p className="section-subheading">Courses and credentials I've completed</p>
       </motion.div>
 
-      <div className="cert__grid">
-        {certs.map((cert, i) => {
-          const color = issuerColors[cert.issuer] || defaultColor;
-          return (
-            <motion.a
-              key={cert._id}
-              href={cert.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cert-card glass-card"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
-              transition={{ duration: 0.4, delay: i * 0.07 }}
-              whileHover={{ y: -5 }}
-            >
-              <div className="cert-card__icon-wrap" style={{ background: color.bg, border: `1px solid ${color.border}` }}>
-                <HiOutlineBadgeCheck className="cert-card__icon" style={{ color: color.text }} />
+      {loading ? (
+        <div className="cert__grid">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="skel-cert-card">
+              <div className="skeleton skel-cert-icon" />
+              <div className="skel-cert-body">
+                <div className="skeleton skel-line skel-line--cert-title" />
+                <div className="skeleton skel-line skel-line--cert-sub" />
               </div>
-
-              <div className="cert-card__body">
-                <h3 className="cert-card__title">{cert.title}</h3>
-                <div className="cert-card__meta">
-                  <span
-                    className="cert-card__issuer"
-                    style={{ background: color.bg, border: `1px solid ${color.border}`, color: color.text }}
-                  >
-                    {cert.issuer}
-                  </span>
-                  <span className="cert-card__date">{cert.date}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="cert__grid">
+          {certs.map((cert, i) => {
+            const color = issuerColors[cert.issuer] || defaultColor;
+            return (
+              <motion.a
+                key={cert._id}
+                href={cert.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cert-card glass-card"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{ duration: 0.4, delay: i * 0.07 }}
+                whileHover={{ y: -5 }}
+              >
+                <div className="cert-card__icon-wrap" style={{ background: color.bg, border: `1px solid ${color.border}` }}>
+                  <HiOutlineBadgeCheck className="cert-card__icon" style={{ color: color.text }} />
                 </div>
-              </div>
 
-              <FiExternalLink className="cert-card__link-icon" />
-            </motion.a>
-          );
-        })}
-      </div>
+                <div className="cert-card__body">
+                  <h3 className="cert-card__title">{cert.title}</h3>
+                  <div className="cert-card__meta">
+                    <span
+                      className="cert-card__issuer"
+                      style={{ background: color.bg, border: `1px solid ${color.border}`, color: color.text }}
+                    >
+                      {cert.issuer}
+                    </span>
+                    <span className="cert-card__date">{cert.date}</span>
+                  </div>
+                </div>
+
+                <FiExternalLink className="cert-card__link-icon" />
+              </motion.a>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 };

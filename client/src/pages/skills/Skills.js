@@ -14,12 +14,14 @@ const CATEGORY_ORDER = [
 
 const Skills = () => {
   const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/v1/ps-portfolio/skills")
       .then((res) => res.json())
       .then((json) => { if (json.success) setSkills(json.data); })
-      .catch((err) => console.error("Failed to fetch skills:", err));
+      .catch((err) => console.error("Failed to fetch skills:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const grouped = CATEGORY_ORDER.reduce((acc, cat) => {
@@ -47,64 +49,79 @@ const Skills = () => {
         </p>
       </motion.div>
 
-      <div className="skills__categories">
-        {grouped.map(({ category, items }, gi) => (
-          <motion.div
-            key={category}
-            className="skills__group"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-20px" }}
-            transition={{ duration: 0.4, delay: gi * 0.07 }}
-          >
-            <h3 className="skills__group-title">{category}</h3>
-            <div className="skills__grid">
-              {items.map((skill, i) => {
-                const Icon = iconRegistry[skill.iconName];
-                return (
-                  <motion.div
-                    key={skill._id}
-                    className="skill-card glass-card"
-                    initial={{ opacity: 0, scale: 0.88 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: i * 0.04 }}
-                    whileHover={{ y: -4, scale: 1.03 }}
-                  >
-                    {Icon && <Icon className="skill-card__icon" />}
-                    <span className="skill-card__name">{skill.name}</span>
-                  </motion.div>
-                );
-              })}
+      {loading ? (
+        <div className="skills__categories">
+          {[8, 3, 7, 2, 2, 7].map((count, gi) => (
+            <div key={gi} className="skills__group">
+              <div className="skeleton skel-label" />
+              <div className="skills__grid">
+                {Array(count).fill(0).map((_, i) => (
+                  <div key={i} className="skeleton skel-skill-card" />
+                ))}
+              </div>
             </div>
-          </motion.div>
-        ))}
+          ))}
+        </div>
+      ) : (
+        <div className="skills__categories">
+          {grouped.map(({ category, items }, gi) => (
+            <motion.div
+              key={category}
+              className="skills__group"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-20px" }}
+              transition={{ duration: 0.4, delay: gi * 0.07 }}
+            >
+              <h3 className="skills__group-title">{category}</h3>
+              <div className="skills__grid">
+                {items.map((skill, i) => {
+                  const Icon = iconRegistry[skill.iconName];
+                  return (
+                    <motion.div
+                      key={skill._id}
+                      className="skill-card glass-card"
+                      initial={{ opacity: 0, scale: 0.88 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.04 }}
+                      whileHover={{ y: -4, scale: 1.03 }}
+                    >
+                      {Icon && <Icon className="skill-card__icon" />}
+                      <span className="skill-card__name">{skill.name}</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          ))}
 
-        {uncategorised.length > 0 && (
-          <div className="skills__group">
-            <h3 className="skills__group-title">Other</h3>
-            <div className="skills__grid">
-              {uncategorised.map((skill, i) => {
-                const Icon = iconRegistry[skill.iconName];
-                return (
-                  <motion.div
-                    key={skill._id}
-                    className="skill-card glass-card"
-                    initial={{ opacity: 0, scale: 0.88 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: i * 0.04 }}
-                    whileHover={{ y: -4, scale: 1.03 }}
-                  >
-                    {Icon && <Icon className="skill-card__icon" />}
-                    <span className="skill-card__name">{skill.name}</span>
-                  </motion.div>
-                );
-              })}
+          {uncategorised.length > 0 && (
+            <div className="skills__group">
+              <h3 className="skills__group-title">Other</h3>
+              <div className="skills__grid">
+                {uncategorised.map((skill, i) => {
+                  const Icon = iconRegistry[skill.iconName];
+                  return (
+                    <motion.div
+                      key={skill._id}
+                      className="skill-card glass-card"
+                      initial={{ opacity: 0, scale: 0.88 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.04 }}
+                      whileHover={{ y: -4, scale: 1.03 }}
+                    >
+                      {Icon && <Icon className="skill-card__icon" />}
+                      <span className="skill-card__name">{skill.name}</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </section>
   );
 };

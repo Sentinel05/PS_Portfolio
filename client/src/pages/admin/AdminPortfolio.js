@@ -1,4 +1,4 @@
-﻿﻿import React, { useEffect, useState, useCallback } from "react";
+﻿﻿import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { iconRegistry } from "../../utils/SkillsList";
@@ -48,17 +48,17 @@ const Flash = ({ msg }) =>
 // â”€â”€ Generic field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const Field = ({ label, name, value, onChange, type = "text", as, options, placeholder }) => (
   <div className="ap-field">
-    <label className="ap-field__label">{label}</label>
+    <label className="ap-field__label" htmlFor={`field-${name}`}>{label}</label>
     {as === "textarea" ? (
-      <textarea className="ap-field__input" name={name} value={value} onChange={onChange}
+      <textarea id={`field-${name}`} className="ap-field__input" name={name} value={value} onChange={onChange}
         rows={3} placeholder={placeholder} />
     ) : as === "select" ? (
-      <select className="ap-field__input" name={name} value={value} onChange={onChange}>
+      <select id={`field-${name}`} className="ap-field__input" name={name} value={value} onChange={onChange}>
         <option value="">â€” select icon â€”</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
     ) : (
-      <input className="ap-field__input" type={type} name={name} value={value}
+      <input id={`field-${name}`} className="ap-field__input" type={type} name={name} value={value}
         onChange={onChange} placeholder={placeholder} />
     )}
   </div>
