@@ -537,11 +537,18 @@
   .chatbot {
     bottom: 16px;
     right: 16px;
+    width: 60px;
+    height: 60px;
   }
 
+  /* Pin panel to viewport edges so it never overflows horizontally */
   .chatbot__panel {
-    width: calc(100vw - 32px);
-    right: -16px;
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: 88px;
+    width: auto;
+    max-height: 65vh;
   }
 }
 

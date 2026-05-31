@@ -38,5 +38,6 @@
 @media (max-width: 768px) {
   .work {
     padding: 3rem 1rem;
+    overflow-x: hidden;
   }
 }

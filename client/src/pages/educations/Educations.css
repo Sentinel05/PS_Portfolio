@@ -47,5 +47,6 @@
 @media (max-width: 768px) {
   .education {
     padding: 3rem 1rem;
+    overflow-x: hidden;
   }
 }
