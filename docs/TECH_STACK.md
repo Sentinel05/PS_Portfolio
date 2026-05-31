@@ -270,8 +270,8 @@ Projects currently use an `imageKey` string mapped to local assets. Add an admin
 #### Goal 12 — Chatbot Conversation Reset Button ⬜ Planned
 Add a "Clear chat" / reset button to the chatbot panel UI. Currently there is no way to clear the conversation history without refreshing the page.
 
-#### Goal 13 — Visitor Geolocation in Analytics ⬜ Planned
-On guest visit log, capture approximate country/city from the request IP using a free IP geolocation API. Store geo data in the `Visit` document and display a world map or country breakdown chart in the Admin analytics dashboard.
+#### Goal 13 — Visitor Geolocation in Analytics ✅ Complete
+On guest visit log (`POST /api/v1/ps-portfolio/visits`), the server resolves approximate country, city, and country code from the request IP using **ip-api.com** (free tier, no key required, HTTP only, 45 req/min). The real client IP is extracted from the `x-forwarded-for` header (set by Render's proxy) and the IPv6 loopback prefix is stripped. Geo fields (`country`, `city`, `countryCode`) are stored in the `Visit` MongoDB document. The admin dashboard now shows a **"Visitors by Country"** breakdown panel with flag emoji, country name, a proportional bar, and visit count. The visitor table also has a new **Location** column showing city + country per row.
 
 ---
 

@@ -25,12 +25,46 @@ router.get("/certifications", getCertificationsController);
 router.post("/chat", chatController);
 
 // Guest visit tracking — public log, protected read
+const geoLookup = (ip) =>
+  new Promise((resolve) => {
+    // ip-api.com free tier: no key required, HTTP only, 45 req/min limit
+    // Use "fields" param to fetch only what we need
+    const url = `http://ip-api.com/json/${ip}?fields=status,country,countryCode,city`;
+    // ip-api requires plain HTTP; use node's http module via a simple fetch-like wrapper
+    const http = require("http");
+    http.get(url, (res) => {
+      let raw = "";
+      res.on("data", (c) => (raw += c));
+      res.on("end", () => {
+        try {
+          const json = JSON.parse(raw);
+          if (json.status === "success") {
+            resolve({ country: json.country || "", city: json.city || "", countryCode: json.countryCode || "" });
+          } else {
+            resolve({ country: "", city: "", countryCode: "" });
+          }
+        } catch {
+          resolve({ country: "", city: "", countryCode: "" });
+        }
+      });
+    }).on("error", () => resolve({ country: "", city: "", countryCode: "" }));
+  });
+
 router.post("/visits", async (req, res) => {
   try {
     const { name } = req.body;
     if (!name || !name.trim())
       return res.status(400).json({ success: false, message: "Name is required" });
-    const visit = await Visit.create({ name: name.trim() });
+
+    // Resolve real IP behind proxies (Render sets x-forwarded-for)
+    const forwarded = req.headers["x-forwarded-for"];
+    const rawIp = forwarded ? forwarded.split(",")[0].trim() : req.socket.remoteAddress;
+    // Strip IPv6 loopback prefix so ip-api gets a plain IPv4 address
+    const ip = rawIp === "::1" || rawIp === "127.0.0.1" ? "" : rawIp.replace(/^::ffff:/, "");
+
+    const geo = ip ? await geoLookup(ip) : { country: "", city: "", countryCode: "" };
+
+    const visit = await Visit.create({ name: name.trim(), ...geo });
     res.json({ success: true, data: visit });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

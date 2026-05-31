@@ -1134,3 +1134,92 @@
   font-size: 0.82rem;
   white-space: nowrap;
 }
+
+.ap-dash-table__th-loc {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ap-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ap-border);
+}
+
+.ap-dash-table__loc {
+  padding: 0.65rem 1rem;
+  vertical-align: middle;
+}
+
+.ap-geo-inline {
+  font-size: 0.82rem;
+  color: var(--ap-muted);
+  white-space: nowrap;
+}
+
+.ap-geo-inline--muted {
+  color: var(--ap-faint);
+  font-size: 0.82rem;
+}
+
+/* ── Country breakdown list ───────────────────────────────────────────────── */
+.ap-geo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.ap-geo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ap-geo-flag {
+  font-size: 1.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.ap-geo-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ap-text);
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.ap-geo-name--muted {
+  color: var(--ap-faint);
+}
+
+.ap-geo-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: rgba(110, 100, 230, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ap-geo-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #06b6d4, #7c3aed);
+  transition: width 0.4s ease;
+}
+
+.ap-geo-bar--muted {
+  background: rgba(110, 100, 230, 0.3);
+}
+
+.ap-geo-count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ap-cyan);
+  min-width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}

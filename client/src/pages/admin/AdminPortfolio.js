@@ -277,7 +277,7 @@ const WorksSection = ({ authFetch }) => {
             <Field label="Location" name="location" value={addForm.location} onChange={fc(setAddForm)} placeholder="City, Country" />
             <Field label="Order" name="order" type="number" value={addForm.order} onChange={fc(setAddForm)} />
           </div>
-          <Field label="Description" name="desc" value={addForm.desc} onChange={fc(setAddForm)} as="textarea" placeholder="Role descriptionâ€¦" />
+          <Field label="Description" name="desc" value={addForm.desc} onChange={fc(setAddForm)} as="textarea" placeholder="Role description..." />
           <button className="ap-btn ap-btn--primary" type="submit">Save Work Entry</button>
         </form>
       )}
@@ -538,11 +538,11 @@ const ProjectsSection = ({ authFetch }) => {
         <Field label="Type Label" name="type" value={form.type} onChange={fc(setForm)} placeholder="e.g. Full Stack" />
         <Field label="Badge Color" name="typeColor" type="color" value={form.typeColor} onChange={fc(setForm)} />
         <Field label="Image Key" name="imageKey" value={form.imageKey} onChange={fc(setForm)} placeholder="e.g. Portfolio (matches imageMap)" />
-        <Field label="GitHub / Link" name="link" value={form.link} onChange={fc(setForm)} placeholder="https://github.com/â€¦" />
+        <Field label="GitHub / Link" name="link" value={form.link} onChange={fc(setForm)} placeholder="https://github.com/..." />
         <Field label="Order" name="order" type="number" value={form.order} onChange={fc(setForm)} />
       </div>
       <Field label="Tags (comma-separated)" name="tags" value={form.tags} onChange={fc(setForm)} placeholder="React, Node.js, MongoDB" />
-      <Field label="Description" name="desc" value={form.desc} onChange={fc(setForm)} as="textarea" placeholder="Short project descriptionâ€¦" />
+      <Field label="Description" name="desc" value={form.desc} onChange={fc(setForm)} as="textarea" placeholder="Short project description..." />
       <div className="ap-form__actions">
         <button className="ap-btn ap-btn--primary" type="submit">{submitLabel}</button>
         {onCancel && <button className="ap-btn ap-btn--ghost" type="button" onClick={onCancel}>Cancel</button>}
@@ -698,7 +698,7 @@ const CertificationsSection = ({ authFetch }) => {
             <Field label="Title" name="title" value={addForm.title} onChange={fc(setAddForm)} placeholder="e.g. AWS Cloud Practitioner" />
             <Field label="Issuer" name="issuer" value={addForm.issuer} onChange={fc(setAddForm)} placeholder="e.g. Udemy, Coursera, NPTEL" />
             <Field label="Date" name="date" value={addForm.date} onChange={fc(setAddForm)} placeholder="e.g. May 2026" />
-            <Field label="Certificate Link" name="link" value={addForm.link} onChange={fc(setAddForm)} placeholder="https://â€¦" />
+            <Field label="Certificate Link" name="link" value={addForm.link} onChange={fc(setAddForm)} placeholder="https://..." />
             <Field label="Order" name="order" type="number" value={addForm.order} onChange={fc(setAddForm)} />
           </div>
           <button className="ap-btn ap-btn--primary" type="submit">Save Certification</button>
@@ -864,7 +864,7 @@ const DashboardSection = ({ authFetch }) => {
   const maxHour = Math.max(...hourCounts, 1);
   const hourBuckets = hourCounts.map((count, h) => ({ label: `${h}h`, count }));
 
-  // Day of week (Sun=0â€¦Sat=6)
+  // Day of week (Sun=0...Sat=6)
   const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const dayCounts = Array(7).fill(0);
   visits.forEach((v) => { dayCounts[new Date(v.visitedAt).getDay()]++; });
@@ -914,8 +914,8 @@ const DashboardSection = ({ authFetch }) => {
   };
   const SortArrow = ({ col }) =>
     sortKey !== col
-      ? <span className="ap-sort-arrow">â†•</span>
-      : <span className="ap-sort-arrow ap-sort-arrow--on">{sortDir === "asc" ? "â†‘" : "â†“"}</span>;
+      ? <span className="ap-sort-arrow">{"↕"}</span>
+      : <span className="ap-sort-arrow ap-sort-arrow--on">{sortDir === "asc" ? "↑" : "↓"}</span>;
 
   return (
     <section className="ap-section" id="dashboard-section">
@@ -941,7 +941,7 @@ const DashboardSection = ({ authFetch }) => {
           <div key={label} className={`ap-dash-stat ap-dash-stat--${color}`}>
             <FiUsers className="ap-dash-stat__icon" />
             <div>
-              <p className="ap-dash-stat__num">{loading ? "â€¦" : num}</p>
+              <p className="ap-dash-stat__num">{loading ? "..." : num}</p>
               <p className="ap-dash-stat__label">{label}</p>
             </div>
           </div>
@@ -959,7 +959,7 @@ const DashboardSection = ({ authFetch }) => {
         ].map(({ label, key, Icon, color }) => (
           <div key={key} className={`ap-dash-count-card ap-dash-count-card--${color}`}>
             <Icon className="ap-dash-count-card__icon" />
-            <span className="ap-dash-count-card__num">{contentCounts ? contentCounts[key] : "â€¦"}</span>
+            <span className="ap-dash-count-card__num">{contentCounts ? contentCounts[key] : "..."}</span>
             <span className="ap-dash-count-card__label">{label}</span>
           </div>
         ))}
@@ -1018,16 +1018,61 @@ const DashboardSection = ({ authFetch }) => {
       </div>
 
       {/* â”€â”€ Visitor table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="ap-dash-table-panel">
+      
+
+      {/* Country breakdown */}
+      {(() => {
+        const countryCounts = {};
+        visits.forEach((v) => {
+          if (v.country) {
+            const key = v.country;
+            if (!countryCounts[key]) countryCounts[key] = { count: 0, code: v.countryCode || "" };
+            countryCounts[key].count++;
+          }
+        });
+        const sorted = Object.entries(countryCounts).sort((a, b) => b[1].count - a[1].count);
+        const unknown = visits.filter((v) => !v.country).length;
+        const maxC = sorted.length > 0 ? sorted[0][1].count : 1;
+        return sorted.length > 0 || unknown > 0 ? (
+          <div className="ap-dash-chart-wrap ap-dash-chart-wrap--full">
+            <p className="ap-dash-chart-label">Visitors by Country</p>
+            <div className="ap-geo-list">
+              {sorted.map(([country, { count, code }]) => (
+                <div key={country} className="ap-geo-row">
+                  <span className="ap-geo-flag">
+                    {code ? String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e0 + c.charCodeAt(0) - 65)) : "?"}
+                  </span>
+                  <span className="ap-geo-name">{country}</span>
+                  <div className="ap-geo-bar-wrap">
+                    <div className="ap-geo-bar" style={{ width: `${(count / maxC) * 100}%` }} />
+                  </div>
+                  <span className="ap-geo-count">{count}</span>
+                </div>
+              ))}
+              {unknown > 0 && (
+                <div className="ap-geo-row">
+                  <span className="ap-geo-flag">?</span>
+                  <span className="ap-geo-name ap-geo-name--muted">Unknown</span>
+                  <div className="ap-geo-bar-wrap">
+                    <div className="ap-geo-bar ap-geo-bar--muted" style={{ width: `${(unknown / maxC) * 100}%` }} />
+                  </div>
+                  <span className="ap-geo-count">{unknown}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null;
+      })()}
+<div className="ap-dash-table-panel">
         <input
           className="ap-dash-filter"
-          placeholder="Filter by nameâ€¦"
+          placeholder="Filter by name..."
           value={filter}
           onChange={(e) => { setFilter(e.target.value); setPage(1); }}
         />
 
         {loading ? (
-          <p className="ap-dash-empty">Loadingâ€¦</p>
+          <p className="ap-dash-empty">Loading...</p>
         ) : visits.length === 0 ? (
           <p className="ap-dash-empty">No guest visits recorded yet.</p>
         ) : (
@@ -1043,6 +1088,7 @@ const DashboardSection = ({ authFetch }) => {
                     <th className="ap-dash-table__th-sort" onClick={() => toggleSort("visitedAt")}>
                       Visited At <SortArrow col="visitedAt" />
                     </th>
+                    <th className="ap-dash-table__th-loc">Location</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1051,6 +1097,18 @@ const DashboardSection = ({ authFetch }) => {
                       <td className="ap-dash-table__num">{(curPage - 1) * VIS_PAGE_SIZE + idx + 1}</td>
                       <td className="ap-dash-table__name">{v.name}</td>
                       <td className="ap-dash-table__time">{fmt(v.visitedAt)}</td>
+                      <td className="ap-dash-table__loc">
+                        {v.country ? (
+                          <span className="ap-geo-inline">
+                            {v.countryCode
+                              ? String.fromCodePoint(...[...v.countryCode.toUpperCase()].map((c) => 0x1f1e0 + c.charCodeAt(0) - 65))
+                              : null}{" "}
+                            {v.city ? `${v.city}, ` : ""}{v.country}
+                          </span>
+                        ) : (
+                          <span className="ap-geo-inline--muted">—</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1165,3 +1223,4 @@ const AdminPortfolio = () => {
 };
 
 export default AdminPortfolio;
+
