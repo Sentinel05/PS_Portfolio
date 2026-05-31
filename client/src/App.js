@@ -25,7 +25,6 @@ import NotFound from "./pages/notFound/NotFound";
 const Portfolio = () => {
   const [theme] = useTheme();
   const navigate = useNavigate();
-  const guestName = sessionStorage.getItem("guestName");
 
   return (
     <div className={`app-root ${theme === "light" ? "light-mode" : ""}`}>
