@@ -95,22 +95,22 @@ Portfolio/
 │   ├── Skill.js               # { name, iconName, category, order }
 │   ├── Certification.js       # { title, issuer, date, link, order }
 │   ├── Admin.js               # { username (unique), passwordHash }
-│   └── Visit.js               # { name, visitedAt }
+   └── Visit.js               # { name, visitedAt, country, city, countryCode }
 ├── data/
 │   └── seed.js                # Wipes + repopulates all 6 portfolio collections
 ├── controllers/
-│   ├── portfolioController.js # sendEmail (Resend) + 4 GET controllers
+│   ├── portfolioController.js # sendEmail (Resend) + 5 GET controllers
 │   ├── chatController.js      # RAG chatbot: embed → Pinecone query → Gemini LLM
-│   ├── adminController.js     # Login: bcrypt compare → JWT sign (8h)
-│   └── crudController.js      # Generic createItem/updateItem/deleteItem for 4 collections
+│   ├── adminController.js     # loginController: bcrypt compare → JWT sign; ingestController: triggers runIngestPipeline()
+│   └── crudController.js      # Generic createItem/updateItem/deleteItem for 5 portfolio collections
 ├── routes/
 │   ├── portfolioRoutes.js     # Public GET + protected CRUD + visit log routes
-│   └── adminRoutes.js         # POST /login → loginController
+│   └── adminRoutes.js         # POST /login → loginController; POST /ingest → ingestController (JWT-protected)
 ├── scripts/
 │   ├── dev.bat                # Windows shortcut: npm run dev (pushd to root)
 │   ├── start.bat              # Windows shortcut: npm run build + npm start
 │   ├── ingest.bat             # Windows shortcut: npm run ingest
-│   └── ingest.js              # One-time ingestion: MongoDB → gemini-embedding-2 → Pinecone
+│   └── ingest.js              # Exports runIngestPipeline(); standalone guard via require.main → MongoDB → gemini-embedding-2 → Pinecone
 ├── docs/
 │   ├── PROJECT_EXPLORATION.md # ← this file
 │   ├── INTERVIEW_READINESS.md # Interview Q&A reference
@@ -143,6 +143,9 @@ Portfolio/
         │   ├── chatbot/
         │   │   ├── Chatbot.js   # Floating RAG chatbot widget (bottom-right avatar)
         │   │   └── Chatbot.css
+        │   ├── visitorMap/
+        │   │   ├── VisitorMap.js  # SVG choropleth world map (react-simple-maps, indigo→cyan by visit intensity)
+        │   │   └── VisitorMap.css
         │   └── ProtectedRoute.js  # Redirects to / if no JWT token
         ├── pages/
         │   ├── welcome/         # Landing: Guest (name capture) vs Admin role selection
@@ -154,12 +157,13 @@ Portfolio/
         │   ├── certifications/  # Card grid — fetches /api/v1/ps-portfolio/certifications
         │   ├── projects/        # Card grid — fetches /api/v1/ps-portfolio/projects
         │   ├── contact/         # Social links + contact form (email via Resend backend)
+        │   ├── notFound/        # Custom 404 page (gradient heading, Back to Home button)
         │   └── admin/
-        │       ├── AdminLogin.js      # Login form → POST /api/v1/admin/login
+        │       ├── AdminLogin.js      # Login form → POST /api/v1/ps-portfolio/admin/login
         │       ├── AdminLogin.css
-        │       ├── AdminPortfolio.js  # Admin portal: sidebar nav, 6 CRUD sections + full analytics dashboard
+        │       ├── AdminPortfolio.js  # Admin portal: sidebar nav, 6 CRUD sections + analytics dashboard + Re-Ingest button
         │       ├── AdminPortfolio.css
-        │       ├── AdminDashboard.js  # Tab-based CMS (Educations/Works/Projects/Skills tabs) at /admin
+        │       ├── AdminDashboard.js  # Legacy tab-based CMS (superseded by AdminPortfolio)
         │       └── AdminDashboard.css
         └── utils/
             └── SkillsList.js    # iconRegistry: { iconName → React component }
@@ -188,7 +192,8 @@ Browser
               ├── POST /api/v1/ps-portfolio/visits       ← log guest name (public)
               ├── GET  /api/v1/ps-portfolio/visits       ← visitor list (JWT protected)
               ├── POST/PUT/DELETE /api/v1/ps-portfolio/:col/:id ← CRUD (JWT protected)
-              ├── POST /api/v1/admin/login               ← bcrypt + JWT sign
+              ├── POST /api/v1/ps-portfolio/admin/login          ← bcrypt + JWT sign
+              ├── POST /api/v1/ps-portfolio/admin/ingest         ← runIngestPipeline() (JWT protected)
               └── GET  *  → serves client/build/index.html (SPA fallback)
 ```
 
@@ -302,8 +307,10 @@ RAG pipeline (singleton clients initialized once per server process):
 > **Model note:** `text-embedding-004` and `gemini-1.5-flash` return 404 on the free AI Studio key. Use `gemini-embedding-2` and `gemini-2.5-flash`.
 
 ### scripts/ingest.js
-One-time ingestion (run with `npm run ingest`):
-1. Connects to MongoDB Atlas, fetches all 6 collections
+Exports `runIngestPipeline()` — a pure async function that is safe to call from a running Express server (no `mongoose.connect/disconnect`, no `process.exit`). A `require.main === module` guard wraps standalone use (`npm run ingest`) with the full connect/disconnect/exit lifecycle.
+
+Ingestion process:
+1. Fetches all 6 MongoDB collections
 2. Builds 13 text chunks: 1 bio + 3 education + 3 work + 3 project + 1 skills + 1 certifications + 1 contact
 3. Embeds each chunk via `gemini-embedding-2` (`outputDimensionality: 768`)
 4. Upserts to Pinecone with `{ records: [...] }` (note: not a bare array)
@@ -326,8 +333,9 @@ One-time ingestion (run with `npm run ingest`):
 
 ### adminRoutes.js
 | Method | Path | Handler | Auth |
-|---|---|---|---|
+|---|---|---|-----------|
 | POST | `/login` | `loginController` | None — bcrypt + JWT sign |
+| POST | `/ingest` | `ingestController` | **JWT required** — triggers `runIngestPipeline()` |
 
 ---
 
@@ -452,6 +460,7 @@ Set in `.env` at the project root (gitignored). On Render, set via the **Environ
 | Pinecone upsert call signature | `index.upsert()` takes `{ records: [...] }` object — NOT a bare array. Passing an array directly throws `PineconeArgumentError: Must pass in at least 1 record` |
 | Chatbot ingestion must be re-run on content change | `npm run ingest` is a one-time script. If MongoDB data changes (new job, project, etc.), re-run it to refresh the Pinecone vectors |
 | Admin login invalid after `.env` change | Old bcrypt hash still in MongoDB. Fix: just restart the server — `findOneAndUpdate` upsert in `server.js` syncs credentials from env vars on every startup |
+| BOM in AdminPortfolio.js | `AdminPortfolio.js` picks up a UTF-8 BOM (`EF BB BF`) after being edited by certain tools on Windows. ESLint flags this as `unicode-bom` error and the file fails to compile. Fix: strip the 3-byte BOM with PowerShell byte-level read/write. The BOM recurs on each future edit via the VS Code AI tools. |
 | webpack cache stale (Windows dev) | File changes not picked up by watcher after external tool edits. Fix: kill the dev server terminal entirely and restart `npm run dev` |
 | PowerShell script execution blocked | `npm.ps1` blocked by execution policy. Fix: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force` before running npm commands |
 

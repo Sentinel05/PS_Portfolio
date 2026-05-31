@@ -81,6 +81,7 @@ client/src/
 │   ├── menus/        # Sidebar nav links (react-scroll); includes Certifications nav item
 │   ├── mobileNav/    # Hamburger nav (< 768px)
 │   ├── chatbot/      # Floating RAG chatbot widget (figure ↔ avatar dual-state, multi-turn history, markdown)
+│   ├── visitorMap/   # SVG choropleth world map (react-simple-maps, indigo→cyan by visit intensity)
 │   └── ProtectedRoute.js
 ├── pages/
 │   ├── welcome/      # Landing page (role selection + guest name capture)
@@ -92,7 +93,8 @@ client/src/
 │   ├── certifications/ # Certificate cards with external link; color-coded by issuer
 │   ├── projects/
 │   ├── contact/
-│   └── admin/        # AdminLogin + AdminPortfolio (CRUD for all 6 collections + visitor dashboard)
+│   ├── notFound/     # Custom 404 page (gradient heading + Back to Home button)
+│   └── admin/        # AdminLogin (→ POST /api/v1/ps-portfolio/admin/login) + AdminPortfolio (CRUD, analytics, Re-Ingest button)
 └── utils/
     └── SkillsList.js  # iconName → React icon component registry
 ```

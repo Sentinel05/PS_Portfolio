@@ -159,8 +159,9 @@ Portfolio/
         ├── components/
         │   ├── layout/      # Sidebar layout
         │   ├── menus/       # Sidebar navigation
-        │   ├── mobileNav/   # Mobile bottom nav
+        │   ├── mobileNav/   # Mobile hamburger nav
         │   ├── chatbot/     # Floating RAG chatbot widget
+        │   ├── visitorMap/  # SVG choropleth world map (admin dashboard)
         │   └── ProtectedRoute.js  # Redirects to / if no JWT
         ├── context/
         │   ├── ThemeContext.js    # Auto dark/light theme (time-based init + manual toggle)
@@ -175,10 +176,11 @@ Portfolio/
         │   ├── certifications/ # Fetches /api/v1/ps-portfolio/certifications
         │   ├── projects/    # Fetches from /api/v1/ps-portfolio/projects
         │   ├── contact/     # Resend-backed contact form
+        │   ├── notFound/    # Custom 404 page
         │   └── admin/
-        │       ├── AdminLogin.js      # Login form → POST /api/v1/admin/login
-        │       ├── AdminPortfolio.js  # Full admin portal (inline CRUD + analytics dashboard)
-        │       └── AdminDashboard.js  # Tab-based CMS for Educations/Works/Projects/Skills
+        │       ├── AdminLogin.js      # Login form → POST /api/v1/ps-portfolio/admin/login
+        │       ├── AdminPortfolio.js  # Full admin portal (inline CRUD + analytics dashboard + Re-Ingest button)
+        │       └── AdminDashboard.js  # Legacy tab-based CMS (superseded by AdminPortfolio)
         └── utils/
             └── SkillsList.js          # iconRegistry (iconName → React component)
 ```
@@ -198,7 +200,7 @@ Run from the **project root**:
 | `npm run build`        | Build the React client for production                     |
 | `npm run install-all`  | Install root and client dependencies                      |
 | `npm run seed`         | Wipe and re-seed all 6 MongoDB collections                |
-| `npm run ingest`       | Embed portfolio content into Pinecone (run after seed)    |
+| `npm run ingest`       | Re-embed portfolio content into Pinecone (run after content changes) |
 
 Run from the **`client/` directory**:
 

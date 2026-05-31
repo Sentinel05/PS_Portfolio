@@ -297,12 +297,6 @@ npm run seed
 3. Connects to MongoDB Atlas via `mongoose.connect(process.env.MONGO_URI)`
 4. Deletes all documents from `educations`, `works`, `projects`, `skills`, `certifications` (`deleteMany({})`)
 5. Inserts seed data into all 5 portfolio collections (`insertMany(...)`)
-6. Disconnects and exits with code `0`
-
-**Expected output:**
-
-```
-Connected to MongoDB
 Cleared existing data
 Seed data inserted successfully
 Disconnected from MongoDB
@@ -417,6 +411,9 @@ All schemas are defined in the `models/` directory using Mongoose.
 |---|---|---|---|
 | `name` | String | Yes | Guest's name, collected on the Welcome page before entering the portfolio |
 | `visitedAt` | Date | No | Auto-set to `Date.now` on creation |
+| `country` | String | No | Resolved from request IP via ip-api.com (e.g. `"India"`) |
+| `city` | String | No | Resolved from request IP (e.g. `"Bengaluru"`) |
+| `countryCode` | String | No | ISO 2-letter code (e.g. `"IN"`) — used for world map choropleth |
 
 ### `order` field — sorting strategy
 
@@ -426,7 +423,7 @@ All collections have an `order` field (Number, default 0). All GET controllers s
 
 ## 13. API Endpoints
 
-All endpoints are mounted under `/api/v1/ps-portfolio/`.
+All portfolio endpoints are mounted under `/api/v1/ps-portfolio/`. Admin endpoints are under `/api/v1/ps-portfolio/admin/`.
 
 | Method | Path | Handler | Auth |
 |---|---|---|---|
@@ -434,14 +431,16 @@ All endpoints are mounted under `/api/v1/ps-portfolio/`.
 | GET | `/api/v1/ps-portfolio/works` | `getWorksController` | None (public) |
 | GET | `/api/v1/ps-portfolio/projects` | `getProjectsController` | None (public) |
 | GET | `/api/v1/ps-portfolio/skills` | `getSkillsController` | None (public) |
+| GET | `/api/v1/ps-portfolio/certifications` | `getCertificationsController` | None (public) |
 | POST | `/api/v1/ps-portfolio/sendEmail` | `sendEmailController` | None (Resend) |
 | POST | `/api/v1/ps-portfolio/chat` | `chatController` | None (public) |
-| POST | `/api/v1/ps-portfolio/visits` | inline | None — logs guest name + timestamp |
+| POST | `/api/v1/ps-portfolio/visits` | inline | None — logs guest name + timestamp + geolocation |
 | GET | `/api/v1/ps-portfolio/visits` | inline | **JWT required** — returns all visits |
 | POST | `/api/v1/ps-portfolio/:col` | `createItem(col)` | **JWT required** — add item to collection |
 | PUT | `/api/v1/ps-portfolio/:col/:id` | `updateItem(col)` | **JWT required** — update item by ID |
 | DELETE | `/api/v1/ps-portfolio/:col/:id` | `deleteItem(col)` | **JWT required** — delete item by ID |
-| POST | `/api/v1/admin/login` | `loginController` | None — bcrypt compare + JWT sign |
+| POST | `/api/v1/ps-portfolio/admin/login` | `loginController` | None — bcrypt compare + JWT sign |
+| POST | `/api/v1/ps-portfolio/admin/ingest` | `ingestController` | **JWT required** — triggers `runIngestPipeline()` |
 
 **Response format (all GET endpoints):**
 

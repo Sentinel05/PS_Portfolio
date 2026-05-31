@@ -124,9 +124,37 @@ All of these must be set in `.env` locally and in the Render dashboard under **E
 
 ## Ingestion Script: scripts/ingest.js
 
-**Run with:** `npm run ingest` (or `scripts\ingest.bat` on Windows)
+**Run with:** `npm run ingest` (or `scripts\ingest.bat` on Windows), or trigger via the Admin Portal.
 
 **When to run:** Once initially, and again whenever MongoDB portfolio content changes.
+
+### Running ingestion
+
+**Option 1 — CLI:**
+```
+npm run ingest
+```
+
+**Option 2 — Admin Portal (no CLI needed):**
+Log in to the Admin Portal (`/admin/portfolio`). Click the **Re-Ingest** button in the top bar. The button shows a spinning icon while the pipeline runs, turns green on success, and red on failure (auto-resets after 4 s). Internally this calls `POST /api/v1/ps-portfolio/admin/ingest` (JWT-protected).
+
+### Architecture
+
+`scripts/ingest.js` exports `runIngestPipeline()` — a pure async function that does NOT call `mongoose.connect`, `mongoose.disconnect`, or `process.exit`. This makes it safe to call from within a running Express server.
+
+When run directly (`node scripts/ingest.js` / `npm run ingest`), the `require.main === module` guard wraps it:
+```js
+if (require.main === module) {
+  (async () => {
+    await mongoose.connect(process.env.MONGO_URI);
+    await runIngestPipeline();
+    await mongoose.disconnect();
+    process.exit(0);
+  })();
+}
+```
+
+When called from Express (via `adminController.ingestController`), `mongoose` is already connected and the server keeps running.
 
 ### What it ingests
 

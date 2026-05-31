@@ -39,7 +39,7 @@
 | `@google/generative-ai` | ^0.24.0 | Google Gemini SDK — direct embeddings (`gemini-embedding-2`) + chat (`gemini-2.5-flash`) |
 | `@pinecone-database/pinecone` | ^7.2.0 | Pinecone vector DB client — upsert and query vectors |
 
-**Current API base:** `/api/v1/ps-portfolio` — public GET endpoints + protected POST/PUT/DELETE CRUD + `POST /chat` (RAG chatbot) + `POST /visits` (guest log) + `GET /visits` (admin only). Admin auth routes mounted at `/api/v1/admin` (`POST /login`).
+**Current API base:** `/api/v1/ps-portfolio` — public GET endpoints + protected POST/PUT/DELETE CRUD + `POST /chat` (RAG chatbot) + `POST /visits` (guest log) + `GET /visits` (admin only). Admin auth + ingest routes mounted at `/api/v1/ps-portfolio/admin` (`POST /login`, `POST /ingest`).
 
 **Entry point:** `server.js` — Express app; connects to MongoDB Atlas on startup via Mongoose, serves the React production build as static files, and exposes the REST API.
 
@@ -61,7 +61,8 @@ Portfolio/
 ├── data/
 │   └── seed.js            # Wipes + repopulates all 6 collections (educations, works, projects, skills, certifications, and admin stays from env)
 ├── routes/
-│   └── portfolioRoutes.js # API route definitions (includes /chat, /visits)
+│   ├── portfolioRoutes.js # API route definitions (includes /chat, /visits)
+│   └── adminRoutes.js     # POST /login → JWT sign; POST /ingest → runIngestPipeline (JWT-protected)
 ├── controllers/
 │   ├── portfolioController.js  # Route handler logic (5 GET + sendEmail via Resend)
 │   └── chatController.js       # RAG chatbot: embed → Pinecone query → Gemini LLM
@@ -199,7 +200,8 @@ visits         — name, visitedAt                                              
 │  POST /visits  → log guest visit (public) ✅        │
 │  GET  /visits  → visitor list (admin JWT) ✅        │
 │  POST/PUT/DELETE /:col/:id → protected CRUD ✅      │
-│  /api/v1/admin/login → bcrypt + JWT sign ✅         │
+│  /api/v1/ps-portfolio/admin/login → bcrypt + JWT ✅ │
+│  /api/v1/ps-portfolio/admin/ingest → re-embed ✅    │
 └──────┬──────────────────────┬────────────────────────┘
        │                      │
 ┌──────▼──────┐      ┌────────▼───────────────────────┐
@@ -228,9 +230,13 @@ visits         — name, visitedAt                                              
 
 ---
 
-## Future Goals / Backlog
+## Roadmap
 
-### Quick Wins
+#### Goal 1 — Chatbot (Visitor Q&A) ✅ Complete
+See **Implemented Features → Goal 1** above.
+
+#### Goal 2 — Admin CMS (Edit website without touching code) ✅ Complete
+See **Implemented Features → Goal 2** above.
 
 #### Goal 3 — API Rate Limiting ✅ Complete
 `express-rate-limit` middleware is applied directly on the two abuse-prone routes in `portfolioRoutes.js`. `/chat` is limited to **10 requests per minute per IP**; `/sendEmail` is limited to **5 requests per hour per IP**. Both return a clear JSON error message on `429`. `app.set("trust proxy", 1)` is set in `server.js` so Render's reverse proxy forwards the real client IP correctly.
@@ -240,10 +246,6 @@ Add `<title>`, `<meta name="description">`, and Open Graph tags (`og:title`, `og
 
 #### Goal 5 — Custom Favicon ⬜ Planned
 Replace the default Create React App favicon with a custom branded one in `client/public/`.
-
----
-
-### Medium Effort
 
 #### Goal 6 — Deployment to Render ⬜ Planned
 Deploy the production build to Render (or similar). The `start.bat` / build pipeline is already in place. A live public URL is required for the portfolio to have real-world impact.
@@ -257,10 +259,6 @@ Add a GitHub Actions workflow that runs `npm run build` on every push to `main`,
 #### Goal 9 — Dynamic Resume Generation ⬜ Planned
 Instead of a static PDF, generate a live resume from current MongoDB data on demand. Options: `pdfkit` (pure Node.js) or Puppeteer screenshot of a `/resume` route. Would always reflect the latest content without re-uploading a PDF.
 
----
-
-### Feature Additions
-
 #### Goal 10 — Blog / Articles Section ⬜ Planned
 Add a `Post` MongoDB collection (`title`, `body` in Markdown, `tags`, `publishedAt`, `order`). Render posts as a new `/blog` route in the public portfolio. Significant SEO value and gives the chatbot more content to discuss.
 
@@ -273,10 +271,6 @@ Add a "Clear chat" / reset button to the chatbot panel UI. Currently there is no
 #### Goal 13 — Visitor Geolocation in Analytics ✅ Complete
 On guest visit log (`POST /api/v1/ps-portfolio/visits`), the server resolves approximate country, city, and country code from the request IP using **ip-api.com** (free tier, no key required, HTTP only, 45 req/min). The real client IP is extracted from the `x-forwarded-for` header (set by Render's proxy) and the IPv6 loopback prefix is stripped. Geo fields (`country`, `city`, `countryCode`) are stored in the `Visit` MongoDB document. The admin dashboard now shows a **"Visitors by Country"** breakdown panel with flag emoji, country name, a proportional bar, and visit count. The visitor table also has a new **Location** column showing city + country per row. A **Visitor World Map** (`react-simple-maps`, SVG choropleth) is rendered full-width in the dashboard — countries are coloured indigo→cyan by visit intensity and reveal a hover tooltip with country name, visit count, and visitor names.
 
----
-
-### Polish
-
 #### Goal 14 — Accessibility Audit ✅ Complete
 Audited all interactive elements: `ConfirmModal` in the admin portal now has `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, Escape-key dismiss, backdrop-click dismiss, and auto-focuses the Cancel button on open. All `Field` form inputs now have `id` attributes matched to their `<label htmlFor>`. The chatbot figure button already had `role="button"`, `tabIndex`, `aria-label`, and an `onKeyDown` Enter handler. Added `focus-visible` outline styles to the 404 back button.
 
@@ -285,3 +279,6 @@ Added `client/src/pages/notFound/NotFound.js` with a styled 404 component (gradi
 
 #### Goal 16 — Loading Skeletons ✅ Complete
 All five data-fetching section pages (Educations, Works, Skills, Certifications, Projects) now have a `loading` state (initialised `true`, cleared in `.finally()`). While loading, each renders shimmer skeleton placeholders that mirror the real content shape. Shared shimmer animation (`skeleton-shimmer` keyframe) and all skeleton utility classes live in `index.css`.
+
+#### Goal 17 — Mobile Responsive Fixes ✅ Complete
+Eliminated all horizontal scroll on mobile. Added `overflow-x: hidden` to `html` and `body` in `index.css`. Replaced the broken chatbot panel mobile offset (`right: -16px`) with `position: fixed; left: 8px; right: 8px` so it is always viewport-anchored. Added `overflow-x: hidden` to the Education and Work sections to contain `react-vertical-timeline-component` overflow. On Admin Portal at ≤ 480px, only the Logout button is shown in the topbar (Re-Ingest and View Public Site are accessible from the sidebar instead). The confirm modal now gets `margin: 0 1rem` on mobile so it never bleeds off-screen.
