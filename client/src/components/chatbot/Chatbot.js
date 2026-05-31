@@ -182,7 +182,7 @@ const Chatbot = () => {
         <div className="chatbot__header">
           <img src={Avatar} alt="AI Avatar" className="chatbot__header-avatar" />
           <div className="chatbot__header-info">
-            <span className="chatbot__header-name">Priyanshu's AI</span>
+            <span className="chatbot__header-name">Priyanshu's AI Assistant</span>
             <span className="chatbot__header-status">
               <span className="chatbot__status-dot" />
               Online
