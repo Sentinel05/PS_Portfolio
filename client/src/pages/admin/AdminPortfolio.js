@@ -13,7 +13,7 @@ import { FcHome, FcAbout, FcContacts } from "react-icons/fc"; // eslint-disable-
 import Pic from "../../assets/images/cool-dp.jpg";
 import "./AdminPortfolio.css";
 
-// â”€â”€ Auth fetch helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Auth fetch helper ─────────────────────────────────────────────────────────
 const useApi = (token) =>
   useCallback(
     (url, opts = {}) =>
@@ -28,7 +28,7 @@ const useApi = (token) =>
     [token]
   );
 
-// â”€â”€ Confirm modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Confirm modal ─────────────────────────────────────────────────────────────
 const ConfirmModal = ({ message, onConfirm, onCancel }) => (
   <div className="ap-overlay">
     <div className="ap-modal">
@@ -41,11 +41,11 @@ const ConfirmModal = ({ message, onConfirm, onCancel }) => (
   </div>
 );
 
-// â”€â”€ Flash banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Flash banner ──────────────────────────────────────────────────────────────
 const Flash = ({ msg }) =>
   msg ? <div className="ap-flash"><FiCheck /> {msg}</div> : null;
 
-// â”€â”€ Generic field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Generic field ─────────────────────────────────────────────────────────────
 const Field = ({ label, name, value, onChange, type = "text", as, options, placeholder }) => (
   <div className="ap-field">
     <label className="ap-field__label" htmlFor={`field-${name}`}>{label}</label>
@@ -54,7 +54,7 @@ const Field = ({ label, name, value, onChange, type = "text", as, options, place
         rows={3} placeholder={placeholder} />
     ) : as === "select" ? (
       <select id={`field-${name}`} className="ap-field__input" name={name} value={value} onChange={onChange}>
-        <option value="">â€” select icon â€”</option>
+        <option value="">— select icon —</option>
         {options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
     ) : (
@@ -64,10 +64,10 @@ const Field = ({ label, name, value, onChange, type = "text", as, options, place
   </div>
 );
 
-// â”€â”€ fc helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── fc helper ─────────────────────────────────────────────────────────────────
 const fc = (setter) => (e) => setter((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-// â”€â”€ EDUCATION SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── EDUCATION SECTION ─────────────────────────────────────────────────────────
 const EDU_BLANK = { date: "", title: "", school: "", location: "", grade: "", order: 0 };
 
 const EducationsSection = ({ authFetch }) => {
@@ -186,7 +186,7 @@ const EducationsSection = ({ authFetch }) => {
               </div>
               <span className="ap-card__date">{item.date}</span>
               <h3 className="ap-card__title">{item.title}</h3>
-              <p className="ap-card__meta">{item.school} Â· {item.location}</p>
+              <p className="ap-card__meta">{item.school} · {item.location}</p>
               <span className="ap-card__grade">{item.grade}</span>
             </div>
           )
@@ -196,7 +196,7 @@ const EducationsSection = ({ authFetch }) => {
   );
 };
 
-// â”€â”€ WORK SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── WORK SECTION ──────────────────────────────────────────────────────────────
 const WORK_BLANK = { date: "", title: "", company: "", location: "", desc: "", order: 0 };
 
 const WorksSection = ({ authFetch }) => {
@@ -315,7 +315,7 @@ const WorksSection = ({ authFetch }) => {
               </div>
               <span className="ap-card__date">{item.date}</span>
               <h3 className="ap-card__title">{item.title}</h3>
-              <p className="ap-card__meta">{item.company} Â· {item.location}</p>
+              <p className="ap-card__meta">{item.company} · {item.location}</p>
               <p className="ap-card__desc">{item.desc}</p>
             </div>
           )
@@ -325,7 +325,7 @@ const WorksSection = ({ authFetch }) => {
   );
 };
 
-// â”€â”€ SKILLS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── SKILLS SECTION ────────────────────────────────────────────────────────────
 const SKILL_CATEGORIES = ["Languages", "Frontend", "Frameworks & Libraries", "Databases", "DevOps", "Tools"];
 const SKILL_BLANK = { name: "", iconName: "", category: "", order: 0 };
 const iconNames = Object.keys(iconRegistry);
@@ -472,7 +472,7 @@ const SkillsSection = ({ authFetch }) => {
   );
 };
 
-// â”€â”€ PROJECTS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── PROJECTS SECTION ──────────────────────────────────────────────────────────
 const PROJ_BLANK = { imageKey: "", type: "", typeColor: "#7c3aed", tags: "", title: "", desc: "", link: "", order: 0 };
 
 const ProjectsSection = ({ authFetch }) => {
@@ -620,7 +620,7 @@ const ProjectsSection = ({ authFetch }) => {
   );
 };
 
-// â”€â”€ CERTIFICATIONS SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── CERTIFICATIONS SECTION ───────────────────────────────────────────────────
 const CERT_BLANK = { title: "", issuer: "", date: "", link: "", order: 0 };
 
 const CertificationsSection = ({ authFetch }) => {
@@ -749,7 +749,7 @@ const CertificationsSection = ({ authFetch }) => {
   );
 };
 
-// â”€â”€ DASHBOARD SECTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── DASHBOARD SECTION ─────────────────────────────────────────────────────────
 const VIS_PAGE_SIZE = 10;
 
 // Reusable SVG bar chart
@@ -839,7 +839,7 @@ const DashboardSection = ({ authFetch }) => {
 
   const fmt = (iso) => new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 
-  // â”€â”€ Derived visitor stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Derived visitor stats ─────────────────────────────────────────────────
   const nameCounts = {};
   visits.forEach((v) => {
     const k = v.name.toLowerCase();
@@ -896,7 +896,7 @@ const DashboardSection = ({ authFetch }) => {
   });
   const maxMonth = Math.max(...monthBuckets.map((b) => b.count), 1);
 
-  // â”€â”€ Filter + sort + paginate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Filter + sort + paginate ──────────────────────────────────────────────
   const filtered = visits.filter((v) => v.name.toLowerCase().includes(filter.toLowerCase()));
   const sorted = [...filtered].sort((a, b) => {
     if (sortKey === "name") return sortDir === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
@@ -929,7 +929,7 @@ const DashboardSection = ({ authFetch }) => {
         <button className="ap-btn ap-btn--ghost ap-btn--sm" onClick={load}>Refresh</button>
       </div>
 
-      {/* â”€â”€ Visitor stat cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Visitor stat cards ──────────────────────────────────────────────── */}
       <div className="ap-dash-stats">
         {[
           { label: "Total Visits",    num: total,          color: "cyan"   },
@@ -948,7 +948,7 @@ const DashboardSection = ({ authFetch }) => {
         ))}
       </div>
 
-      {/* â”€â”€ Content count cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Content count cards ─────────────────────────────────────────────── */}
       <div className="ap-dash-content-counts">
         {[
           { label: "Projects",       key: "projects",       Icon: IoConstruct,    color: "cyan"   },
@@ -965,18 +965,18 @@ const DashboardSection = ({ authFetch }) => {
         ))}
       </div>
 
-      {/* â”€â”€ Charts row (3 columns) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Charts row (3 columns) ──────────────────────────────────────────── */}
       <div className="ap-dash-charts-row">
         {/* Daily chart */}
         <div className="ap-dash-chart-wrap">
-          <p className="ap-dash-chart-label">Daily Visits Â· last 14 days</p>
+          <p className="ap-dash-chart-label">Daily Visits · last 14 days</p>
           <BarChart buckets={dayBuckets} maxVal={maxDay14} gradId="apvg-daily"
             gradFrom="#06b6d4" gradTo="#7c3aed" skipEvery={2} />
         </div>
 
         {/* Monthly chart */}
         <div className="ap-dash-chart-wrap">
-          <p className="ap-dash-chart-label">Monthly Trend Â· last 6 months</p>
+          <p className="ap-dash-chart-label">Monthly Trend · last 6 months</p>
           <BarChart buckets={monthBuckets} maxVal={maxMonth} gradId="apvg-monthly"
             gradFrom="#a78bfa" gradTo="#ec4899" skipEvery={1} />
         </div>
@@ -1010,14 +1010,14 @@ const DashboardSection = ({ authFetch }) => {
         </div>
       </div>
 
-      {/* â”€â”€ Day of week â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Day of week ─────────────────────────────────────────────────────── */}
       <div className="ap-dash-chart-wrap ap-dash-chart-wrap--full">
         <p className="ap-dash-chart-label">Visits by Day of Week</p>
         <BarChart buckets={dowBuckets} maxVal={maxDay} gradId="apvg-dow"
           gradFrom="#f97316" gradTo="#ec4899" skipEvery={1} height={150} />
       </div>
 
-      {/* â”€â”€ Visitor table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Visitor table ────────────────────────────────────────────────────── */}
       
 
       {/* Country breakdown */}
@@ -1040,7 +1040,7 @@ const DashboardSection = ({ authFetch }) => {
               {sorted.map(([country, { count, code }]) => (
                 <div key={country} className="ap-geo-row">
                   <span className="ap-geo-flag">
-                    {code ? String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e0 + c.charCodeAt(0) - 65)) : "?"}
+                    {code ? String.fromCodePoint(...[...code.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65)) : "?"}
                   </span>
                   <span className="ap-geo-name">{country}</span>
                   <div className="ap-geo-bar-wrap">
@@ -1101,7 +1101,7 @@ const DashboardSection = ({ authFetch }) => {
                         {v.country ? (
                           <span className="ap-geo-inline">
                             {v.countryCode
-                              ? String.fromCodePoint(...[...v.countryCode.toUpperCase()].map((c) => 0x1f1e0 + c.charCodeAt(0) - 65))
+                              ? String.fromCodePoint(...[...v.countryCode.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
                               : null}{" "}
                             {v.city ? `${v.city}, ` : ""}{v.country}
                           </span>
@@ -1128,7 +1128,7 @@ const DashboardSection = ({ authFetch }) => {
   );
 };
 
-// â”€â”€ MAIN ADMIN PORTFOLIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── MAIN ADMIN PORTFOLIO ──────────────────────────────────────────────────────
 const navItems = [
   { id: "dashboard-section", label: "Dashboard", Icon: MdDashboard },
   { id: "edu-section", label: "Education", Icon: GiGraduateCap },
@@ -1153,13 +1153,13 @@ const AdminPortfolio = () => {
 
   return (
     <div className="ap-root">
-      {/* â”€â”€ Top admin bar â”€â”€ */}
+      {/* ── Top admin bar ── */}
       <header className="ap-topbar">
         <div className="ap-topbar__left">
           <button className="ap-topbar__burger" onClick={() => setSidebarOpen((p) => !p)} aria-label="Toggle nav">
-            â˜°
+            ☰
           </button>
-          <span className="ap-topbar__badge">âš™ Admin Mode</span>
+          <span className="ap-topbar__badge">⚙ Admin Mode</span>
         </div>
         <div className="ap-topbar__right">
           <a href="/portfolio" target="_blank" rel="noreferrer" className="ap-btn ap-btn--ghost ap-btn--sm">
@@ -1175,7 +1175,7 @@ const AdminPortfolio = () => {
       {sidebarOpen && <div className="ap-sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
 
       <div className="ap-layout">
-        {/* â”€â”€ Sidebar â”€â”€ */}
+        {/* ── Sidebar ── */}
         <aside className={`ap-sidebar ${sidebarOpen ? "ap-sidebar--open" : ""}`}>
           <div className="ap-sidebar__profile">
             <img src={Pic} alt="Priyanshu" className="ap-sidebar__pic" />
@@ -1208,7 +1208,7 @@ const AdminPortfolio = () => {
           </div>
         </aside>
 
-        {/* â”€â”€ Main content â”€â”€ */}
+        {/* ── Main content ── */}
         <main className="ap-main">
           <DashboardSection authFetch={authFetch} />
           <EducationsSection authFetch={authFetch} />
