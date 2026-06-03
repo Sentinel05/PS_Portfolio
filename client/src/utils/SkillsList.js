@@ -18,6 +18,9 @@ import {
   SiGit,
   SiGitlab,
   SiC,
+  SiBootstrap,
+  SiMongoose,
+  SiRender,
 } from "react-icons/si";
 import {
   TbBrandCpp,
@@ -25,6 +28,7 @@ import {
   TbHtml,
   TbSql,
   TbApi,
+  TbVectorTriangle,
 } from "react-icons/tb";
 import { BiSolidFileCss } from "react-icons/bi";
 import {
@@ -60,11 +64,15 @@ export const iconRegistry = {
   SiGit,
   SiGitlab,
   SiC,
+  SiBootstrap,
+  SiMongoose,
+  SiRender,
   TbBrandCpp,
   TbBrandVisualStudio,
   TbHtml,
   TbSql,
   TbApi,
+  TbVectorTriangle,
   BiSolidFileCss,
   FaJava,
   FaPython,
