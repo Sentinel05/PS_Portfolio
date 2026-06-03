@@ -7,6 +7,8 @@ const {
   getProjectsController,
   getSkillsController,
   getCertificationsController,
+  getAboutController,
+  updateAboutController,
 } = require("../controllers/portfolioController");
 const { chatController } = require("../controllers/chatController");
 const { createItem, updateItem, deleteItem } = require("../controllers/crudController");
@@ -35,6 +37,7 @@ const emailLimiter = rateLimit({
 
 // Public routes
 router.post("/sendEmail", emailLimiter, sendEmailController);
+router.get("/about", getAboutController);
 router.get("/educations", getEducationsController);
 router.get("/works", getWorksController);
 router.get("/projects", getProjectsController);
@@ -106,6 +109,9 @@ collections.forEach((col) => {
   router.put(`/${col}/:id`, authMiddleware, updateItem(col));
   router.delete(`/${col}/:id`, authMiddleware, deleteItem(col));
 });
+
+// About singleton (protected update)
+router.put("/about", authMiddleware, updateAboutController);
 
 //export
 module.exports = router;

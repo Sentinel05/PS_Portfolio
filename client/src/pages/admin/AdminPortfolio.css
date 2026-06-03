@@ -494,6 +494,22 @@
 
 .ap-card--edu { border-left: 3px solid var(--ap-purple); }
 .ap-card--work { border-left: 3px solid var(--ap-cyan); }
+.ap-card--about { border-left: 3px solid var(--ap-green); width: 100%; }
+
+.ap-about-para-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+.ap-about-para-row .ap-field__input { flex: 1; }
+.ap-about-add-para { margin: 0.25rem 0 0.75rem; }
+.ap-about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
 
 .ap-card__controls {
   position: absolute;

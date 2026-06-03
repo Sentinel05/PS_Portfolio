@@ -9,7 +9,7 @@ import { GiGraduateCap } from "react-icons/gi";
 import { MdWork, MdMilitaryTech, MdDashboard } from "react-icons/md";
 import { PiCertificateBold } from "react-icons/pi";
 import { IoConstruct } from "react-icons/io5";
-import { FcHome, FcAbout, FcContacts } from "react-icons/fc"; // eslint-disable-line no-unused-vars
+import { FcAbout } from "react-icons/fc";
 import Pic from "../../assets/images/cool-dp.jpg";
 import VisitorMap from "../../components/visitorMap/VisitorMap";
 import "./AdminPortfolio.css";
@@ -750,6 +750,140 @@ const CertificationsSection = ({ authFetch }) => {
   );
 };
 
+// ── ABOUT SECTION (singleton) ───────────────────────────────────────────────
+const ABOUT_DEFAULT_PARAGRAPHS = [
+  "I am a Software Engineer at OpenText, developing and enhancing integrational features for Data Protector — enabling enterprises to protect critical environments like SAP HANA, VMware, Documentum and Windows Defender. My role combines innovation with customer focus, ensuring complex incidents are resolved with efficiency and precision.",
+  "I thrive on solving technical challenges, optimising system performance, and creating solutions that directly impact enterprise reliability and customer trust.",
+];
+const ABOUT_DEFAULT_TAGS = ["TypeScript", "C++", "Angular", "React", "REST APIs", "Data Protector"];
+
+const AboutSection = ({ authFetch }) => {
+  const [about, setAbout] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ paragraphs: [""], tags: "" });
+  const [msg, setMsg] = useState("");
+
+  const load = useCallback(async () => {
+    const res = await fetch("/api/v1/ps-portfolio/about");
+    const json = await res.json();
+    if (json.success) setAbout(json.data);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const flash = (t) => { setMsg(t); setTimeout(() => setMsg(""), 3000); };
+
+  // Effective content: DB data if present, otherwise public-page defaults
+  const effectiveParagraphs = about?.paragraphs?.length ? about.paragraphs : ABOUT_DEFAULT_PARAGRAPHS;
+  const effectiveTags = about?.tags?.length ? about.tags : ABOUT_DEFAULT_TAGS;
+
+  const startEdit = () => {
+    setForm({
+      paragraphs: [...effectiveParagraphs],
+      tags: effectiveTags.join(", "),
+    });
+    setEditing(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const payload = {
+      paragraphs: form.paragraphs.filter((p) => p.trim()),
+      tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+    };
+    const res = await authFetch("/api/v1/ps-portfolio/about", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (json.success) { setEditing(false); load(); flash("About updated."); }
+    else flash(json.message || "Failed to update");
+  };
+
+  const updatePara = (i, val) =>
+    setForm((p) => { const ps = [...p.paragraphs]; ps[i] = val; return { ...p, paragraphs: ps }; });
+
+  const addPara = () =>
+    setForm((p) => ({ ...p, paragraphs: [...p.paragraphs, ""] }));
+
+  const removePara = (i) =>
+    setForm((p) => ({ ...p, paragraphs: p.paragraphs.filter((_, idx) => idx !== i) }));
+
+  return (
+    <section className="ap-section" id="about-section">
+      <Flash msg={msg} />
+
+      <div className="ap-section__header">
+        <div className="ap-section__title-row">
+          <FcAbout className="ap-section__icon" />
+          <h2 className="ap-section__title">About</h2>
+          <hr className="ap-section__rule" />
+          <p className="ap-section__sub">Personal bio and tech tags</p>
+        </div>
+        {!editing && (
+          <button className="ap-btn ap-btn--add" onClick={startEdit}>
+            <FiEdit2 /> Edit About
+          </button>
+        )}
+      </div>
+
+      {editing ? (
+        <form className="ap-form" onSubmit={handleSave}>
+          <h3 className="ap-form__heading">Edit About</h3>
+          {form.paragraphs.map((p, i) => (
+            <div className="ap-field" key={i}>
+              <label className="ap-field__label">Paragraph {i + 1}</label>
+              <div className="ap-about-para-row">
+                <textarea
+                  className="ap-field__input"
+                  value={p}
+                  onChange={(e) => updatePara(i, e.target.value)}
+                  rows={3}
+                />
+                {form.paragraphs.length > 1 && (
+                  <button type="button" className="ap-icon-btn ap-icon-btn--del" onClick={() => removePara(i)}>
+                    <FiX />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          <button type="button" className="ap-btn ap-btn--ghost ap-btn--sm ap-about-add-para" onClick={addPara}>
+            <FiPlus /> Add Paragraph
+          </button>
+          <Field
+            label="Tags (comma-separated)"
+            name="tags"
+            value={form.tags}
+            onChange={(e) => setForm((p) => ({ ...p, tags: e.target.value }))}
+            placeholder="TypeScript, React, Node.js…"
+          />
+          <div className="ap-form__actions">
+            <button className="ap-btn ap-btn--primary" type="submit">Save Changes</button>
+            <button className="ap-btn ap-btn--ghost" type="button" onClick={() => setEditing(false)}>Cancel</button>
+          </div>
+        </form>
+      ) : (
+        <div className="ap-card ap-card--about">
+          {effectiveParagraphs.map((p, i) => (
+            <p key={i} className="ap-card__desc">{p}</p>
+          ))}
+          <div className="ap-about-tags">
+            {effectiveTags.map((tag) => (
+              <span key={tag} className="ap-card__date">{tag}</span>
+            ))}
+          </div>
+          {!about?.paragraphs?.length && (
+            <p className="ap-dash-chart-sub" style={{ marginTop: "0.75rem" }}>
+              Showing defaults — click Edit About to customise and save to the database.
+            </p>
+          )}
+        </div>
+      )}
+    </section>
+  );
+};
+
 // ── DASHBOARD SECTION ─────────────────────────────────────────────────────────
 const VIS_PAGE_SIZE = 10;
 
@@ -1146,6 +1280,7 @@ const DashboardSection = ({ authFetch }) => {
 // ── MAIN ADMIN PORTFOLIO ──────────────────────────────────────────────────────
 const navItems = [
   { id: "dashboard-section", label: "Dashboard", Icon: MdDashboard },
+  { id: "about-section", label: "About", Icon: FcAbout },
   { id: "edu-section", label: "Education", Icon: GiGraduateCap },
   { id: "work-section", label: "Work", Icon: MdWork },
   { id: "skills-section", label: "Skills", Icon: MdMilitaryTech },
@@ -1229,7 +1364,6 @@ const AdminPortfolio = () => {
             <img src={Pic} alt="Priyanshu" className="ap-sidebar__pic" />
             <div>
               <p className="ap-sidebar__name">Priyanshu</p>
-              <p className="ap-sidebar__role">Admin Portal</p>
             </div>
           </div>
 
@@ -1259,6 +1393,7 @@ const AdminPortfolio = () => {
         {/* ── Main content ── */}
         <main className="ap-main">
           <DashboardSection authFetch={authFetch} />
+          <AboutSection authFetch={authFetch} />
           <EducationsSection authFetch={authFetch} />
           <WorksSection authFetch={authFetch} />
           <SkillsSection authFetch={authFetch} />

@@ -49,6 +49,20 @@
   text-align: center;
 }
 
+.profile-role {
+  display: inline-block;
+}
+
+.profile-quote {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  line-height: 1.45;
+  margin-top: 0.3rem;
+  padding: 0 0.5rem;
+}
+
 .profile-actions {
   display: flex;
   gap: 0.5rem;

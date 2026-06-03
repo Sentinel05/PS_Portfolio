@@ -1,8 +1,6 @@
 import React from "react";
 import { useTheme } from "../../context/ThemeContext";
 import "./Home.css";
-import Typewriter from "typewriter-effect";
-import Resume from "../../assets/documents/Priyanshu_Sarkar.pdf";
 import { BsFillMoonStarsFill, BsFillSunFill } from "react-icons/bs";
 import Pic from "../../assets/images/cool-dp.jpg";
 import { motion } from "framer-motion";
@@ -33,30 +31,7 @@ const Home = ({ expanded }) => {
           transition={{ delay: 0.2, duration: 0.4 }}
         >
           <h3 className="profile-name">Priyanshu</h3>
-          <div className="profile-typewriter">
-            <Typewriter
-              options={{
-                strings: ["Developer", "Engineer", "Gamer", "Athlete"],
-                autoStart: true,
-                loop: true,
-                deleteSpeed: 40,
-                delay: 60,
-              }}
-            />
-          </div>
-          <div className="profile-actions">
-            <a
-              className="btn-primary-sm"
-              href="https://api.whatsapp.com/send?phone=7904953079"
-              rel="noreferrer"
-              target="_blank"
-            >
-              Hire Me
-            </a>
-            <a className="btn-outline-sm" href={Resume} download="Priyanshu_Resume.pdf">
-              Resume
-            </a>
-          </div>
+          <p className="profile-quote">Turning complex systems into reliable solutions.</p>
         </motion.div>
       )}
 

@@ -376,6 +376,24 @@
   margin: 0.5rem 0;
 }
 
+/* ── About section ───────────────────────────────────────────────────────────  */
+.adm-about-para-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.adm-about-para-row .adm-field__input {
+  flex: 1;
+}
+
+.adm-about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
 /* ── Confirmation modal ──────────────────────────────────────────────────────  */
 .adm-modal-overlay {
   position: fixed;

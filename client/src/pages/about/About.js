@@ -1,9 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./About.css";
 import Pic from "../../assets/images/Priyanshu.jpeg";
 import { motion } from "framer-motion";
 
+const DEFAULT_PARAGRAPHS = [
+  "I am a Software Engineer at OpenText, developing and enhancing integrational features for Data Protector — enabling enterprises to protect critical environments like SAP HANA, VMware, Documentum and Windows Defender. My role combines innovation with customer focus, ensuring complex incidents are resolved with efficiency and precision.",
+  "I thrive on solving technical challenges, optimising system performance, and creating solutions that directly impact enterprise reliability and customer trust.",
+];
+const DEFAULT_TAGS = ["TypeScript", "C++", "Angular", "React", "REST APIs", "Data Protector"];
+
 const About = () => {
+  const [paragraphs, setParagraphs] = useState(DEFAULT_PARAGRAPHS);
+  const [tags, setTags] = useState(DEFAULT_TAGS);
+
+  useEffect(() => {
+    fetch("/api/v1/ps-portfolio/about")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          if (json.data.paragraphs?.length) setParagraphs(json.data.paragraphs);
+          if (json.data.tags?.length) setTags(json.data.tags);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="about" id="about">
       <motion.div
@@ -33,19 +54,11 @@ const About = () => {
         >
           <h2 className="about__title">About Me</h2>
           <hr className="section-divider" style={{ margin: "0.75rem 0 1.25rem" }} />
-          <p className="about__text">
-            I am a <strong>Software Engineer at OpenText</strong>, developing and enhancing
-            integrational features for Data Protector — enabling enterprises to protect critical
-            environments like SAP HANA, VMware, Documentum and Windows Defender. My role
-            combines innovation with customer focus, ensuring complex incidents are resolved
-            with efficiency and precision.
-          </p>
-          <p className="about__text">
-            I thrive on solving technical challenges, optimising system performance, and creating
-            solutions that directly impact enterprise reliability and customer trust.
-          </p>
+          {paragraphs.map((p, i) => (
+            <p key={i} className="about__text">{p}</p>
+          ))}
           <div className="about__tags">
-            {["TypeScript", "C++", "Angular", "React", "REST APIs", "Data Protector"].map((tag) => (
+            {tags.map((tag) => (
               <span key={tag} className="about__tag">{tag}</span>
             ))}
           </div>

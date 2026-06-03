@@ -584,8 +584,126 @@ const SkillsSection = ({ authFetch }) => {
   );
 };
 
+// ── ABOUT section (singleton) ─────────────────────────────────────────────────
+const ABOUT_DEFAULT = { paragraphs: [""], tags: "" };
+
+const AboutSection = ({ authFetch }) => {
+  const [about, setAbout] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState(ABOUT_DEFAULT);
+  const [msg, setMsg] = useState("");
+
+  const load = useCallback(async () => {
+    const res = await fetch("/api/v1/ps-portfolio/about");
+    const json = await res.json();
+    if (json.success) setAbout(json.data);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const flash = (text) => { setMsg(text); setTimeout(() => setMsg(""), 3000); };
+
+  const startEdit = () => {
+    setForm({
+      paragraphs: about?.paragraphs?.length ? [...about.paragraphs] : [""],
+      tags: about?.tags?.join(", ") ?? "",
+    });
+    setEditing(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const payload = {
+      paragraphs: form.paragraphs.filter((p) => p.trim()),
+      tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+    };
+    const res = await authFetch("/api/v1/ps-portfolio/about", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (json.success) { setEditing(false); load(); flash("About updated."); }
+    else flash(json.message || "Failed to update");
+  };
+
+  const updateParagraph = (i, val) =>
+    setForm((p) => { const ps = [...p.paragraphs]; ps[i] = val; return { ...p, paragraphs: ps }; });
+
+  const addParagraph = () =>
+    setForm((p) => ({ ...p, paragraphs: [...p.paragraphs, ""] }));
+
+  const removeParagraph = (i) =>
+    setForm((p) => ({ ...p, paragraphs: p.paragraphs.filter((_, idx) => idx !== i) }));
+
+  return (
+    <div className="adm-section">
+      {msg && <div className="adm-flash">{msg}</div>}
+
+      <div className="adm-section__header">
+        <h2 className="adm-section__title">About</h2>
+        {!editing && (
+          <button className="adm-btn adm-btn--primary" onClick={startEdit}>Edit</button>
+        )}
+      </div>
+
+      {editing ? (
+        <form className="adm-form" onSubmit={handleSave}>
+          <h3 className="adm-form__heading">Edit About</h3>
+          {form.paragraphs.map((p, i) => (
+            <div className="adm-field" key={i}>
+              <label className="adm-field__label">Paragraph {i + 1}</label>
+              <div className="adm-about-para-row">
+                <textarea
+                  className="adm-field__input"
+                  value={p}
+                  onChange={(e) => updateParagraph(i, e.target.value)}
+                  rows={3}
+                />
+                {form.paragraphs.length > 1 && (
+                  <button type="button" className="adm-btn adm-btn--sm adm-btn--danger-ghost" onClick={() => removeParagraph(i)}>✕</button>
+                )}
+              </div>
+            </div>
+          ))}
+          <button type="button" className="adm-btn adm-btn--ghost adm-btn--sm" style={{ marginBottom: "1rem" }} onClick={addParagraph}>+ Add Paragraph</button>
+          <Field
+            label="Tags (comma-separated)"
+            name="tags"
+            value={form.tags}
+            onChange={(e) => setForm((p) => ({ ...p, tags: e.target.value }))}
+            placeholder="TypeScript, React, Node.js…"
+          />
+          <div className="adm-form__actions">
+            <button className="adm-btn adm-btn--primary" type="submit">Save</button>
+            <button className="adm-btn adm-btn--ghost" type="button" onClick={() => setEditing(false)}>Cancel</button>
+          </div>
+        </form>
+      ) : (
+        <div className="adm-card">
+          <div className="adm-card__body">
+            {about?.paragraphs?.length ? (
+              <>
+                {about.paragraphs.map((p, i) => (
+                  <p key={i} className="adm-card__desc">{p}</p>
+                ))}
+                <div className="adm-about-tags">
+                  {about.tags?.map((tag) => (
+                    <span key={tag} className="adm-card__badge">{tag}</span>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="adm-empty">No about content yet. Click Edit to add.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── Main Dashboard ────────────────────────────────────────────────────────────
-const TABS = ["Educations", "Works", "Projects", "Skills"];
+const TABS = ["About", "Educations", "Works", "Projects", "Skills"];
 
 const AdminDashboard = () => {
   const { token, logout } = useAuth();
@@ -631,6 +749,7 @@ const AdminDashboard = () => {
 
       {/* Content */}
       <main className="adm-content">
+        {activeTab === "About" && <AboutSection authFetch={authFetch} />}
         {activeTab === "Educations" && <EducationsSection authFetch={authFetch} />}
         {activeTab === "Works" && <WorksSection authFetch={authFetch} />}
         {activeTab === "Projects" && <ProjectsSection authFetch={authFetch} />}

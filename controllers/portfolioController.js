@@ -3,6 +3,7 @@ const Work = require("../models/Work");
 const Project = require("../models/Project");
 const Skill = require("../models/Skill");
 const Certification = require("../models/Certification");
+const About = require("../models/About");
 const { Resend } = require("resend");
 
 const sendEmailController = async (req, res) => {
@@ -88,6 +89,32 @@ const getCertificationsController = async (req, res) => {
   }
 };
 
+const getAboutController = async (req, res) => {
+  try {
+    const data = await About.findOne();
+    return res.status(200).json({ success: true, data });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Failed to fetch about", error });
+  }
+};
+
+const updateAboutController = async (req, res) => {
+  try {
+    const { paragraphs, tags } = req.body;
+    let about = await About.findOne();
+    if (about) {
+      if (paragraphs !== undefined) about.paragraphs = paragraphs;
+      if (tags !== undefined) about.tags = tags;
+      await about.save();
+    } else {
+      about = await About.create({ paragraphs: paragraphs || [], tags: tags || [] });
+    }
+    return res.status(200).json({ success: true, data: about });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: "Failed to update about", error: error.message });
+  }
+};
+
 module.exports = {
   sendEmailController,
   getEducationsController,
@@ -95,4 +122,6 @@ module.exports = {
   getProjectsController,
   getSkillsController,
   getCertificationsController,
+  getAboutController,
+  updateAboutController,
 };
