@@ -1,6 +1,6 @@
 import React from "react";
 import "./About.css";
-import Pic from "../../assets/images/Priyanshu.jpg";
+import Pic from "../../assets/images/Priyanshu.jpeg";
 import { motion } from "framer-motion";
 
 const About = () => {

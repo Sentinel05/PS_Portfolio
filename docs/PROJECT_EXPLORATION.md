@@ -472,7 +472,7 @@ Set in `.env` at the project root (gitignored). On Render, set via the **Environ
 |---|---|---|
 | Full name | App.js, About.js, Home.js | Display |
 | Profile photo | `client/src/assets/images/cool-dp.jpg` | Image |
-| About photo | `client/src/assets/images/Priyanshu.jpg` | Image |
+| About photo | `client/src/assets/images/Priyanshu.jpeg` | Image |
 | Chatbot avatar | `client/src/assets/images/chatbot-avatar.png` | Image |
 | Resume PDF | `client/src/assets/documents/Priyanshu_Sarkar.pdf` | Document |
 | WhatsApp number | Home.js, Contact.js | Link |
