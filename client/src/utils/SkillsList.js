@@ -16,6 +16,7 @@ import {
   SiSwagger,
   SiFigma,
   SiGit,
+  SiGitlab,
   SiC,
 } from "react-icons/si";
 import {
@@ -32,7 +33,12 @@ import {
   FaAngular,
   FaReact,
   FaNodeJs,
+  FaGithub,
+  FaBrain,
+  FaKey,
+  FaProjectDiagram,
 } from "react-icons/fa";
+import { MdDesignServices } from "react-icons/md";
 
 export const iconRegistry = {
   SiTypescript,
@@ -52,6 +58,7 @@ export const iconRegistry = {
   SiSwagger,
   SiFigma,
   SiGit,
+  SiGitlab,
   SiC,
   TbBrandCpp,
   TbBrandVisualStudio,
@@ -64,4 +71,9 @@ export const iconRegistry = {
   FaAngular,
   FaReact,
   FaNodeJs,
+  FaGithub,
+  FaBrain,
+  FaKey,
+  FaProjectDiagram,
+  MdDesignServices,
 };

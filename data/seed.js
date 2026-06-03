@@ -130,13 +130,20 @@ const skills = [
   { name: "Kubernetes",        iconName: "SiKubernetes",        category: "DevOps",                 order: 21 },
   // Tools
   { name: "Git",               iconName: "SiGit",               category: "Tools",                  order: 22 },
-  { name: "VS Code",           iconName: "SiVscodium",          category: "Tools",                  order: 23 },
-  { name: "Visual Studio",     iconName: "TbBrandVisualStudio", category: "Tools",                  order: 24 },
-  { name: "Postman",           iconName: "SiPostman",           category: "Tools",                  order: 25 },
-  { name: "Swagger",           iconName: "SiSwagger",           category: "Tools",                  order: 26 },
-  { name: "Figma",             iconName: "SiFigma",             category: "Tools",                  order: 27 },
-  { name: "Jupyter Notebook",  iconName: "SiJupyter",           category: "Tools",                  order: 28 },
-  { name: "RESTful APIs",      iconName: "TbApi",               category: "Tools",                  order: 29 },
+  { name: "GitLab",            iconName: "SiGitlab",            category: "Tools",                  order: 23 },
+  { name: "GitHub",            iconName: "FaGithub",            category: "Tools",                  order: 24 },
+  { name: "VS Code",           iconName: "SiVscodium",          category: "Tools",                  order: 25 },
+  { name: "Postman",           iconName: "SiPostman",           category: "Tools",                  order: 26 },
+  { name: "Swagger",           iconName: "SiSwagger",           category: "Tools",                  order: 27 },
+  { name: "Figma",             iconName: "SiFigma",             category: "Tools",                  order: 28 },
+  { name: "Visual Studio",     iconName: "TbBrandVisualStudio", category: "Tools",                  order: 29 },
+  { name: "Jupyter Notebook",  iconName: "SiJupyter",           category: "Tools",                  order: 30 },
+  { name: "MongoDB Atlas",     iconName: "SiMongodb",           category: "Tools",                  order: 31 },
+  // Design & Architecture
+  { name: "System Design",     iconName: "FaProjectDiagram",   category: "Design & Architecture",  order: 32 },
+  { name: "UI/UX Design",      iconName: "MdDesignServices",   category: "Design & Architecture",  order: 33 },
+  { name: "RAG",               iconName: "FaBrain",            category: "Design & Architecture",  order: 34 },
+  { name: "JWT Authentication",iconName: "FaKey",              category: "Design & Architecture",  order: 35 },
 ];
 
 const certifications = [
