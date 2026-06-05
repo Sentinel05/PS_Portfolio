@@ -11,12 +11,14 @@
 | `react` | ^18.3.1 | Core UI library |
 | `react-dom` | ^18.3.1 | DOM rendering |
 | `react-scripts` | 5.0.1 | CRA build toolchain (dev server, bundler, linter) |
-| `react-router-dom` | ^6.x | Client-side routing: /, /portfolio/*, /admin/login, /admin |
+| `react-router-dom` | ^7.15.1 | Client-side routing: /, /portfolio/*, /admin/login, /admin |
 | `react-scroll` | ^1.9.0 | Smooth scroll navigation (menu links → sections) |
 | `react-vertical-timeline-component` | ^3.6.0 | Education and Work Experience timeline UI |
 | `react-icons` | ^5.2.1 | Icon library used across all components |
 | `framer-motion` | ^11.3.0 | Scroll-triggered animations on section headings |
 | `typewriter-effect` | ^2.21.0 | Animated typewriter text on Home page |
+| `react-simple-maps` | ^3.0.0 | World choropleth map in the analytics dashboard (admin) |
+| `react-scroll-to-top` | ^3.0.0 | Scroll-to-top button on the public portfolio page |
 | `@emailjs/browser` | ^4.3.3 | Installed but unused — email is now handled server-side via Resend |
 | `web-vitals` | ^4.2.0 | Core Web Vitals performance measurement |
 
@@ -33,7 +35,7 @@
 | `dotenv` | ^16.3.1 | Loads `.env` variables (port, secrets) |
 | `concurrently` | ^9.2.1 | Runs Express server and React dev server simultaneously with `npm run dev` |
 | `mongoose` | ^9.6.2 | MongoDB ODM — schemas, models, and queries |
-| `bcryptjs` | ^2.x | Password hashing for admin account (cost factor 12) |
+| `bcryptjs` | ^3.0.3 | Password hashing for admin account (cost factor 12) |
 | `jsonwebtoken` | ^9.x | Signs 8-hour JWT on admin login; verified by auth middleware on protected routes |
 | `resend` | ^6.12.3 | Transactional email service — used by `sendEmailController` |
 | `@google/generative-ai` | ^0.24.0 | Google Gemini SDK — direct embeddings (`gemini-embedding-2`) + chat (`gemini-2.5-flash`) |

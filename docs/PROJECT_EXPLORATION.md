@@ -48,7 +48,7 @@ Features a **Welcome landing page** (Guest vs Admin role selection), a public **
 | `dotenv` | `^16.3.1` | Environment variable loading |
 | `concurrently` | `^9.2.1` | Run server + client together in dev |
 | `mongoose` | `^9.6.2` | MongoDB ODM — schemas + queries |
-| `bcryptjs` | `^2.x` | Password hashing for admin account (cost 12) |
+| `bcryptjs` | `^3.0.3` | Password hashing for admin account (cost 12) |
 | `jsonwebtoken` | `^9.x` | JWT signing (8h tokens) + verification middleware |
 | `resend` | `^6.12.3` | Transactional email (sendEmailController) |
 | `@google/generative-ai` | `^0.24.0` | Gemini SDK — `gemini-embedding-2` embeddings + `gemini-2.5-flash` LLM |
@@ -60,13 +60,15 @@ Features a **Welcome landing page** (Guest vs Admin role selection), a public **
 | `react` | `^18.3.1` | UI library |
 | `react-dom` | `^18.3.1` | DOM renderer |
 | `react-scripts` | `5.0.1` | CRA build toolchain (webpack, babel) |
-| `react-router-dom` | `^6.x` | Client-side routing: /, /portfolio/*, /admin/login, /admin |
+| `react-router-dom` | `^7.15.1` | Client-side routing: /, /portfolio/*, /admin/login, /admin |
 | `framer-motion` | `^11.3.0` | Animations (replaces legacy react-reveal) |
 | `react-icons` | `^5.2.1` | Icon library (v5 — exports renamed) |
 | `react-scroll` | `^1.9.0` | Smooth scroll `<Link>` component |
 
 | `react-vertical-timeline-component` | `^3.6.0` | Education & Work timelines |
 | `typewriter-effect` | `^2.21.0` | Animated typewriter text |
+| `react-simple-maps` | `^3.0.0` | World choropleth map in the analytics dashboard (admin) |
+| `react-scroll-to-top` | `^3.0.0` | Scroll-to-top button on the public portfolio page |
 | `@emailjs/browser` | `^4.3.3` | Installed but unused — email now server-side via Resend |
 | `web-vitals` | `^4.2.0` | Core Web Vitals reporting |
 
@@ -211,7 +213,7 @@ All colors are CSS custom properties — switching theme class instantly re-rend
 ## 5. Frontend Deep-Dive
 
 ### App.js — Root Component
-- Uses `react-router-dom` v6 `<Routes>` / `<Route>` for client-side routing
+- Uses `react-router-dom` v7 `<Routes>` / `<Route>` for client-side routing
 - Routes: `/ → Welcome` | `/portfolio/* → Portfolio` | `/admin/login → AdminLogin` | `/admin → ProtectedRoute(AdminPortfolio)`
 - `Portfolio` component: reads theme from `ThemeContext`, renders `MobileNav` → `Layout` (sidebar) → `.main-content`. Floating `← Home` button (`.portfolio-home-btn`) navigates back to `/`.
 - `.main-content` contains: Hero section → About → Educations → Works → Skills → Certifications → Projects → Contact → Footer

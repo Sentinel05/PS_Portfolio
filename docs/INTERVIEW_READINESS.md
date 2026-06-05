@@ -10,6 +10,172 @@
 
 ---
 
+## Tech Stack — Choices and Reasoning
+
+### The Story of Why This Stack
+
+When designing this portfolio, the goal was clear: a production-grade project that demonstrates real full-stack engineering — not a static HTML page. Every technology choice was deliberate, solving a specific problem. Here is the reasoning behind each layer, told as the decisions were made.
+
+---
+
+### React 18 (Frontend UI Library)
+
+**Why React?**
+
+The portfolio needed to be a dynamic, interactive SPA — sections that animate into view, a theme that flips from dark to light, a chatbot widget that morphs from a floating figure into a panel, and an Admin CMS where clicking "Add" makes a form appear inline. All of this requires a component model with reactive state. Plain HTML/JS would turn into spaghetti immediately.
+
+React 18's concurrent rendering means heavy components (like the visitor map or the chart suite in the admin dashboard) don't block the rest of the UI from painting. The ecosystem is the largest in frontend — every library the project needs (framer-motion, react-scroll, react-icons, react-vertical-timeline-component) has a React integration.
+
+**CRA (`create-react-app`) with `react-scripts 5.0.1`** handles the entire build toolchain — webpack, Babel, the dev server, and HMR — behind a single dependency. For a portfolio project, the zero-config approach is exactly right: the focus should be on the application, not on configuring webpack loaders.
+
+**`react-router-dom` v7** provides client-side routing between four distinct views: the Welcome landing page (`/`), the public portfolio (`/portfolio/*`), the admin login (`/admin/login`), and the protected admin portal (`/admin`). This keeps the URL bar meaningful and enables browser back/forward navigation without a server roundtrip.
+
+---
+
+### framer-motion 11 (Animations)
+
+**Why framer-motion instead of CSS animations or react-reveal?**
+
+The previous iteration used `react-reveal`, which was abandoned and broke with React 18's concurrent rendering. framer-motion was chosen as its replacement because it is React-aware by design.
+
+`whileInView` with `viewport={{ once: true }}` means each section heading animates exactly once when it enters the viewport — without writing a single line of `IntersectionObserver` boilerplate. `whileHover` on project and skill cards provides instant tactile feedback. The chatbot figure-to-avatar morph is a spring-physics animation that feels natural rather than mechanical. No CSS keyframe hacks needed.
+
+---
+
+### react-scroll (Smooth Navigation)
+
+**Why react-scroll instead of React Router hash links?**
+
+This portfolio is a single document — all sections (About, Skills, Work, Education, Projects, Certifications, Contact) live on one scrollable page. react-scroll's `<Link>` component scrolls to a named section with easing and an offset that compensates for the fixed sidebar, which is exactly the UX required. React Router hash links would add URL churn and don't support scroll offset natively.
+
+---
+
+### CSS Custom Properties (Theming — Zero JavaScript)
+
+**Why vanilla CSS with custom properties — no Tailwind, no Sass?**
+
+CSS custom properties (variables) solve the dark/light theme problem elegantly. All design tokens — colors, spacing, sidebar dimensions, shadows — are declared once on `:root` in `index.css`. The `.light-mode` class overrides only the color variables. Toggling the theme is a single class add/remove on the root `div`. No JavaScript-driven `style` injection, no runtime CSS-in-JS overhead. The theme switch is instant and free.
+
+`ThemeContext.js` holds the current theme string and auto-initialises it based on time of day: 6am–6pm → light mode, 6pm–6am → dark mode. The user can override manually. This is all pure React state — no third-party theme library required.
+
+No Tailwind was used because utility-class frameworks couple presentation to markup. Component-level CSS files (e.g. `Layout.css`, `Projects.css`) keep styles co-located with their components, and the custom property system handles the design system layer.
+
+---
+
+### Node.js + Express (Backend Server)
+
+**Why Express over Next.js or a BFF approach?**
+
+Express was chosen because the backend has a specific, well-defined job: serve the production React build as static files, expose a REST API for all portfolio data, handle JWT auth, and run the RAG pipeline. There is no server-side rendering needed, no file-system routing needed, no edge functions needed. Express gives complete control with minimal magic.
+
+The backend runs on port 8080. In production, `express.static('client/build')` serves the React bundle, and a wildcard `app.get('*', ...)` returns `index.html` for any unmatched GET — the SPA fallback pattern that makes React Router navigation work on hard refresh.
+
+In development, Express runs independently and the CRA dev server (port 3000) proxies `/api` calls to it. This keeps HMR working while the API is live.
+
+---
+
+### MongoDB Atlas + Mongoose (Database & ODM)
+
+**Why MongoDB over PostgreSQL?**
+
+Portfolio content is document-shaped, not relational. A work entry is a self-contained document: `{ date, title, company, location, desc, order }`. An education entry is `{ date, title, school, location, grade, order }`. There are no JOINs, no foreign keys, no normalisation needed. A document database fits this data model naturally.
+
+Adding a new content type (e.g. certifications, a blog section) is a new Mongoose model and a new collection — no schema migration, no `ALTER TABLE`, no downtime.
+
+MongoDB Atlas M0 (free tier) is cloud-hosted: the same `MONGO_URI` works locally, on Render in production, and for anyone who clones the repo. A local MongoDB instance would break the moment you change networks.
+
+**Mongoose** provides schema enforcement (required fields, types, defaults) at the application layer, which MongoDB's schemaless nature does not guarantee on its own. It also provides a clean model API: `new Model(req.body).save()`, `Model.findByIdAndUpdate()`, `Model.findByIdAndDelete()` — these map directly to the three CRUD operations the Admin CMS performs.
+
+---
+
+### jsonwebtoken + bcryptjs (Authentication)
+
+**Why JWT over sessions?**
+
+JWT is stateless. The server does not need to maintain a session store. When the admin logs in, `adminController.js` runs `bcrypt.compare()` against the stored hash, then signs a token with `jsonwebtoken` (8-hour expiry, HS256). The token is returned to the client and stored in `localStorage` under `admin_token`. Every subsequent protected API call sends it as `Authorization: Bearer <token>`. The `auth.js` middleware verifies the signature on each request — no database lookup needed per request; the token is self-validating.
+
+**bcryptjs** with cost factor 12 hashes the admin password before it ever touches the database. The plain-text password lives only in `.env` (gitignored). On every server start, `server.js` runs a `findOneAndUpdate` upsert to sync the admin credentials from env vars — so the admin password is always what `.env` says it is, even after a Render redeploy.
+
+---
+
+### Resend (Transactional Email)
+
+**Why Resend over EmailJS?**
+
+The previous approach used EmailJS with credentials in the client-side bundle — meaning anyone who inspected the JavaScript source could extract the API key. Resend moves email sending entirely to the Express backend. The `RESEND_API_KEY` and recipient address live only in `.env` on the server. The client sends `{ name, email, message }` to `POST /api/v1/ps-portfolio/sendEmail` and never sees a credential. The visitor's email is set as `reply_to`, so replies go directly to them. A rate limiter (5 emails/hour/IP via `express-rate-limit`) prevents abuse.
+
+---
+
+### Google Gemini + Pinecone (RAG Chatbot)
+
+**Why RAG instead of a fine-tuned model or a static FAQ?**
+
+A static FAQ requires constant manual updates. A fine-tuned model requires labelled training data and expensive retraining every time the portfolio changes. RAG (Retrieval-Augmented Generation) solves both problems: portfolio content is embedded as vectors once, and the LLM generates answers grounded in those chunks at query time. Updating the chatbot's knowledge is a single re-ingest operation — no model retraining.
+
+**`gemini-embedding-2`** generates 768-dimensional semantic vectors from portfolio text chunks. These vectors capture meaning, not just keywords — "job" and "work experience" resolve to similar vectors even though they share no words.
+
+**Pinecone** is a serverless vector database optimised for similarity search. The `ps-portfolio` index (768 dimensions, cosine metric) holds 13 vectors — one per content chunk. At query time, Pinecone finds the top-8 closest vectors to the visitor's question in milliseconds.
+
+**`gemini-2.5-flash`** is the LLM that reads the retrieved chunks and produces a human-readable answer. It is fast, free-tier accessible via Google AI Studio, and handles the markdown formatting (bold, bullet lists) that the chatbot widget renders.
+
+Both Gemini models are accessed via the `@google/generative-ai` SDK directly — no LangChain abstraction. The RAG pipeline is implemented in `chatController.js` for full control and transparency.
+
+---
+
+### ip-api.com (Visitor Geolocation)
+
+When a guest visitor enters their name on the Welcome page, the backend resolves their IP address to a country and city via `ip-api.com` (free tier, no API key required, 45 req/min). The geolocation data is stored alongside the visit record in MongoDB. The admin dashboard uses this data to render a world choropleth map (via `react-simple-maps`) showing visit intensity per country, and to populate the per-country visitor log.
+
+---
+
+### concurrently (Development Tooling)
+
+`concurrently` runs the Express server and the CRA dev server in parallel in a single terminal with colour-coded, prefixed output. `npm run dev` at the root is all that is needed to start both processes. The CRA dev server's `proxy` field in `client/package.json` forwards all `/api` calls to Express on port 8080, so there are no CORS issues in development.
+
+---
+
+## Full Stack Map
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                       React 18 Frontend                         │
+│  Routes: / (Welcome) | /portfolio/* (SPA) | /admin/login        │
+│          /admin (protected CMS + Analytics Dashboard)           │
+│                                                                 │
+│  ThemeContext — auto dark/light (time-based) + manual toggle    │
+│  AuthContext  — JWT stored in localStorage, login/logout        │
+│  Chatbot.js   — floating figure widget (bottom-right, global)   │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │ HTTP / REST (fetch + JSON)
+┌──────────────────────────▼──────────────────────────────────────┐
+│                     Express Backend (:8080)                      │
+│  /api/v1/ps-portfolio/                                          │
+│  Public GET  → educations, works, projects, skills, certs, about│
+│  POST /sendEmail     → Resend transactional email               │
+│  POST /chat          → RAG pipeline (rate-limited: 10/min/IP)   │
+│  POST /visits        → log guest visit (geolocation via ip-api) │
+│  GET  /visits        → admin only (auth middleware)             │
+│  POST/PUT/DELETE …   → crudController (auth middleware)         │
+│  /api/v1/ps-portfolio/admin/                                    │
+│  POST /login         → bcrypt compare + JWT sign (8h)           │
+│  POST /ingest        → runIngestPipeline (JWT-protected)        │
+└────────────┬─────────────────────────┬──────────────────────────┘
+             │                         │
+┌────────────▼──────────┐   ┌──────────▼──────────────────────────┐
+│   MongoDB Atlas M0    │   │         RAG Pipeline                │
+│  Collections:         │   │  Embed: gemini-embedding-2 (768-dim) │
+│  educations           │   │  Search: Pinecone (cosine, topK 8)  │
+│  works                │   │  Filter: score ≥ 0.45               │
+│  projects             │   │  Answer: gemini-2.5-flash            │
+│  skills               │   │  History: last 6 turns              │
+│  certifications       │   └─────────────────────────────────────┘
+│  admin                │
+│  visits               │
+└───────────────────────┘
+```
+
+---
+
 ## Core Q&A
 
 ### Architecture & Design
@@ -31,7 +197,7 @@ A: This portfolio is a single page — all sections live on one HTML page and us
 ### Frontend
 
 **Q: Walk me through the component tree.**  
-A: `index.js` wraps everything in `BrowserRouter → ThemeProvider → AuthProvider`. `App.js` uses React Router v6 `<Routes>` to map: `/` → `Welcome` (role selection landing), `/portfolio/*` → `Portfolio` (the SPA), `/admin/login` → `AdminLogin`, `/admin` → `ProtectedRoute(AdminPortfolio)`. The `Portfolio` component renders `MobileNav` (mobile only), `Layout` (fixed sidebar with `Home` profile panel + `Menus` nav), and `.main-content` with all the portfolio sections. A floating `← Home` button lets guests return to the Welcome page without reloading.
+A: `index.js` wraps everything in `BrowserRouter → ThemeProvider → AuthProvider`. `App.js` uses React Router v7 `<Routes>` to map: `/` → `Welcome` (role selection landing), `/portfolio/*` → `Portfolio` (the SPA), `/admin/login` → `AdminLogin`, `/admin` → `ProtectedRoute(AdminPortfolio)`. The `Portfolio` component renders `MobileNav` (mobile only), `Layout` (fixed sidebar with `Home` profile panel + `Menus` nav), and `.main-content` with all the portfolio sections. A floating `← Home` button lets guests return to the Welcome page without reloading.
 
 **Q: How does the dark/light theme work?**  
 A: I use a React Context (`ThemeContext`) that stores a `"dark"` or `"light"` string. The theme **auto-initialises** based on the time of day: if it's 6 am to 6 pm, the initial theme is light; outside those hours it's dark. The user can still toggle manually via the sun/moon icon in the sidebar. `App.js` conditionally adds the `light-mode` class to the root div. All colors are defined as CSS custom properties on `:root` (dark defaults). The `.light-mode` class overrides those variables — including switching the sidebar to a white background with purple accents. Switching theme is instant: no JavaScript DOM manipulation beyond toggling a class.
@@ -104,7 +270,170 @@ A: It uses a RAG (Retrieval-Augmented Generation) pattern. At setup time, `npm r
 A: The core CMS is in place. The chatbot already has multi-turn history (last 6 turns), score filtering, and markdown rendering. Next steps: a CI/CD pipeline (GitHub Actions → Render) for zero-touch deploys, and TypeScript migration on the frontend for type safety. At scale, the MongoDB Atlas free tier would need upgrading, and I’d add Redis caching on the API layer. The ingestion pipeline already supports server-triggered re-embedding (Re-Ingest button in the admin portal), so a webhook-based trigger on CMS edits would be the natural next step.
 
 **Q: Why not keep the data hardcoded?**
-A: Hardcoded data couples content to code — every update requires a code change, a build, and a redeploy. With MongoDB-backed APIs, content changes are a database write. This is the foundation for the planned admin CMS where I can update the portfolio from a UI without touching source code.
+A: Hardcoded data couples content to code — every update requires a code change, a build, and a redeploy. With MongoDB-backed APIs, content changes are a database write. The Admin CMS is the direct result of this design: portfolio content is edited from a UI without touching source code.
+
+---
+
+## End-to-End Story: Adding and Updating a Job Entry
+
+> This section walks through exactly what happens — at the API, database, and chatbot level — when a new work history entry is added via the Admin CMS and an existing one is updated.
+
+---
+
+### Act 1 — The Admin Logs In
+
+The admin navigates to `/admin/login` and submits their credentials. The React `AdminLogin` component sends:
+
+```
+POST /api/v1/ps-portfolio/admin/login
+Body: { username: "admin", password: "secret" }
+```
+
+`adminController.js` runs `bcrypt.compare(password, admin.passwordHash)`. If it matches, `jsonwebtoken.sign()` produces an 8-hour HS256 token. The token is returned in the response body. `AuthContext.login()` stores it in `localStorage` as `admin_token`. Every subsequent API call from the Admin Portal includes this token as:
+
+```
+Authorization: Bearer <token>
+```
+
+The `auth.js` middleware on the Express server verifies the signature and attaches `req.admin` before any protected handler runs. If the token is missing, expired, or tampered with, the middleware returns `401 Unauthorized` and the request never reaches the controller.
+
+---
+
+### Act 2 — Adding a New Job Entry
+
+The admin is now on the Admin Portal at `/admin`. They scroll to the **Work Experience** section and click **+ Add**. An inline form appears — fields for `date`, `title`, `company`, `location`, `desc`, and `order`. They fill it in and hit **Save**.
+
+`AdminPortfolio.js` fires:
+
+```
+POST /api/v1/ps-portfolio/works
+Authorization: Bearer <token>
+Body: {
+  "date": "Jan 2025 – Present",
+  "title": "Senior Software Engineer",
+  "company": "Acme Corp",
+  "location": "Bengaluru, India",
+  "desc": "Leading backend architecture for the data platform.",
+  "order": 4
+}
+```
+
+The `auth.js` middleware verifies the JWT. `crudController.createItem('works')` runs:
+
+```js
+const item = new Work(req.body);
+await item.save();
+return res.status(201).json({ success: true, data: item });
+```
+
+Mongoose validates that `date`, `title`, `company`, `location`, and `desc` are all present (they are `required: true` in the Work schema). If validation passes, MongoDB Atlas writes the new document to the `works` collection and assigns it a unique `_id`. The Express server returns:
+
+```json
+{ "success": true, "data": { "_id": "...", "title": "Senior Software Engineer", ... } }
+```
+
+The React component receives this response and immediately updates local state, so the admin sees the new entry appear in the UI without a page reload.
+
+---
+
+### Act 3 — Updating an Existing Job Entry
+
+The admin spots the entry for "ASE at OpenText" and wants to update the description. They click the pencil icon on that card. The form pre-fills with the existing values. They edit the `desc` field and click **Save**.
+
+`AdminPortfolio.js` fires:
+
+```
+PUT /api/v1/ps-portfolio/works/:id
+Authorization: Bearer <token>
+Body: {
+  "desc": "Developed and enhanced integrational features for Data Protector, focusing on SAP HANA and VMware backup integrations."
+}
+```
+
+`crudController.updateItem('works')` runs:
+
+```js
+const item = await Work.findByIdAndUpdate(
+  req.params.id,
+  req.body,
+  { new: true, runValidators: true }
+);
+```
+
+`findByIdAndUpdate` with `{ new: true }` returns the updated document — not the pre-update one. `runValidators: true` ensures the Mongoose schema validators still run on a partial update. MongoDB Atlas updates the matching document in-place. The server returns `200 OK` with the updated document. The React component updates its local state so the card immediately shows the new description.
+
+---
+
+### Act 4 — The Chatbot Does Not Know Yet
+
+At this point, MongoDB has both changes — the new job and the updated description. But Pinecone still holds the 13 vectors from the last ingestion. If a visitor asks the chatbot **"What is Priyanshu's current job?"**, here is what happens:
+
+1. `Chatbot.js` sends `POST /api/v1/ps-portfolio/chat` with the visitor's message and the current conversation history.
+2. `chatController.js` embeds the question using `gemini-embedding-2` → a 768-dimensional vector.
+3. Pinecone finds the top-8 most semantically similar vectors. The `work` chunks are among the top results (high cosine similarity for a question about employment).
+4. The controller filters out any match below score 0.45 and joins the remaining `metadata.text` fields into a context string.
+5. **The context still contains the old work data** — the new "Senior Software Engineer" entry is not in Pinecone yet, and the old ASE description is still the embedded text.
+6. `gemini-2.5-flash` reads that context and answers based on it — accurately reflecting the state of the portfolio at the last ingestion, not the current MongoDB state.
+
+This is expected behaviour. Pinecone is a snapshot of the content at ingestion time. Until re-ingestion runs, the chatbot's knowledge lags behind MongoDB.
+
+---
+
+### Act 5 — Re-Ingesting to Sync the Chatbot
+
+The admin clicks the **Re-Ingest** button in the Admin Portal topbar. The button shows a spinning icon. Under the hood, `AdminPortfolio.js` fires:
+
+```
+POST /api/v1/ps-portfolio/admin/ingest
+Authorization: Bearer <token>
+```
+
+`adminRoutes.js` routes this to `adminController.ingestController`, which calls `runIngestPipeline()` from `scripts/ingest.js`. Because this runs inside the already-connected Express process, `mongoose` is already live — there is no `connect()`/`disconnect()` needed inside the pipeline function.
+
+The pipeline:
+
+1. Fetches all documents from MongoDB — `Work.find().sort({ order: 1 })`, and equivalently for Education, Project, Skill, and Certification.
+2. `buildChunks()` constructs plain-text descriptions for each document. For the new job, it produces:
+   `"Work Experience: Senior Software Engineer at Acme Corp, Bengaluru, India (Jan 2025 – Present). Leading backend architecture for the data platform."`
+   For the updated ASE entry, it produces the new description text.
+3. Each chunk is embedded via `embeddingModel.embedContent()` with `outputDimensionality: 768` — a fresh 768-dimensional vector that encodes the updated meaning.
+4. All vectors are upserted into Pinecone namespace `"portfolio"` in batches of 5. Upsert is idempotent — vectors with the same `id` are overwritten (the updated ASE entry), and genuinely new ones (the new job) are inserted.
+5. The pipeline completes. The server returns `200 OK`. The Re-Ingest button turns green momentarily before auto-resetting after 4 seconds.
+
+Pinecone now holds 14 vectors — 13 original plus 1 for the added job. The updated ASE description has replaced its old vector in-place.
+
+---
+
+### Act 6 — The Chatbot Knows
+
+A visitor now asks **"What is Priyanshu's current job?"**:
+
+1. `chatController.js` embeds the question → 768-dimensional vector.
+2. Pinecone similarity search → top-8 matches. The new "Senior Software Engineer at Acme Corp" vector scores highly. The updated ASE description vector also scores highly.
+3. Score filtering (≥ 0.45) keeps the relevant chunks and discards any low-confidence ones.
+4. The retrieved context now reads: `"Work Experience: Senior Software Engineer at Acme Corp, Bengaluru, India (Jan 2025 – Present). Leading backend architecture for the data platform."` — alongside the other work history chunks.
+5. `gemini-2.5-flash` receives this context and the system prompt instructing it to answer only from the provided information, never fabricating details.
+6. The LLM produces: *"Priyanshu is currently a **Senior Software Engineer at Acme Corp** in Bengaluru, India (Jan 2025 – Present), where he leads backend architecture for the data platform."*
+7. The chatbot widget renders this response with markdown bold formatting in the chat panel.
+
+The visitor now has an accurate, context-grounded answer — sourced from the freshly updated Pinecone index, powered by the newly ingested MongoDB content, generated by `gemini-2.5-flash`, and displayed by `Chatbot.js` with markdown rendering.
+
+---
+
+### The Full Request Chain, Summarised
+
+```
+Admin adds job       →  POST /works  (JWT-auth)  →  Work.save()           →  MongoDB Atlas
+Admin updates job    →  PUT /works/:id (JWT-auth) →  findByIdAndUpdate()   →  MongoDB Atlas
+Admin clicks ingest  →  POST /admin/ingest (JWT-auth) → runIngestPipeline()
+                        → MongoDB.find() → Gemini embed → Pinecone upsert
+
+Visitor asks chatbot →  POST /chat (rate-limited: 10/min/IP)
+                        → Gemini embed question (gemini-embedding-2)
+                        → Pinecone topK 8, score ≥ 0.45
+                        → gemini-2.5-flash reads context + system prompt
+                        → Answer rendered in Chatbot.js with markdown
+```
 
 ---
 
@@ -151,6 +480,13 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it�
 | Admin dashboard charts | 4 SVG charts: daily (14d), monthly (6mo), peak hours (0–23h), day-of-week |
 | Visitor table pagination | 10 rows/page, filter by name, sort by name or date |
 | Pinecone vectors | 13 (1 bio + 3 edu + 3 work + 3 project + 1 skills + 1 certs + 1 contact) |
+| Chat rate limit | 10 messages per minute per IP |
+| Email rate limit | 5 emails per hour per IP |
+| JWT expiry | 8 hours (HS256) |
+| bcrypt cost factor | 12 |
+| Pinecone score threshold | 0.45 (cosine similarity) |
+| Chatbot history depth | Last 6 turns (12 messages) |
+| Embedding dimensions | 768 (gemini-embedding-2) |
 
 ---
 
@@ -183,3 +519,9 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it�
 - **Seed script** for initial DB population
 - **CRA proxy** for dev-mode API forwarding
 - **Resend** transactional email API (server-side, no client credentials exposed)
+- **Rate limiting** — `express-rate-limit` on `/chat` (10/min/IP) and `/sendEmail` (5/hr/IP)
+- **Singleton pattern** — Pinecone and Gemini clients initialised once and reused across requests
+- **Upsert** — Pinecone re-ingestion is idempotent; existing vectors overwrite, new ones insert
+- **Score filtering** — cosine similarity threshold (≥ 0.45) filters low-confidence Pinecone matches before they reach the LLM
+- **`runIngestPipeline()`** — exported function safe to call from a running Express server (no `mongoose.connect`/`disconnect` inside)
+- **`buildChunks()`** — deterministic plain-text serialisation of every MongoDB document into embeddable strings
