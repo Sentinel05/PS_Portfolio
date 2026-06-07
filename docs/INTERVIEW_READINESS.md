@@ -445,6 +445,42 @@ The `findOneAndUpdate({}, ...)` upsert in `server.js` uses an empty filter, mean
 
 ---
 
+## OOP Concepts & Design Patterns
+
+**Q: Does this project use any design patterns?**
+
+Yes — four show up clearly in the backend.
+
+**Singleton** — `chatController.js` initialises the Pinecone and Gemini clients once on first use and reuses them for every request. A guard (`if (pineconeIndex && embeddingModel && chatModel) return`) stops them being created again. React's `AuthContext` and `ThemeContext` act as app-wide singletons through React's context system.
+
+**Factory** — `crudController.js` defines `createItem(col)`, `updateItem(col)`, and `deleteItem(col)` — functions that take a collection name and return a ready-made route handler. A `modelMap` object maps each collection name to its Mongoose model. To support a new collection, add one line to `modelMap`. The factory functions themselves never change.
+
+**Facade** — `server.js` hides all middleware setup, route mounting, and the database connection behind a single Express app. `chatController.js` hides a five-step pipeline (embed → vector search → filter → build prompt → LLM call) behind a single `POST /chat` endpoint. Callers don't need to know about any of those steps.
+
+**Gateway (unified API)** — `portfolioRoutes.js` exposes all portfolio collections under one base path (`/api/v1/ps-portfolio/`) with consistent route structure, rate limiting, and auth applied uniformly — acting as an API gateway over the underlying controllers.
+
+**MVC** — clear separation: `models/` define MongoDB schemas (data), `controllers/` contain business logic, `routes/` connect URLs to controllers, and `client/src/pages/` are the React views.
+
+---
+
+**Q: Does this project follow SOLID principles?**
+
+| Principle | Status | Where |
+|---|---|---|
+| **Single Responsibility** | Mostly | `models/`, `middleware/auth.js` each do one thing; `portfolioController.js` handles email + 6 data types (minor violation) |
+| **Open/Closed** | Good | `crudController.js` — extend by adding to `modelMap`, existing code unchanged |
+| **Liskov Substitution** | Good | All Mongoose models share the same interface and are interchangeable in `crudController` |
+| **Interface Segregation** | Good | `useAuth()` and `useTheme()` hooks expose only what the caller needs |
+| **Dependency Inversion** | Weak | Controllers directly `require()` concrete models and SDKs — no dependency injection |
+
+---
+
+**Q: What is the strongest pattern in the codebase?**
+
+The **Factory in `crudController.js`**. It's a clean example of Open/Closed: the CRUD logic is written once and never modified — adding a new collection is a one-line change to `modelMap`. No copy-pasted controller code across collections.
+
+---
+
 ## Core Q&A
 
 ### Architecture & Design
@@ -790,6 +826,11 @@ A: The sidebar is fixed and always visible on desktop (≥768px). On mobile, it�
 - **Resend** transactional email API (server-side, no client credentials exposed)
 - **Rate limiting** — `express-rate-limit` on `/chat` (10/min/IP) and `/sendEmail` (5/hr/IP)
 - **Singleton pattern** — Pinecone and Gemini clients initialised once and reused across requests
+- **Factory pattern** — `crudController.js` generates route handlers from a collection name; one `modelMap` entry adds a full CRUD API
+- **Facade pattern** — `server.js` and `chatController.js` hide complex multi-step logic behind a simple interface
+- **Gateway pattern** — `portfolioRoutes.js` is a unified API gateway with consistent auth, rate limiting, and CRUD structure
+- **MVC** — `models/` (schema), `controllers/` (logic), `routes/` (URL mapping), `client/src/pages/` (views)
+- **SOLID** — Open/Closed in `crudController`; LSP via interchangeable Mongoose models; ISP via `useAuth()`/`useTheme()` hooks
 - **Upsert** — Pinecone re-ingestion is idempotent; existing vectors overwrite, new ones insert
 - **Score filtering** — cosine similarity threshold (≥ 0.45) filters low-confidence Pinecone matches before they reach the LLM
 - **`runIngestPipeline()`** — exported function safe to call from a running Express server (no `mongoose.connect`/`disconnect` inside)
