@@ -445,6 +445,249 @@ The `findOneAndUpdate({}, ...)` upsert in `server.js` uses an empty filter, mean
 
 ---
 
+## Frontend Components — The Simple Story
+
+Think of the frontend as a **theatre production**. There's a stage manager, a lighting crew, a gatekeeper, and a cast of pages. Here is every player and what they do.
+
+---
+
+**`index.js` — The Stage Manager**
+
+This is the very first file that runs in the browser. It takes the whole app, wraps it in three layers of context (routing, theme, auth), and mounts it onto the one `<div id="root">` in the HTML. It doesn't render anything visible itself — it just makes sure all the infrastructure is in place before the curtain goes up.
+
+---
+
+**`ThemeContext.js` — The Lighting Crew**
+
+This file decides whether the stage is lit in dark or light mode. When the app loads, it checks the clock — 6am to 6pm gets light mode, anything outside that gets dark. It stores this choice in React state and shares it with the entire app. Any component that wants to know the current theme calls `useTheme()` and gets it instantly. The user can manually flip the switch via the sun/moon toggle in the sidebar, and the whole app re-renders with the new colour scheme immediately.
+
+---
+
+**`AuthContext.js` — The Keycard System**
+
+This file holds the admin's login token. When the admin logs in and gets a JWT back from the server, `login()` saves it to `localStorage` and puts it in state. When they log out, `logout()` clears both. Any component across the entire app can call `useAuth()` to find out: "is there a valid token right now?" — without passing props down through every layer.
+
+---
+
+**`App.js` — The Stage Director**
+
+This file maps URLs to scenes. `/` shows the Welcome page. `/portfolio/*` shows the full portfolio SPA. `/admin/login` shows the login form. `/admin` shows the Admin Portal — but only if you have a valid token. It also holds the hero banner (the animated greeting with the typewriter effect), and wraps everything in the correct theme class so dark/light mode applies globally.
+
+---
+
+**`ProtectedRoute.js` — The Bouncer at the VIP Door**
+
+One job, five lines of code. If there's a valid JWT token in `AuthContext`, it lets the component through. If not, it silently redirects to `/` — the visitor never even sees the admin portal URL resolve. It's the client-side equivalent of the server's `auth.js` middleware.
+
+---
+
+**`pages/welcome/Welcome.js` — The Reception Desk**
+
+The first thing any visitor sees. It asks: "Are you a guest or an admin?" If they pick guest, they type their name, the app posts it to `POST /visits` (which logs the visit and resolves their location server-side), and then navigates them to the portfolio. If they pick admin, they're sent to the login page. The name is saved in `sessionStorage` so the portfolio can greet them.
+
+---
+
+**`components/layout/Layout.js` — The Sidebar**
+
+This is the fixed left panel that stays on screen while the visitor scrolls through the portfolio. It holds a collapse toggle button — clicking it switches between 240px (expanded, shows text labels) and 72px (collapsed, icons only). It renders two children: `Home.js` (the profile card at the top) and `Menus.js` (the navigation links below). Both receive the `expanded` boolean as a prop so they know whether to show or hide their text.
+
+---
+
+**`components/menus/Menus.js` — The Navigation Links**
+
+The clickable section links inside the sidebar: About, Skills, Work, Education, Projects, Certifications, Contact. Each one uses `react-scroll`'s `<Link>` to smoothly scroll to the matching section on the page, with an offset to account for the fixed sidebar. When the sidebar is collapsed, only icons show. When expanded, labels appear beside them.
+
+---
+
+**`components/mobileNav/MobileNav.js` — The Mobile Hamburger Menu**
+
+On small screens, the sidebar disappears and this component takes over. It renders a hamburger icon that opens a full-screen overlay with the same navigation links. Completely hidden on desktop via a CSS media query at 768px.
+
+---
+
+**`components/chatbot/Chatbot.js` — The Floating AI Assistant**
+
+Always visible in the bottom-right corner of the portfolio. In idle state it shows a full animated figure with a speech bubble. Click it, and it morphs into a small avatar with a chat panel. The visitor types a question, it posts to `POST /chat`, and displays the response with markdown formatting (bold, bullet lists, inline code). Keeps the last 6 turns of conversation and sends them with every request so the AI has memory of the chat. On mobile, the panel is `position: fixed` to the viewport so it never bleeds off-screen.
+
+---
+
+**`pages/admin/AdminPortfolio.js` — The Admin Control Room**
+
+The full CMS. It fetches all collections from MongoDB on load and renders each one as a card list with Add / Edit / Delete buttons. Clicking Add shows an inline form. Clicking Edit pre-fills it. Saving fires a `POST` or `PUT` to the backend, the response comes back, and local state updates immediately — no page reload needed. Also contains the topbar with the Re-Ingest button (triggers the Pinecone re-embedding pipeline) and the analytics dashboard (SVG charts + visitor map + paginated visit log).
+
+---
+
+**`pages/*/` — The Portfolio Sections (About, Skills, Works, etc.)**
+
+Each public page is a React component that calls `useEffect` + `fetch` to load its data from the backend on mount. The data comes back from MongoDB and gets rendered as cards, timelines, or lists. They never hardcode content — everything is dynamic from the API. Skills groups icons into 6 categories. Projects shows cards with tech tags. Works and Educations use a vertical timeline layout. Certifications sorts newest-first on the client after fetching.
+
+---
+
+**`index.css` — The Costume & Set Design**
+
+All design tokens live here: colours, spacing, sidebar widths, shadows, gradients — all as CSS custom properties on `:root`. The dark theme is the default. The `.light-mode` class overrides only the colour variables. Every component's CSS file references these tokens with `var(--colour-name)` instead of hardcoding values. This means the entire visual theme can be changed in one place.
+
+---
+
+**How a typical page visit flows through all of these:**
+
+```
+Visitor opens the site
+  → index.js mounts the app, wraps in ThemeProvider + AuthProvider
+  → ThemeContext checks the clock → sets dark or light mode
+  → App.js sees URL is "/" → renders Welcome.js
+  → Visitor types name → POST /visits → navigates to /portfolio
+  → App.js renders Portfolio component
+  → Layout.js renders sidebar (expanded by default)
+  → Each section (About, Skills, Works…) fetches its data from the API
+  → Chatbot.js floats in the corner, waiting
+```
+
+---
+
+## Backend Components — The Simple Story
+
+Think of the backend as a **restaurant kitchen**. Here is every person working in it and what they do.
+
+---
+
+**`server.js` — The Front Door**
+
+This is the first thing that runs. It opens the restaurant, sets the rules (CORS, JSON parsing), connects to the database, and tells each customer which counter to go to. If someone asks for `/api/v1/ps-portfolio/...`, it points them to the right route file. If someone just loads the website, it hands them the React bundle. Everything starts here.
+
+---
+
+**`config/db.js` — The Pipeline to the Warehouse**
+
+This file opens one connection to MongoDB Atlas and keeps it open. That's it. If the warehouse (Atlas) is unreachable when the restaurant opens, it shuts the whole place down immediately (`process.exit(1)`).
+
+---
+
+**`middleware/auth.js` — The Bouncer**
+
+Every time someone tries to do something admin-only (edit content, delete an entry, trigger ingest), the request walks past this bouncer first. The bouncer checks the JWT token in the `Authorization` header — if it's valid and not expired, the request gets through. If not, the bouncer says "401 Unauthorized" and the request never reaches the kitchen.
+
+---
+
+**`models/*.js` — The Order Forms**
+
+Each model (`Work.js`, `Education.js`, `Project.js`, etc.) is a blank form with printed fields. `Work.js` says "you must fill in: date, title, company, location, desc. Order is optional." Mongoose uses these forms to validate every piece of data before it goes into MongoDB. If a required field is missing, the form gets rejected before anything is written.
+
+---
+
+**`routes/portfolioRoutes.js` — The Public Menu Board**
+
+This file lists every URL the public and the admin can call, and maps each one to its handler. Public visitors can read (`GET`) portfolio data. The admin, after passing the bouncer, can create/update/delete. It also adds rate limiters on the chat and email counters so nobody spams.
+
+---
+
+**`routes/adminRoutes.js` — The Staff-Only Door**
+
+Two routes only: `POST /login` (for the admin to get their token) and `POST /ingest` (to re-embed all portfolio content into Pinecone). Both require the bouncer except login itself.
+
+---
+
+**`controllers/portfolioController.js` — The Public Counter Staff**
+
+Handles all public reads: fetch works, educations, projects, skills, certifications, about. Also handles the contact form — it takes the visitor's message and forwards it as an email via Resend. No authentication needed for reads; the admin must be authenticated to update the About section.
+
+---
+
+**`controllers/crudController.js` — The Smart Factory Worker**
+
+This is the most clever part of the backend. Instead of writing separate create/update/delete logic for every collection, this one worker can handle all of them. You tell it the collection name (`"works"`, `"projects"`, etc.), it looks up the right Mongoose model from a table (`modelMap`), and performs the operation. Adding a new collection to the CMS means one line in `modelMap` — nothing else changes.
+
+---
+
+**`controllers/adminController.js` — The Manager's Office**
+
+Handles the admin login: receives username + password, compares the password against the bcrypt hash in MongoDB, and if it matches, signs and returns an 8-hour JWT. Also holds the `ingestController` that triggers the RAG pipeline.
+
+---
+
+**`controllers/chatController.js` — The AI Librarian**
+
+When a visitor asks the chatbot a question, this controller runs a five-step process: (1) turn the question into a vector using Gemini, (2) search Pinecone for the most similar portfolio chunks, (3) throw away low-confidence matches (score < 0.45), (4) build a system prompt with the retrieved context, (5) send it to `gemini-2.5-flash` and return the answer. The Pinecone and Gemini clients are created once on the first request and reused forever — this is the Singleton pattern at work.
+
+---
+
+**`scripts/ingest.js` — The Librarian's Filing Clerk**
+
+Before the chatbot can answer anything, someone has to read all the portfolio content, convert it into vector numbers, and file them in Pinecone. That's this script. It fetches every MongoDB collection, turns each document into a plain-text sentence (`buildChunks()`), sends each sentence to Gemini for embedding, and upserts the resulting vectors into Pinecone. Re-running it is safe — it overwrites existing vectors and adds new ones (idempotent upsert).
+
+---
+
+**How a typical request flows through all of these:**
+
+```
+Visitor loads page
+  → server.js serves client/build/index.html
+
+Admin saves a new job entry
+  → portfolioRoutes.js receives POST /works
+  → auth.js bouncer checks JWT ✓
+  → crudController.createItem("works") runs
+  → Work model validates the fields
+  → MongoDB Atlas writes the document
+  → 201 response back to the React UI
+```
+
+---
+
+## ACID, Transactions & Query Optimization
+
+**Q: Does this project follow ACID properties?**
+
+ACID is a set of four guarantees databases make about data safety. Here's how each one plays out in this project.
+
+**Atomicity** — "Either the whole thing happens, or nothing does."
+
+Every write in this project touches exactly one document at a time: `item.save()`, `findByIdAndUpdate()`, `findByIdAndDelete()`. MongoDB guarantees that a single-document operation is always atomic — it can't half-write a document. So atomicity is satisfied for all CRUD operations here, by default, without any extra code.
+
+**Consistency** — "Data is always valid before and after a write."
+
+Mongoose schema validation is the consistency enforcer here. Every document must pass the field requirements defined in the model (required fields, correct types) before MongoDB accepts it. If the `Work` schema says `title` is required and you don't send one, the write is rejected and nothing changes. The database stays valid.
+
+**Isolation** — "Two simultaneous writes don't interfere with each other."
+
+Since every operation here touches a single document and MongoDB handles document-level locking internally, isolation is not a concern in practice. Two admins editing two different work entries at the same time would never corrupt each other's data.
+
+**Durability** — "Once saved, data survives a crash."
+
+MongoDB Atlas runs as a replica set (multiple copies of the data). By default, Atlas acknowledges a write only after the primary node confirms it. So yes — once the API returns `201 Created`, the data is durably stored.
+
+**The honest caveat:** This project does NOT use explicit multi-document transactions (no `session.startTransaction()`). But it doesn't need to — no operation here writes to more than one document at a time, so single-document atomicity covers everything.
+
+---
+
+**Q: Does this project use query optimization?**
+
+Honestly — not yet, and it's called out as a known risk (#8 in the Known Risks section).
+
+Every public GET endpoint sorts by the `order` field (`.sort({ order: 1 })`), but none of the Mongoose schemas define an index on `order`. That means MongoDB does a **full collection scan** (reads every document, then sorts) for every request. For 3–10 documents this is invisible. For thousands of entries it would become slow.
+
+**The fix is one line per schema:**
+```js
+order: { type: Number, default: 0, index: true }
+```
+Mongoose creates the index on the next server start. After that, the sort query becomes O(log n) instead of O(n) — MongoDB jumps straight to the right documents.
+
+No aggregation pipelines, no compound indexes, no query explain analysis has been done. This is an acknowledged gap, not an oversight — at the current data size, it has zero real-world impact.
+
+---
+
+**Q: Does this project use database transactions?**
+
+No. There is no `session.startTransaction()` anywhere in the codebase.
+
+It doesn't need them. A transaction is useful when you need to write to multiple documents or multiple collections together, and you need the guarantee that either all writes succeed or none do. For example: "deduct money from account A AND add it to account B — both must happen or neither should."
+
+In this project, every write is a single document. Adding a work entry = one `Work.save()`. Updating a project = one `Project.findByIdAndUpdate()`. There is no scenario where two documents need to be written together. So transactions add complexity for zero benefit here.
+
+If the project ever needed transactions — say, deleting a work entry AND removing its Pinecone vector in the same atomic operation — that would be the right time to add them.
+
+---
+
 ## OOP Concepts & Design Patterns
 
 **Q: Does this project use any design patterns?**
